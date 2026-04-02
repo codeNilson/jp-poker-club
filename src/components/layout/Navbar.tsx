@@ -39,7 +39,7 @@ export function Navbar() {
         >
           <Link
             href="/"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/")
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
@@ -49,7 +49,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/noticias"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/noticias")
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
@@ -59,7 +59,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/eventos"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/eventos")
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
@@ -69,7 +69,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/promocoes"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/promocoes")
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
@@ -95,7 +95,7 @@ export function Navbar() {
               <DropdownMenuItem asChild>
                 <Link
                   href="/noticias"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/noticias")
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
                     }`}
@@ -107,7 +107,7 @@ export function Navbar() {
               <DropdownMenuItem asChild>
                 <Link
                   href="/eventos"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/eventos")
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
                     }`}
@@ -119,7 +119,7 @@ export function Navbar() {
               <DropdownMenuItem asChild>
                 <Link
                   href="/promocoes"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/promocoes")
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-muted"
                     }`}
