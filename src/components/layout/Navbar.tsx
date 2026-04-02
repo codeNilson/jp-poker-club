@@ -1,7 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { ClubIcon, LogOutIcon } from "lucide-react"
+import {
+  CalendarDaysIcon,
+  ClubIcon,
+  LogOutIcon,
+  MenuIcon,
+  NewspaperIcon,
+  TicketPercentIcon,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -28,25 +35,61 @@ export function Navbar() {
         >
           <Link
             href="/noticias"
-            className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
           >
-            Notícias
+            <NewspaperIcon className="size-4" aria-hidden="true" />
+            Noticias
           </Link>
           <Link
             href="/eventos"
-            className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
           >
+            <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
           </Link>
           <Link
-            href="/sobre"
-            className="rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            href="/promocoes"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
           >
-            Sobre
+            <TicketPercentIcon className="size-4" aria-hidden="true" />
+            Promocoes
           </Link>
         </nav>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Abrir menu de navegacao"
+              >
+                <MenuIcon className="size-5" aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="md:hidden">
+              <DropdownMenuItem asChild>
+                <Link href="/noticias" className="inline-flex w-full items-center gap-2">
+                  <NewspaperIcon className="size-4" aria-hidden="true" />
+                  Noticias
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/eventos" className="inline-flex w-full items-center gap-2">
+                  <CalendarDaysIcon className="size-4" aria-hidden="true" />
+                  Eventos
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/promocoes" className="inline-flex w-full items-center gap-2">
+                  <TicketPercentIcon className="size-4" aria-hidden="true" />
+                  Promocoes
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {!isLoggedIn ? (
             <Button>Login</Button>
           ) : (
