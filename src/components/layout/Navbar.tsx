@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   CalendarDaysIcon,
@@ -19,7 +20,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function Navbar() {
+  const pathname = usePathname()
   const isLoggedIn = false
+
+  const isActive = (href: string) => pathname === href
 
   return (
     <header className="border-b bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
@@ -34,22 +38,41 @@ export function Navbar() {
           className="hidden items-center rounded-full bg-muted p-1 md:flex"
         >
           <Link
+            href="/"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <NewspaperIcon className="size-4" aria-hidden="true" />
+            Início
+          </Link>
+          <Link
             href="/noticias"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/noticias")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
           >
             <NewspaperIcon className="size-4" aria-hidden="true" />
             Noticias
           </Link>
           <Link
             href="/eventos"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/eventos")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
           </Link>
           <Link
             href="/promocoes"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors ${isActive("/promocoes")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
           >
             <TicketPercentIcon className="size-4" aria-hidden="true" />
             Promocoes
@@ -70,19 +93,37 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="md:hidden">
               <DropdownMenuItem asChild>
-                <Link href="/noticias" className="inline-flex w-full items-center gap-2">
+                <Link
+                  href="/noticias"
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/noticias")
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                    }`}
+                >
                   <NewspaperIcon className="size-4" aria-hidden="true" />
                   Noticias
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/eventos" className="inline-flex w-full items-center gap-2">
+                <Link
+                  href="/eventos"
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/eventos")
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                    }`}
+                >
                   <CalendarDaysIcon className="size-4" aria-hidden="true" />
                   Eventos
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/promocoes" className="inline-flex w-full items-center gap-2">
+                <Link
+                  href="/promocoes"
+                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-colors ${isActive("/promocoes")
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
+                    }`}
+                >
                   <TicketPercentIcon className="size-4" aria-hidden="true" />
                   Promocoes
                 </Link>
@@ -91,7 +132,7 @@ export function Navbar() {
           </DropdownMenu>
 
           {!isLoggedIn ? (
-            <Button>Login</Button>
+            <Button className="cursor-pointer">Login</Button>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
