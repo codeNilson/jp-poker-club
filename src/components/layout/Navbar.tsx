@@ -6,8 +6,7 @@ import {
   CalendarDaysIcon,
   ClubIcon,
   LogOutIcon,
-  MenuIcon,
-  NewspaperIcon,
+  Spade,
   TicketPercentIcon,
 } from "lucide-react"
 
@@ -40,28 +39,28 @@ export function Navbar() {
           <Link
             href="/"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
-            <NewspaperIcon className="size-4" aria-hidden="true" />
+            <Spade className="size-4" aria-hidden="true" />
             Início
           </Link>
           <Link
             href="/noticias"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
-            <NewspaperIcon className="size-4" aria-hidden="true" />
+            <Spade className="size-4" aria-hidden="true" />
             Noticias
           </Link>
           <Link
             href="/eventos"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
@@ -70,8 +69,8 @@ export function Navbar() {
           <Link
             href="/promocoes"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <TicketPercentIcon className="size-4" aria-hidden="true" />
@@ -80,57 +79,6 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Abrir menu de navegacao"
-              >
-                <MenuIcon className="size-5" aria-hidden="true" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="md:hidden">
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/noticias"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
-                    }`}
-                >
-                  <NewspaperIcon className="size-4" aria-hidden="true" />
-                  Noticias
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/eventos"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
-                    }`}
-                >
-                  <CalendarDaysIcon className="size-4" aria-hidden="true" />
-                  Eventos
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/promocoes"
-                  className={`inline-flex w-full items-center gap-2 rounded px-2 py-1.5 transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted"
-                    }`}
-                >
-                  <TicketPercentIcon className="size-4" aria-hidden="true" />
-                  Promocoes
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {!isLoggedIn ? (
             <Button className="cursor-pointer">Login</Button>
           ) : (
@@ -148,6 +96,41 @@ export function Navbar() {
           )}
         </div>
       </div>
+
+      <nav aria-label="Navegacao principal mobile" className="mt-3 md:hidden">
+        <div className="flex items-center gap-2 rounded-full bg-muted p-1">
+          <Link
+            href="/noticias"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <Spade className="size-4" aria-hidden="true" />
+            Noticias
+          </Link>
+          <Link
+            href="/eventos"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <CalendarDaysIcon className="size-4" aria-hidden="true" />
+            Eventos
+          </Link>
+          <Link
+            href="/promocoes"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <TicketPercentIcon className="size-4" aria-hidden="true" />
+            Promocoes
+          </Link>
+        </div>
+      </nav>
     </header>
   )
 }

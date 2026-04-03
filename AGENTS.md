@@ -13,7 +13,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - UI do JP Poker Club usa cantos arredondados.
 - Preferir componentes de src/components/ui antes de criar novos.
-- Nunca esquecer de considerar o layout mobile.
+- Sempre considerar o layout mobile primeiro.
 
 ## Navegação
 
