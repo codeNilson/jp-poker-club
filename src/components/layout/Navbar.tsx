@@ -22,31 +22,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
-export function Navbar() {
+type NavbarProps = {
+  initialUserEmail: string | null
+}
+
+export function Navbar({ initialUserEmail }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail)
   const [supabase] = useState(() => createSupabaseBrowserClient())
 
   useEffect(() => {
-    let isMounted = true
-
-    async function loadUser() {
-      const { data } = await supabase.auth.getUser()
-
-      if (isMounted) {
-        setUserEmail(data.user?.email ?? null)
-      }
-    }
-
-    loadUser()
-
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user.email ?? null)
     })
 
     return () => {
-      isMounted = false
       authListener.subscription.unsubscribe()
     }
   }, [supabase])

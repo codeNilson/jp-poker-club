@@ -24,6 +24,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Manter consistência de estado ativo, hover e transições suaves em navegação e outros controles visuais.
 - Para redirecionamentos internos, usar `useRouter` com `router.push()` ou `router.replace()` e `router.refresh()` quando precisar refletir sessão/SSR; evitar `window.location.assign()` para não forçar reload completo.
 - Reservar `window.location.assign()` apenas para fluxos externos ou redirecionamentos absolutos fora do app.
+- Componentes visíveis de autenticação devem receber o estado inicial da sessão via server/SSR quando possível, para evitar FOUC; `useEffect` no client deve servir apenas para sincronização posterior.
 
 ## Estrutura do Projeto
 
