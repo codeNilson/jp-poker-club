@@ -48,6 +48,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Se uma decisão mudar onde algo deve viver no projeto, atualizar esta documentação antes de continuar com implementações relacionadas.
 - Qualquer alteração no Agents.md deve ser informado ao usuário antes para confirmar se aceita.
 
+## Linguagem de Produto
+
+- Evitar texto técnico para o usuário final em telas, especialmente em login, onboarding e mensagens de ajuda.
+- Preferir copy curta, simples e direta para ações do usuário.
+- Se uma mudança de UX ou arquitetura afetar o comportamento visível do app, registrar a decisão aqui antes de seguir com novas implementações.
+
 ## Supabase
 
 - Não editar manualmente src/types/database.ts; arquivo gerado automaticamente.
