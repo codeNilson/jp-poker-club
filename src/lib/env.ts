@@ -4,7 +4,6 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  DATABASE_URL: z.url().optional(),
   NEXT_PUBLIC_APP_URL: z.url().optional(),
   NEXT_PUBLIC_SUPABASE_URL: z.url().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
