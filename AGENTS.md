@@ -62,3 +62,32 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Usar src/lib/supabase/client.ts no browser.
 - Usar src/lib/supabase/server.ts no server/SSR com cookies em getAll/setAll.
 - Usar src/lib/supabase/admin.ts somente no servidor para operações administrativas.
+
+## Domínio de Dados
+
+- auth.users é a fonte de verdade da autenticação; novas contas devem gerar perfil e carteira automaticamente.
+- profiles guarda o perfil do jogador e a camada de negócio do usuário: display_name, avatar_url, elo_points, elo_tier, is_subscriber e user_role.
+- wallets guarda o saldo atual do jogador; balance é campo persistido e deve ser atualizado em conjunto com cada movimentação.
+- wallet_transactions é o histórico/auditoria da carteira; cada movimento deve registrar amount, balance_before, balance_after, type e referência opcional.
+- subscriptions controla o estado da assinatura por usuário; status indica a situação atual e is_subscriber em profiles deve refletir essa condição quando aplicável.
+- events representa torneios/eventos; cada evento tem status, buy_in, data e limite de jogadores.
+- tournament_entries registra o resultado de cada jogador em cada evento; final_position e points_earned são a base para o ranking de Elo.
+
+## Fluxo Esperado
+
+- Novo usuário: auth.users dispara criação de profiles e wallets.
+- Login: a sessão vem do Supabase Auth; o app lê o usuário logado e o perfil correspondente.
+- Depósito: gera wallet_transactions e atualiza wallets.balance de forma atômica.
+- Assinatura: a mudança de status deve refletir em subscriptions e, quando aplicável, em profiles.is_subscriber.
+- Resultado de torneio: admin salva tournament_entries, calcula points_earned e atualiza profiles.elo_points e profiles.elo_tier.
+- Ranking: profiles.elo_points é a referência principal; elo_tier deriva do total de pontos.
+
+## Colunas Relevantes
+
+- profiles.id sempre deve corresponder ao auth.users.id.
+- wallets.user_id sempre deve corresponder ao auth.users.id.
+- wallet_transactions.user_id sempre aponta para o dono da movimentação.
+- wallet_transactions.balance_before e balance_after devem refletir a evolução real do saldo.
+- subscriptions.user_id identifica a assinatura do jogador.
+- events.status controla o ciclo upcoming, ongoing e finished.
+- tournament_entries.event_id e user_id formam a ligação entre evento e jogador; final_position define a colocação e points_earned o impacto no Elo.
