@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   CalendarDaysIcon,
@@ -23,6 +24,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 export function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [supabase] = useState(() => createSupabaseBrowserClient())
 
@@ -54,7 +56,8 @@ export function Navbar() {
   async function handleLogout() {
     await supabase.auth.signOut()
     setUserEmail(null)
-    window.location.assign("/")
+    router.replace("/")
+    router.refresh()
   }
 
   return (

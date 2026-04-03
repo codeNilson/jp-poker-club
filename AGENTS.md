@@ -22,6 +22,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Navegação
 
 - Manter consistência de estado ativo, hover e transições suaves em navegação e outros controles visuais.
+- Para redirecionamentos internos, usar `useRouter` com `router.push()` ou `router.replace()` e `router.refresh()` quando precisar refletir sessão/SSR; evitar `window.location.assign()` para não forçar reload completo.
+- Reservar `window.location.assign()` apenas para fluxos externos ou redirecionamentos absolutos fora do app.
 
 ## Estrutura do Projeto
 
