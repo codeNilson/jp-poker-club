@@ -1,12 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import {
   CalendarDaysIcon,
   ClubIcon,
+  LogInIcon,
   LogOutIcon,
-  Spade,
+  UserRoundIcon,
   TicketPercentIcon,
 } from "lucide-react"
 
@@ -17,12 +19,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 export function Navbar() {
   const pathname = usePathname()
-  const isLoggedIn = false
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [supabase] = useState(() => createSupabaseBrowserClient())
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadUser() {
+      const { data } = await supabase.auth.getUser()
+
+      if (isMounted) {
+        setUserEmail(data.user?.email ?? null)
+      }
+    }
+
+    loadUser()
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user.email ?? null)
+    })
+
+    return () => {
+      isMounted = false
+      authListener.subscription.unsubscribe()
+    }
+  }, [supabase])
 
   const isActive = (href: string) => pathname === href
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setUserEmail(null)
+    window.location.assign("/")
+  }
 
   return (
     <header className="border-b bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
@@ -39,28 +72,28 @@ export function Navbar() {
           <Link
             href="/"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
-            <Spade className="size-4" aria-hidden="true" />
+            <UserRoundIcon className="size-4" aria-hidden="true" />
             Início
           </Link>
           <Link
             href="/noticias"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
-            <Spade className="size-4" aria-hidden="true" />
+            <UserRoundIcon className="size-4" aria-hidden="true" />
             Noticias
           </Link>
           <Link
             href="/eventos"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
@@ -69,8 +102,8 @@ export function Navbar() {
           <Link
             href="/promocoes"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <TicketPercentIcon className="size-4" aria-hidden="true" />
@@ -79,15 +112,23 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {!isLoggedIn ? (
-            <Button className="cursor-pointer">Login</Button>
+          {!userEmail ? (
+            <Button asChild className="cursor-pointer">
+              <Link href="/login">
+                <LogInIcon className="size-4" aria-hidden="true" />
+                Login
+              </Link>
+            </Button>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">Minha Conta</Button>
+                <Button variant="outline" className="max-w-[220px]">
+                  <UserRoundIcon className="size-4" aria-hidden="true" />
+                  <span className="truncate">{userEmail}</span>
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOutIcon className="size-4" aria-hidden="true" />
                   Sair
                 </DropdownMenuItem>
@@ -102,18 +143,18 @@ export function Navbar() {
           <Link
             href="/noticias"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
-            <Spade className="size-4" aria-hidden="true" />
+            <UserRoundIcon className="size-4" aria-hidden="true" />
             Noticias
           </Link>
           <Link
             href="/eventos"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
@@ -122,8 +163,8 @@ export function Navbar() {
           <Link
             href="/promocoes"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <TicketPercentIcon className="size-4" aria-hidden="true" />
