@@ -32,3 +32,31 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Supabase Setup
+
+This project is now wired to Supabase with typed clients for browser and server usage.
+
+### Environment
+
+Use the local environment file with your project credentials:
+
+- `.env.local`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (only for server/admin operations)
+
+### Available clients
+
+- Browser client: `src/lib/supabase/client.ts`
+- Server client: `src/lib/supabase/server.ts`
+- Admin client (service role): `src/lib/supabase/admin.ts`
+- Generated database types: `src/types/database.ts`
+
+### Example usage
+
+```ts
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+
+const supabase = createSupabaseBrowserClient()
+```
