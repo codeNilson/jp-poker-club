@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   CalendarDaysIcon,
@@ -12,6 +11,7 @@ import {
   UserRoundIcon,
   TicketPercentIcon,
 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -45,7 +45,14 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
   const isActive = (href: string) => pathname === href
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      toast.error("Nao foi possivel sair agora.")
+      return
+    }
+
+    toast.success("Logout realizado com sucesso.")
     setUserEmail(null)
     router.replace("/")
     router.refresh()
