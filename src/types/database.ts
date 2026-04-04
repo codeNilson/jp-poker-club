@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      carousel_items: {
+        Row: {
+          action_text: string
+          created_at: string
+          description: string | null
+          desktop_image_url: string
+          id: string
+          is_active: boolean
+          link_url: string
+          mobile_image_url: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          action_text?: string
+          created_at?: string
+          description?: string | null
+          desktop_image_url: string
+          id?: string
+          is_active?: boolean
+          link_url: string
+          mobile_image_url: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          action_text?: string
+          created_at?: string
+          description?: string | null
+          desktop_image_url?: string
+          id?: string
+          is_active?: boolean
+          link_url?: string
+          mobile_image_url?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           buy_in: number
