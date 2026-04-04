@@ -18,6 +18,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - UI do JP Poker Club usa cantos arredondados.
 - Preferir componentes de src/components/ui antes de criar novos.
 - Sempre considerar o layout mobile primeiro.
+- Para mensagens toast, usar o Sonner (src/components/ui/sonner.tsx) como padrão quando necessário.
 
 ## Navegação
 
@@ -49,7 +50,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Qualquer mudança que altere schema, relações, RLS, fluxo de auth, ou organização estrutural do projeto deve ser registrada aqui.
 - Se a mudança impactar Supabase, o schema deve ser definido em migration versionada, nunca apenas no painel.
 - Se uma decisão mudar onde algo deve viver no projeto, atualizar esta documentação antes de continuar com implementações relacionadas.
-- Qualquer alteração no Agents.md deve ser informado ao usuário antes para confirmar se aceita.
 
 ## Linguagem de Produto
 
