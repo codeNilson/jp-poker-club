@@ -24,7 +24,7 @@ export default async function RootLayout({
       <body className="min-h-dvh">
         <div className="flex min-h-dvh flex-col">
           <Navbar initialUserEmail={initialUserEmail} />
-          <main className="flex-1">{children}</main>
+          <main className="flex min-h-screen flex-1 flex-col pt-[150px] md:pt-[100px] lg:pt-[112px]">{children}</main>
           <Footer />
         </div>
         <Toaster />

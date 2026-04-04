@@ -96,10 +96,10 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
       className={`fixed top-0 z-50 w-full border-b bg-background/95 px-4 py-3 backdrop-blur transition-transform duration-300 md:translate-y-0 sm:px-6 lg:px-8 ${isHidden ? "-translate-y-full" : "translate-y-0"
         }`}
     >
-      <div className="flex w-full items-center justify-between gap-3">
-        <Link href="/" className="inline-flex items-center gap-2 rounded-full px-2 py-1">
+      <div className="flex w-full flex-nowrap items-center justify-between gap-2 sm:gap-3">
+        <Link href="/" className="inline-flex min-w-0 items-center gap-2 rounded-full px-2 py-1">
           <ClubIcon className="size-5" aria-hidden="true" />
-          <span className="font-semibold">JP Poker Club</span>
+          <span className="truncate text-sm font-semibold sm:text-base">JP Poker Club</span>
         </Link>
 
         <nav
@@ -148,7 +148,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {!userEmail ? (
             <Button asChild className="cursor-pointer">
               <Link href="/login">
@@ -159,7 +159,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="max-w-[220px]">
+                <Button variant="outline" className="max-w-[140px] sm:max-w-[220px]">
                   <UserRoundIcon className="size-4" aria-hidden="true" />
                   <span className="truncate">{userEmail}</span>
                 </Button>
@@ -175,8 +175,11 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
         </div>
       </div>
 
-      <nav aria-label="Navegacao principal mobile" className="mt-3 md:hidden">
-        <div className="flex items-center gap-2 rounded-full bg-muted p-1">
+      <nav
+        aria-label="Navegacao principal mobile"
+        className="mt-3 overflow-x-auto md:hidden [&::-webkit-scrollbar]:hidden"
+      >
+        <div className="flex min-w-max items-center gap-2 rounded-full bg-muted p-1">
           <Link
             href="/noticias"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
