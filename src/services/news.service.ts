@@ -21,7 +21,6 @@ export type NewsPreview = {
   id: string
   title: string
   summary: string
-  slug: string
   category: NewsRow["category"]
   readTimeMinutes: number
   publishedAt: string
@@ -33,7 +32,6 @@ function mapPreview(row: NewsRow): NewsPreview {
     id: row.id,
     title: row.title,
     summary: row.description,
-    slug: row.slug,
     category: row.category,
     readTimeMinutes: row.read_time_minutes,
     publishedAt: row.published_at,
@@ -46,7 +44,7 @@ export async function getFeaturedNews(): Promise<NewsPreview | null> {
 
   const { data, error } = await supabase
     .from("news")
-    .select("id,title,description,content,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
+    .select("id,title,description,category,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
     .lte("published_at", new Date().toISOString())
     .order("is_featured", { ascending: false })
@@ -66,7 +64,7 @@ export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
 
   const { data, error } = await supabase
     .from("news")
-    .select("id,title,description,content,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
+    .select("id,title,description,category,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })

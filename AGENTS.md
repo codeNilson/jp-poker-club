@@ -73,8 +73,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - wallets guarda o saldo atual do jogador; balance é campo persistido e deve ser atualizado em conjunto com cada movimentação.
 - wallet_transactions é o histórico/auditoria da carteira; cada movimento deve registrar amount, balance_before, balance_after, type e referência opcional.
 - subscriptions controla o estado da assinatura por usuário; status indica a situação atual e is_subscriber em profiles deve refletir essa condição quando aplicável.
-- events representa torneios/eventos; cada evento tem status, buy_in, data e limite de jogadores.
+- events representa torneios/eventos; cada evento tem status, buy_in, data, limite de jogadores e campos opcionais de destaque (featured_title, featured_short_desc, featured_image_url, is_featured) para uso em home e radar.
+- news representa as noticias/editoriais do clube; cada registro tem title, description, content, slug, category, published_at, is_active, is_featured, is_hot, read_time_minutes e cover_image_url opcional.
+- news nao deve receber imagem ficticia no banco; quando nao houver banner real, a UI deve simplesmente ocultar o bloco de imagem.
 - tournament_entries registra o resultado de cada jogador em cada evento; final_position e points_earned são a base para o ranking de Elo.
+- O radar da semana deve ser montado a partir de dados reais do banco, combinando eventos proximos e noticias publicadas recentemente, sem hardcode na UI.
 
 ## Fluxo Esperado
 
@@ -92,5 +95,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - wallet_transactions.user_id sempre aponta para o dono da movimentação.
 - wallet_transactions.balance_before e balance_after devem refletir a evolução real do saldo.
 - subscriptions.user_id identifica a assinatura do jogador.
-- events.status controla o ciclo upcoming, ongoing e finished.
+- events.status controla o ciclo upcoming, ongoing e finished; featured_* e is_featured servem para destacar o evento em cards e blocos editoriais.
+- news.slug precisa ser unico e servir como chave editorial para referencias visuais e futuras rotas de detalhe.
+- news.category controla a taxonomia editorial; published_at define a ordem de publicacao; is_active e is_featured determinam visibilidade.
 - tournament_entries.event_id e user_id formam a ligação entre evento e jogador; final_position define a colocação e points_earned o impacto no Elo.
