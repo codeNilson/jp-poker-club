@@ -56,7 +56,7 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
   }
 
   return (
-    <section aria-label="Destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <section aria-label="Destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:max-w-4xl">
       <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_18px_60px_rgba(0,0,0,0.45)]">
         <div
           className="flex transition-transform duration-500 ease-out"
@@ -64,7 +64,7 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
         >
           {safeItems.map((item) => (
             <article key={item.id} className="relative w-full shrink-0 overflow-hidden">
-              <div className="relative aspect-[2.8/1] min-h-32 sm:aspect-3/1">
+              <div className="relative aspect-[2.8/1] min-h-32 sm:aspect-3/1 lg:aspect-[3.4/1]">
                 <picture>
                   <source media="(min-width: 768px)" srcSet={item.desktopImageUrl} />
                   <img
