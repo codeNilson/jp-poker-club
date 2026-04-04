@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/footer";
+import { Toaster } from "@/components/ui/sonner";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -26,6 +27,7 @@ export default async function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <Toaster />
       </body>
     </html>
   );
