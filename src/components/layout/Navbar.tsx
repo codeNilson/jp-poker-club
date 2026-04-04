@@ -30,6 +30,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail)
+  const [isHidden, setIsHidden] = useState(false)
   const [supabase] = useState(() => createSupabaseBrowserClient())
 
   useEffect(() => {
@@ -41,6 +42,38 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
       authListener.subscription.unsubscribe()
     }
   }, [supabase])
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const isMobile = window.innerWidth < 768
+
+      if (!isMobile) {
+        setIsHidden(false)
+        previousScrollY = currentScrollY
+        return
+      }
+
+      if (currentScrollY <= 0) {
+        setIsHidden(false)
+        previousScrollY = currentScrollY
+        return
+      }
+
+      setIsHidden(currentScrollY > previousScrollY)
+      previousScrollY = currentScrollY
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    window.addEventListener("resize", handleScroll)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("resize", handleScroll)
+    }
+  }, [])
 
   const isActive = (href: string) => pathname === href
 
@@ -59,7 +92,10 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
   }
 
   return (
-    <header className="border-b bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:px-8">
+    <header
+      className={`fixed top-0 z-50 w-full border-b bg-background/95 px-4 py-3 backdrop-blur transition-transform duration-300 md:translate-y-0 sm:px-6 lg:px-8 ${isHidden ? "-translate-y-full" : "translate-y-0"
+        }`}
+    >
       <div className="flex w-full items-center justify-between gap-3">
         <Link href="/" className="inline-flex items-center gap-2 rounded-full px-2 py-1">
           <ClubIcon className="size-5" aria-hidden="true" />
