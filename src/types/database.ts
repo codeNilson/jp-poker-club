@@ -59,7 +59,11 @@ export type Database = {
           created_at: string
           description: string | null
           event_date: string
+          featured_image_url: string | null
+          featured_short_desc: string | null
+          featured_title: string | null
           id: string
+          is_featured: boolean
           max_players: number
           status: Database["public"]["Enums"]["event_status"]
           title: string
@@ -70,7 +74,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date: string
+          featured_image_url?: string | null
+          featured_short_desc?: string | null
+          featured_title?: string | null
           id?: string
+          is_featured?: boolean
           max_players: number
           status?: Database["public"]["Enums"]["event_status"]
           title: string
@@ -81,9 +89,64 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date?: string
+          featured_image_url?: string | null
+          featured_short_desc?: string | null
+          featured_title?: string | null
           id?: string
+          is_featured?: boolean
           max_players?: number
           status?: Database["public"]["Enums"]["event_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      news: {
+        Row: {
+          category: Database["public"]["Enums"]["news_category"]
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          is_hot: boolean
+          published_at: string
+          read_time_minutes: number
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["news_category"]
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_hot?: boolean
+          published_at?: string
+          read_time_minutes?: number
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["news_category"]
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          is_hot?: boolean
+          published_at?: string
+          read_time_minutes?: number
+          slug?: string
           title?: string
           updated_at?: string
         }
@@ -269,6 +332,13 @@ export type Database = {
     Enums: {
       elo_tier: "bronze" | "prata" | "ouro" | "platina" | "diamante"
       event_status: "upcoming" | "ongoing" | "finished"
+      news_category:
+        | "clube"
+        | "eventos"
+        | "ranking"
+        | "assinatura"
+        | "comunicado"
+        | "promocao"
       subscription_status: "inactive" | "active" | "past_due" | "canceled"
       wallet_transaction_type:
         | "deposit"
@@ -405,6 +475,14 @@ export const Constants = {
     Enums: {
       elo_tier: ["bronze", "prata", "ouro", "platina", "diamante"],
       event_status: ["upcoming", "ongoing", "finished"],
+      news_category: [
+        "clube",
+        "eventos",
+        "ranking",
+        "assinatura",
+        "comunicado",
+        "promocao",
+      ],
       subscription_status: ["inactive", "active", "past_due", "canceled"],
       wallet_transaction_type: [
         "deposit",
@@ -416,3 +494,4 @@ export const Constants = {
     },
   },
 } as const
+
