@@ -57,7 +57,7 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
 
   return (
     <section aria-label="Destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:max-w-4xl">
-      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_18px_60px_rgba(0,0,0,0.45)]">
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card">
         <div
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -74,7 +74,7 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
                     loading="lazy"
                   />
                 </picture>
-                <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-black/75 via-black/45 to-black/10" />
+                <div className="pointer-events-none absolute inset-0" />
 
                 <div className="absolute inset-0 flex items-center">
                   <div className="max-w-md px-4 py-3 sm:px-7 sm:py-5">
