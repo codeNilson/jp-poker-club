@@ -78,9 +78,6 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
 
                 <div className="absolute inset-0 flex items-center">
                   <div className="max-w-md px-4 py-3 sm:px-7 sm:py-5">
-                    <p className="mb-1 text-[10px] font-semibold tracking-[0.2em] text-primary sm:text-xs">
-                      JP POKER CLUB
-                    </p>
                     <h2 className="line-clamp-2 text-base font-semibold text-white sm:text-2xl">
                       {item.title}
                     </h2>

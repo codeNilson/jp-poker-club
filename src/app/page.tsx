@@ -23,9 +23,5 @@ export default async function Home() {
     linkUrl: item.link_url,
   }))
 
-  return (
-    <main className="py-5 sm:py-8">
-      <HomeCarousel items={items} />
-    </main>
-  )
+  return <HomeCarousel items={items} />
 }
