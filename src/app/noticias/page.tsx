@@ -30,21 +30,20 @@ function formatDate(value: string) {
   }).format(new Date(value))
 }
 
-function formatRadarDate(value: string, kind: "event" | "news") {
+function formatRadarDate(value: string) {
   const date = new Date(value)
 
-  if (kind === "event") {
-    return new Intl.DateTimeFormat("pt-BR", {
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date)
-  }
-
-  return new Intl.DateTimeFormat("pt-BR", {
+  const dayPart = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
   }).format(date)
+
+  const timePart = new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date)
+
+  return `${dayPart}, ${timePart}`
 }
 
 export default async function NewsPage() {
@@ -155,7 +154,7 @@ export default async function NewsPage() {
               {radarItems.length > 0 ? (
                 radarItems.map((item) => (
                   <li key={item.id} className="rounded-2xl border border-border/70 bg-muted/40 p-3">
-                    <p className="text-xs font-semibold text-primary">{formatRadarDate(item.date, item.kind)}</p>
+                    <p className="text-xs font-semibold text-primary">{formatRadarDate(item.date)}</p>
                     <p className="mt-1 text-sm font-medium">{item.title}</p>
                   </li>
                 ))
