@@ -134,7 +134,7 @@ export default async function NewsPage() {
                   {featuredNews.isHot ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/60 bg-orange-500/10 px-3 py-2 text-xs font-semibold text-orange-300">
                       <FlameIcon className="size-3.5" aria-hidden="true" />
-                      Em alta no clube
+                      Em alta
                     </span>
                   ) : null}
                 </div>
