@@ -192,7 +192,10 @@ export default async function NewsPage() {
                     {categoryLabelMap[item.category] ?? "Noticias"}
                   </span>
                   <span>{formatDate(item.publishedAt)}</span>
-                  <span>{item.readTimeMinutes} min</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock3Icon className="size-3.5" aria-hidden="true" />
+                    {item.readTimeMinutes} min
+                  </span>
                 </div>
 
                 <h3 className="text-lg font-bold leading-snug transition-colors group-hover:text-primary">
