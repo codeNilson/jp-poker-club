@@ -1,8 +1,8 @@
 import { HomeCarousel } from "@/components/layout/home-carousel"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
 export default async function Home() {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabaseServerPublicClient()
 
   const { data } = await supabase
     .from("carousel_items")
