@@ -3,7 +3,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { GlobalBackground } from "@/components/layout/global-background";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,22 +10,18 @@ export const metadata: Metadata = {
   description: "Base inicial do JP Poker Club com Next.js, Tailwind e shadcn/ui.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createSupabaseServerClient()
-  const { data } = await supabase.auth.getUser()
-  const initialUserEmail = data.user?.email ?? null
-
   return (
     <html lang="pt-BR">
       <body className="relative min-h-dvh overflow-x-hidden bg-background">
         <GlobalBackground />
 
         <div className="relative z-0 flex min-h-dvh flex-col">
-          <Navbar initialUserEmail={initialUserEmail} />
+          <Navbar initialUserEmail={null} />
           <main className="flex min-h-screen flex-1 flex-col pt-37.5 md:pt-25 lg:pt-28">{children}</main>
           <Footer />
         </div>
