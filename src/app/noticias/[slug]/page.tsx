@@ -1,8 +1,14 @@
-import { ArrowLeftIcon, CalendarDaysIcon, Clock3Icon, TagIcon } from "lucide-react"
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CalendarDaysIcon,
+  Clock3Icon,
+  TagIcon,
+} from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getNewsBySlug, getPublishedNewsSlugs } from "@/services/news.service"
+import { getNewsBySlug, getNewsFeed, getPublishedNewsSlugs } from "@/services/news.service"
 
 export const revalidate = 3600
 
@@ -34,6 +40,14 @@ function splitContentIntoParagraphs(content: string) {
     .filter(Boolean)
 }
 
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value))
+}
+
 export async function generateStaticParams() {
   const slugs = await getPublishedNewsSlugs()
 
@@ -53,6 +67,7 @@ export default async function NewsDetailsPage({
   }
 
   const contentParagraphs = splitContentIntoParagraphs(article.content)
+  const relatedNews = (await getNewsFeed(5)).filter((item) => item.id !== article.id).slice(0, 3)
 
   return (
     <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8">
@@ -96,6 +111,34 @@ export default async function NewsDetailsPage({
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
+        ) : null}
+
+        {relatedNews.length > 0 ? (
+          <section className="mt-10 border-t border-border/70 pt-7">
+            <h2 className="text-xl font-extrabold tracking-tight">Veja mais</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {relatedNews.map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-2xl border border-border/70 bg-muted/30 p-4 transition-colors hover:bg-muted/50"
+                >
+                  <p className="text-xs font-medium text-muted-foreground">{formatShortDate(item.publishedAt)}</p>
+                  <h3 className="mt-2 text-sm font-bold leading-snug sm:text-base">
+                    <Link href={`/noticias/${item.slug}`} className="transition-colors hover:text-primary">
+                      {item.title}
+                    </Link>
+                  </h3>
+                  <Link
+                    href={`/noticias/${item.slug}`}
+                    className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary sm:text-sm"
+                  >
+                    Veja mais
+                    <ArrowRightIcon className="size-3.5" aria-hidden="true" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </section>
         ) : null}
       </article>
     </section>
