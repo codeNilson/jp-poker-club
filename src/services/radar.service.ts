@@ -1,6 +1,6 @@
 import "server-only"
 
-import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
 export type RadarItem = {
   id: string
@@ -10,7 +10,7 @@ export type RadarItem = {
 }
 
 export async function getRadarWeekItems(limit = 3): Promise<RadarItem[]> {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabaseServerPublicClient()
   const weekAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const [eventsResult, newsResult] = await Promise.all([

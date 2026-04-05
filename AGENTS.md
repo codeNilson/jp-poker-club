@@ -51,6 +51,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Se a mudança impactar Supabase, o schema deve ser definido em migration versionada, nunca apenas no painel.
 - Se uma decisão mudar onde algo deve viver no projeto, atualizar esta documentação antes de continuar com implementações relacionadas.
 
+## Regras de Arquitetura e Cache
+
+- Cache de Páginas Públicas: Páginas que não dependem de sessão de usuário (ex: Home, Notícias) devem ser cacheadas.
+- Server Actions e Revalidação: TODA vez que você for criar ou editar uma Server Action que faz mutação no banco de dados (INSERT, UPDATE, DELETE), principalmente no futuro Painel Admin, você DEVE obrigatoriamente incluir o revalidatePath() do Next.js para limpar o cache das rotas públicas afetadas por aquela mudança.
+
 ## Linguagem de Produto
 
 - Evitar texto técnico para o usuário final em telas, especialmente em login, onboarding e mensagens de ajuda.

@@ -1,6 +1,6 @@
 import "server-only"
 
-import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
 type NewsRow = {
   id: string
@@ -42,7 +42,7 @@ function mapPreview(row: NewsRow): NewsPreview {
 }
 
 export async function getFeaturedNews(): Promise<NewsPreview | null> {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabaseServerPublicClient()
 
   const { data, error } = await supabase
     .from("news")
@@ -62,7 +62,7 @@ export async function getFeaturedNews(): Promise<NewsPreview | null> {
 }
 
 export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabaseServerPublicClient()
 
   const { data, error } = await supabase
     .from("news")
