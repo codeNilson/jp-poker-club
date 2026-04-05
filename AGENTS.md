@@ -11,7 +11,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Tema
 
 - Tema padrão sempre escuro, sem toggle light/dark.
-- Usar como base visual: --primary #32e035, --background #070707, --card e --muted #0F0F13.
+- Usar como base visual: --primary #32e035, --background #070707, --card e --muted #121217.
 
 ## UI e Layout
 

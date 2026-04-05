@@ -13,13 +13,13 @@
 	--primary-foreground: #070707;
 	--secondary: #0f0f13;
 	--secondary-foreground: oklch(0.985 0 0);
-	--muted: #0f0f13;
+	--muted: #121217;
 	--muted-foreground: oklch(0.708 0 0);
 	--accent: #0f0f13;
 	--accent-foreground: oklch(0.985 0 0);
 	--destructive: oklch(0.577 0.245 27.325);
 	--destructive-foreground: oklch(0.985 0 0);
-	--border: #1a1a1f;
+	--border: #27272f;
 	--input: #1a1a1f;
 	--ring: #32e035;
 	--radius: 0.625rem;
