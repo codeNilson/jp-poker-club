@@ -57,13 +57,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Páginas Dinâmicas (Sem Cache):**
   - **Quando usar:** Páginas privadas (Dashboard, Wallet, Perfil) ou rotas que leem parâmetros de URL (`searchParams`).
   - **Regra de Implementação:** Nestes casos, você deve usar o `createSupabaseServerClient` (que lê cookies). Apenas a leitura de cookies ou `searchParams` já força a página a ser dinâmica. Se estritamente necessário, declare `export const dynamic = 'force-dynamic'`.
-- **Páginas Estáticas (Cache Eterno ou por Tempo):**
+- **Páginas Estáticas (Cache Indefinido ou por Tempo):**
   - **Quando usar:** Páginas públicas que são idênticas para todos os visitantes.
   - **Regra de Implementação:** NÃO leia cookies no servidor para essas rotas. Use EXCLUSIVAMENTE o `createSupabaseServerPublicClient` (com `persistSession: false`) para buscar dados públicos no Supabase, garantindo que o Next.js não desative o cache estático.
-  - **Cache Eterno:** Para rotas institucionais (Termos, Privacidade), não adicione nenhuma variável de revalidação.
+  - **Cache Indefinido:** Para rotas institucionais (Termos, Privacidade), não adicione nenhuma variável de revalidação. Essas páginas permanecem em cache estático até o próximo build/deploy.
   - **Cache por Tempo:** Para rotas vitrines que mudam com frequência moderada, adicione `export const revalidate = 3600` (ou outro tempo apropriado) no topo da `page.tsx`.
 - **Server Actions e Revalidação Sob Demanda:** TODA vez que você for criar ou editar uma Server Action que faz mutação no banco de dados (INSERT, UPDATE, DELETE), principalmente no Painel Admin, você DEVE obrigatoriamente incluir o `revalidatePath()` do Next.js para limpar o cache das rotas públicas afetadas por aquela mudança.
-- **O Dilema da Navbar (Client vs Server):** O Layout base (`RootLayout`) nunca deve ler cookies no servidor para não contaminar o site inteiro. Componentes visuais globais que dependem de sessão (como Navbar mostrando o usuário) devem ser Client Components (`"use client"`) e buscar a sessão ativamente via `createSupabaseBrowserClient`, usando Skeleton Loaders para evitar FOUC.
+- **O Dilema da Navbar (Client vs Server):** O Layout base (`RootLayout`) nunca deve ler cookies no servidor para não contaminar o site inteiro. Componentes visuais globais que dependem de sessão (como Navbar mostrando o usuário) devem ser Client Components (`"use client"`) e buscar a sessão ativamente via `createSupabaseBrowserClient`, usando Skeleton Loaders para evitar FOUC (Flash of Unstyled Content).
 
 ## Linguagem de Produto
 
