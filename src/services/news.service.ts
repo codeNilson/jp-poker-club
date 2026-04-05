@@ -28,6 +28,11 @@ export type NewsPreview = {
   isHot: boolean
 }
 
+export type NewsArticle = NewsPreview & {
+  content: string
+  coverImageUrl: string | null
+}
+
 function mapPreview(row: NewsRow): NewsPreview {
   return {
     id: row.id,
@@ -38,6 +43,14 @@ function mapPreview(row: NewsRow): NewsPreview {
     readTimeMinutes: row.read_time_minutes,
     publishedAt: row.published_at,
     isHot: row.is_hot,
+  }
+}
+
+function mapArticle(row: NewsRow): NewsArticle {
+  return {
+    ...mapPreview(row),
+    content: row.content,
+    coverImageUrl: row.cover_image_url,
   }
 }
 
@@ -77,4 +90,42 @@ export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
   }
 
   return (data as NewsRow[]).map(mapPreview)
+}
+
+export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
+  const supabase = createSupabaseServerPublicClient()
+
+  const { data, error } = await supabase
+    .from("news")
+    .select(
+      "id,title,description,content,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at"
+    )
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .lte("published_at", new Date().toISOString())
+    .maybeSingle()
+
+  if (error || !data) {
+    return null
+  }
+
+  return mapArticle(data as NewsRow)
+}
+
+export async function getPublishedNewsSlugs(limit = 200): Promise<string[]> {
+  const supabase = createSupabaseServerPublicClient()
+
+  const { data, error } = await supabase
+    .from("news")
+    .select("slug")
+    .eq("is_active", true)
+    .lte("published_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit)
+
+  if (error || !data) {
+    return []
+  }
+
+  return data.map((item) => item.slug)
 }

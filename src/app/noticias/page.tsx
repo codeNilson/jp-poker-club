@@ -8,10 +8,13 @@ import {
   SparklesIcon,
   TagIcon,
 } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { getFeaturedNews, getNewsFeed } from "@/services/news.service"
 import { getRadarWeekItems } from "@/services/radar.service"
+
+export const revalidate = 3600
 
 const categoryLabelMap: Record<string, string> = {
   clube: "Clube",
@@ -119,16 +122,23 @@ export default async function NewsPage() {
                 </div>
 
                 <h2 className="max-w-xl text-2xl font-extrabold leading-tight text-balance sm:text-3xl">
-                  {featuredNews.title}
+                  <Link
+                    href={`/noticias/${featuredNews.slug}`}
+                    className="transition-colors hover:text-primary"
+                  >
+                    {featuredNews.title}
+                  </Link>
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
                   {featuredNews.summary}
                 </p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <Button className="h-10 rounded-full px-5 text-sm font-semibold">
-                    Ler materia completa
-                    <ArrowRightIcon className="size-4" aria-hidden="true" />
+                  <Button asChild className="h-10 rounded-full px-5 text-sm font-semibold">
+                    <Link href={`/noticias/${featuredNews.slug}`}>
+                      Ler materia completa
+                      <ArrowRightIcon className="size-4" aria-hidden="true" />
+                    </Link>
                   </Button>
                   {featuredNews.isHot ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-orange-400/60 bg-orange-500/10 px-3 py-2 text-xs font-semibold text-orange-300">
@@ -198,17 +208,19 @@ export default async function NewsPage() {
                 </div>
 
                 <h3 className="text-lg font-bold leading-snug transition-colors group-hover:text-primary">
-                  {item.title}
+                  <Link href={`/noticias/${item.slug}`} className="hover:text-primary">
+                    {item.title}
+                  </Link>
                 </h3>
                 <p className="mt-2 text-sm text-muted-foreground">{item.summary}</p>
 
-                <button
-                  type="button"
+                <Link
+                  href={`/noticias/${item.slug}`}
                   className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary"
                 >
                   Continuar lendo
                   <ArrowRightIcon className="size-4" aria-hidden="true" />
-                </button>
+                </Link>
               </article>
             ))
           ) : (
