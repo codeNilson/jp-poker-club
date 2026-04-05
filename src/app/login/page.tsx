@@ -13,21 +13,22 @@ export default function LoginPage() {
   async function handleGoogleLogin() {
     setIsLoading(true)
 
-    const redirectTo = `${window.location.origin}/auth/callback`
+    const origin = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+    const redirectTo = `${origin}/auth/callback`
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo,
       },
     })
 
-    if (error || !data.url) {
+    if (error) {
+      console.error("🚨 Falha ao iniciar OAuth:", error.message)
       setIsLoading(false)
       return
     }
 
-    window.location.assign(data.url)
   }
 
   return (
