@@ -179,7 +179,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
         aria-label="Navegacao principal mobile"
         className="mt-3 overflow-x-auto md:hidden [&::-webkit-scrollbar]:hidden"
       >
-        <div className="flex min-w-max items-center gap-2 rounded-full bg-muted p-1">
+        <div className="flex min-w-max items-center gap-1 rounded-full bg-muted p-1">
           <Link
             href="/noticias"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/noticias")
