@@ -2,6 +2,8 @@ import "server-only"
 
 import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
+const NEWS_IMAGES_BUCKET = "jp-poker-club-image-vault"
+
 type NewsRow = {
   id: string
   title: string
@@ -23,6 +25,7 @@ export type NewsPreview = {
   summary: string
   slug: string
   category: NewsRow["category"]
+  coverImageUrl: string | null
   readTimeMinutes: number
   publishedAt: string
   isHot: boolean
@@ -30,27 +33,69 @@ export type NewsPreview = {
 
 export type NewsArticle = NewsPreview & {
   content: string
-  coverImageUrl: string | null
 }
 
-function mapPreview(row: NewsRow): NewsPreview {
+function extractObjectPathFromStoredValue(value: string): string | null {
+  const trimmedValue = value.trim().replace(/^\/+/, "")
+
+  if (!trimmedValue) {
+    return null
+  }
+
+  const storagePathPattern = /storage\/v1\/object\/public\/([^/]+)\/(.+)$/
+  const storagePathMatch = trimmedValue.match(storagePathPattern)
+
+  if (storagePathMatch) {
+    const [, bucket, objectPath] = storagePathMatch
+    return bucket === NEWS_IMAGES_BUCKET ? objectPath : null
+  }
+
+  const bucketPrefix = `${NEWS_IMAGES_BUCKET}/`
+  if (trimmedValue.startsWith(bucketPrefix)) {
+    return trimmedValue.slice(bucketPrefix.length)
+  }
+
+  return trimmedValue
+}
+
+type PublicSupabaseClient = ReturnType<typeof createSupabaseServerPublicClient>
+
+function resolveCoverImageUrl(
+  supabase: PublicSupabaseClient,
+  rowCoverImageUrl: string | null
+): string | null {
+  if (!rowCoverImageUrl) {
+    return null
+  }
+
+  const objectPath = extractObjectPathFromStoredValue(rowCoverImageUrl)
+
+  if (!objectPath) {
+    return null
+  }
+
+  const { data } = supabase.storage.from(NEWS_IMAGES_BUCKET).getPublicUrl(objectPath)
+  return data.publicUrl
+}
+
+function mapPreview(supabase: PublicSupabaseClient, row: NewsRow): NewsPreview {
   return {
     id: row.id,
     title: row.title,
     summary: row.description,
     slug: row.slug,
     category: row.category,
+    coverImageUrl: resolveCoverImageUrl(supabase, row.cover_image_url),
     readTimeMinutes: row.read_time_minutes,
     publishedAt: row.published_at,
     isHot: row.is_hot,
   }
 }
 
-function mapArticle(row: NewsRow): NewsArticle {
+function mapArticle(supabase: PublicSupabaseClient, row: NewsRow): NewsArticle {
   return {
-    ...mapPreview(row),
+    ...mapPreview(supabase, row),
     content: row.content,
-    coverImageUrl: row.cover_image_url,
   }
 }
 
@@ -59,7 +104,7 @@ export async function getFeaturedNews(): Promise<NewsPreview | null> {
 
   const { data, error } = await supabase
     .from("news")
-    .select("id,title,description,slug,category,read_time_minutes,is_featured,is_hot,is_active,published_at")
+    .select("id,title,description,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
     .lte("published_at", new Date().toISOString())
     .order("is_featured", { ascending: false })
@@ -71,7 +116,7 @@ export async function getFeaturedNews(): Promise<NewsPreview | null> {
     return null
   }
 
-  return mapPreview(data as NewsRow)
+  return mapPreview(supabase, data as NewsRow)
 }
 
 export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
@@ -79,7 +124,7 @@ export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
 
   const { data, error } = await supabase
     .from("news")
-    .select("id,title,description,slug,category,read_time_minutes,is_featured,is_hot,is_active,published_at")
+    .select("id,title,description,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
@@ -89,7 +134,7 @@ export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
     return []
   }
 
-  return (data as NewsRow[]).map(mapPreview)
+  return (data as NewsRow[]).map((row) => mapPreview(supabase, row))
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
@@ -109,7 +154,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
     return null
   }
 
-  return mapArticle(data as NewsRow)
+  return mapArticle(supabase, data as NewsRow)
 }
 
 export async function getPublishedNewsSlugs(limit = 200): Promise<string[]> {

@@ -8,6 +8,7 @@ import {
   SparklesIcon,
   TagIcon,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -106,6 +107,20 @@ export default async function NewsPage() {
           <article className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-primary/12 via-card to-card p-6 sm:p-8">
             {featuredNews ? (
               <>
+                {featuredNews.coverImageUrl ? (
+                  <div className="mb-5 overflow-hidden rounded-2xl border border-border/60 bg-muted/30">
+                    <div className="relative aspect-video w-full">
+                      <Image
+                        src={featuredNews.coverImageUrl}
+                        alt={`Capa da noticia ${featuredNews.title}`}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 65vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="mb-4 flex items-center gap-3 text-xs font-medium text-muted-foreground">
                   <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-primary">
                     <TagIcon className="size-3.5" aria-hidden="true" />
@@ -195,6 +210,20 @@ export default async function NewsPage() {
                 key={item.id}
                 className="group rounded-3xl border border-border/80 bg-card/60 p-5 transition-colors hover:bg-card"
               >
+                {item.coverImageUrl ? (
+                  <div className="mb-4 overflow-hidden rounded-2xl border border-border/70 bg-muted/40">
+                    <div className="relative aspect-video w-full">
+                      <Image
+                        src={item.coverImageUrl}
+                        alt={`Capa da noticia ${item.title}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 48vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 text-primary">
                     <CircleDotIcon className="size-3.5" aria-hidden="true" />

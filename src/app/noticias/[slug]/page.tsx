@@ -5,6 +5,7 @@ import {
   Clock3Icon,
   TagIcon,
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -104,6 +105,20 @@ export default async function NewsDetailsPage({
           {article.title}
         </h1>
         <p className="mt-4 text-base text-muted-foreground sm:text-lg">{article.summary}</p>
+
+        {article.coverImageUrl ? (
+          <div className="mt-6 overflow-hidden rounded-2xl border border-border/70 bg-muted/40">
+            <div className="relative aspect-video w-full">
+              <Image
+                src={article.coverImageUrl}
+                alt={`Capa da noticia ${article.title}`}
+                fill
+                sizes="(max-width: 1024px) 100vw, 900px"
+                className="object-cover"
+              />
+            </div>
+          </div>
+        ) : null}
 
         {contentParagraphs.length > 0 ? (
           <div className="prose prose-invert mt-8 max-w-none text-foreground/95">
