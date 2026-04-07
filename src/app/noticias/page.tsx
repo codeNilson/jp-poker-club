@@ -203,27 +203,13 @@ export default async function NewsPage() {
           </aside>
         </div>
 
-        <section className="grid gap-4 md:grid-cols-2">
+        <section className="columns-1 gap-4 md:columns-2">
           {newsFeed.length > 0 ? (
             newsFeed.map((item) => (
               <article
                 key={item.id}
-                className="group rounded-3xl border border-border/80 bg-card/60 p-5 transition-colors hover:bg-card"
+                className="group mb-4 break-inside-avoid rounded-3xl border border-border/80 bg-card/60 p-5 transition-colors hover:bg-card"
               >
-                {item.coverImageUrl ? (
-                  <div className="mb-4 overflow-hidden rounded-2xl border border-border/70 bg-muted/40">
-                    <div className="relative aspect-video w-full">
-                      <Image
-                        src={item.coverImageUrl}
-                        alt={`Capa da noticia ${item.title}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 48vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                      />
-                    </div>
-                  </div>
-                ) : null}
-
                 <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 text-primary">
                     <CircleDotIcon className="size-3.5" aria-hidden="true" />
@@ -236,12 +222,39 @@ export default async function NewsPage() {
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold leading-snug transition-colors group-hover:text-primary">
-                  <Link href={`/noticias/${item.slug}`} className="hover:text-primary">
-                    {item.title}
-                  </Link>
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.summary}</p>
+                {item.coverImageUrl ? (
+                  <div className="mt-3 md:flex md:items-start md:gap-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold leading-snug transition-colors group-hover:text-primary">
+                        <Link href={`/noticias/${item.slug}`} className="hover:text-primary">
+                          {item.title}
+                        </Link>
+                      </h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{item.summary}</p>
+                    </div>
+
+                    <div className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-muted/40 md:mt-0 md:w-28 md:shrink-0">
+                      <div className="relative aspect-video w-full">
+                        <Image
+                          src={item.coverImageUrl}
+                          alt={`Miniatura da noticia ${item.title}`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 112px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="mt-3 text-lg font-bold leading-snug transition-colors group-hover:text-primary">
+                      <Link href={`/noticias/${item.slug}`} className="hover:text-primary">
+                        {item.title}
+                      </Link>
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{item.summary}</p>
+                  </>
+                )}
 
                 <Link
                   href={`/noticias/${item.slug}`}
