@@ -67,6 +67,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Estrategia Escolhida (Noticias):** Manter cache no servidor para paginas publicas e invalidar sob demanda quando houver mudanca em `news`.
   - No fluxo interno do app (create, update, delete, publish, unpublish), invalidar cache com `revalidatePath()` ou `revalidateTag()`.
   - Como fallback, configurar webhook do Supabase para um endpoint interno de invalidacao, cobrindo mudancas feitas fora do app (painel do Supabase, scripts, integracoes).
+  - Seguranca do webhook: usar segredo dedicado por ambiente (dev e producao com secrets diferentes) e validar obrigatoriamente a assinatura/header secreto no endpoint antes de executar qualquer invalidacao.
   - Objetivo: evitar pagina publica dinamica batendo no banco em toda requisicao, mantendo conteudo atualizado apos mutacoes.
 - **O Dilema da Navbar (Client vs Server):** O Layout base (`RootLayout`) nunca deve ler cookies no servidor para não contaminar o site inteiro. Componentes visuais globais que dependem de sessão (como Navbar mostrando o usuário) devem ser Client Components (`"use client"`) e buscar a sessão ativamente via `createSupabaseBrowserClient`, usando Skeleton Loaders para evitar FOUC (Flash of Unstyled Content).
 
