@@ -63,6 +63,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - **Cache Indefinido:** Para rotas institucionais (Termos, Privacidade), não adicione nenhuma variável de revalidação. Essas páginas permanecem em cache estático até o próximo build/deploy.
   - **Cache por Tempo:** Para rotas vitrines que mudam com frequência moderada, adicione `export const revalidate = 3600` (ou outro tempo apropriado) no topo da `page.tsx`.
 - **Server Actions e Revalidação Sob Demanda:** TODA vez que você for criar ou editar uma Server Action que faz mutação no banco de dados (INSERT, UPDATE, DELETE), principalmente no Painel Admin, você DEVE obrigatoriamente incluir o `revalidatePath()` do Next.js para limpar o cache das rotas públicas afetadas por aquela mudança.
+- **Lembrete Pendente (Noticias):** Este item e apenas um lembrete de arquitetura. A implementacao sera solicitada futuramente pelo solicitante.
+- **Estrategia Escolhida (Noticias):** Manter cache no servidor para paginas publicas e invalidar sob demanda quando houver mudanca em `news`.
+  - No fluxo interno do app (create, update, delete, publish, unpublish), invalidar cache com `revalidatePath()` ou `revalidateTag()`.
+  - Como fallback, configurar webhook do Supabase para um endpoint interno de invalidacao, cobrindo mudancas feitas fora do app (painel do Supabase, scripts, integracoes).
+  - Objetivo: evitar pagina publica dinamica batendo no banco em toda requisicao, mantendo conteudo atualizado apos mutacoes.
 - **O Dilema da Navbar (Client vs Server):** O Layout base (`RootLayout`) nunca deve ler cookies no servidor para não contaminar o site inteiro. Componentes visuais globais que dependem de sessão (como Navbar mostrando o usuário) devem ser Client Components (`"use client"`) e buscar a sessão ativamente via `createSupabaseBrowserClient`, usando Skeleton Loaders para evitar FOUC (Flash of Unstyled Content).
 
 ## Linguagem de Produto
