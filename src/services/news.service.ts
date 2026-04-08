@@ -10,7 +10,7 @@ export const NEWS_CATEGORY_OPTIONS = [
   "ranking",
   "assinatura",
   "comunicado",
-  "promocao",
+  "promoção",
 ] as const
 
 export type NewsCategory = (typeof NEWS_CATEGORY_OPTIONS)[number]
@@ -21,7 +21,7 @@ export const NEWS_CATEGORY_LABELS: Record<NewsCategory, string> = {
   ranking: "Ranking",
   assinatura: "Assinatura",
   comunicado: "Comunicado",
-  promocao: "Promocao",
+  promoção: "Promoção",
 }
 
 export function isNewsCategory(value: string | undefined): value is NewsCategory {

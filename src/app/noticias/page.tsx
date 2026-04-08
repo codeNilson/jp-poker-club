@@ -29,7 +29,7 @@ const categoryLabelMap: Record<string, string> = {
   ranking: "Ranking",
   assinatura: "Assinatura",
   comunicado: "Comunicado",
-  promocao: "Promocao",
+  promoção: "Promoção",
 }
 
 function formatDate(value: string) {
@@ -124,34 +124,6 @@ export default async function NewsPage({
             Avisos importantes, novidades do ranking, agenda de eventos e atualizacoes da comunidade JP Poker Club.
           </p>
         </header>
-
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const isActive = category.value === selectedCategory
-
-            return (
-              <Button
-                key={category.label}
-                asChild
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                className="rounded-full"
-              >
-                <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
-                  {category.label}
-                </Link>
-              </Button>
-            )
-          })}
-        </div>
-
-        <div className="-mt-3 flex justify-end">
-          <Button asChild variant="outline" size="sm" className="rounded-full">
-            <Link href={selectedCategory ? `/noticias/todas?category=${selectedCategory}` : "/noticias/todas"}>
-              Ver todas
-            </Link>
-          </Button>
-        </div>
 
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <article className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-primary/12 via-card to-card p-6 sm:p-8">
@@ -251,6 +223,34 @@ export default async function NewsPage({
               </p>
             </div>
           </aside>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => {
+              const isActive = category.value === selectedCategory
+
+              return (
+                <Button
+                  key={category.label}
+                  asChild
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-full"
+                >
+                  <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
+                    {category.label}
+                  </Link>
+                </Button>
+              )
+            })}
+          </div>
+
+          <Button asChild variant="outline" size="sm" className="rounded-full">
+            <Link href={selectedCategory ? `/noticias/todas?category=${selectedCategory}` : "/noticias/todas"}>
+              Ver todas
+            </Link>
+          </Button>
         </div>
 
         {newsFeed.length > 0 ? (

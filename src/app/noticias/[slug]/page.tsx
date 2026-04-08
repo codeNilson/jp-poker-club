@@ -19,7 +19,7 @@ const categoryLabelMap: Record<string, string> = {
   ranking: "Ranking",
   assinatura: "Assinatura",
   comunicado: "Comunicado",
-  promocao: "Promocao",
+  promoção: "Promoção",
 }
 
 type SlugParams = {

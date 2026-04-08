@@ -1,4 +1,4 @@
-create type public.news_category as enum ('clube', 'eventos', 'ranking', 'assinatura', 'comunicado', 'promocao');
+create type public.news_category as enum ('clube', 'eventos', 'ranking', 'assinatura', 'comunicado', 'promoção');
 
 create table public.news (
   id uuid primary key default gen_random_uuid(),

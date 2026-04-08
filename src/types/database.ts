@@ -338,7 +338,7 @@ export type Database = {
         | "ranking"
         | "assinatura"
         | "comunicado"
-        | "promocao"
+        | "promoção"
       subscription_status: "inactive" | "active" | "past_due" | "canceled"
       wallet_transaction_type:
         | "deposit"
@@ -481,7 +481,7 @@ export const Constants = {
         "ranking",
         "assinatura",
         "comunicado",
-        "promocao",
+        "promoção",
       ],
       subscription_status: ["inactive", "active", "past_due", "canceled"],
       wallet_transaction_type: [
