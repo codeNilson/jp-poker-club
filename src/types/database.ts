@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -59,11 +79,7 @@ export type Database = {
           created_at: string
           description: string | null
           event_date: string
-          featured_image_url: string | null
-          featured_short_desc: string | null
-          featured_title: string | null
           id: string
-          is_featured: boolean
           max_players: number
           status: Database["public"]["Enums"]["event_status"]
           title: string
@@ -74,11 +90,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date: string
-          featured_image_url?: string | null
-          featured_short_desc?: string | null
-          featured_title?: string | null
           id?: string
-          is_featured?: boolean
           max_players: number
           status?: Database["public"]["Enums"]["event_status"]
           title: string
@@ -89,11 +101,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           event_date?: string
-          featured_image_url?: string | null
-          featured_short_desc?: string | null
-          featured_title?: string | null
           id?: string
-          is_featured?: boolean
           max_players?: number
           status?: Database["public"]["Enums"]["event_status"]
           title?: string
@@ -338,7 +346,7 @@ export type Database = {
         | "ranking"
         | "assinatura"
         | "comunicado"
-        | "promoção"
+        | "promocao"
       subscription_status: "inactive" | "active" | "past_due" | "canceled"
       wallet_transaction_type:
         | "deposit"
@@ -471,6 +479,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       elo_tier: ["bronze", "prata", "ouro", "platina", "diamante"],
@@ -481,7 +492,7 @@ export const Constants = {
         "ranking",
         "assinatura",
         "comunicado",
-        "promoção",
+        "promocao",
       ],
       subscription_status: ["inactive", "active", "past_due", "canceled"],
       wallet_transaction_type: [
