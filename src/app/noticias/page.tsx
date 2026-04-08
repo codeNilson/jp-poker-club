@@ -12,7 +12,13 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { getFeaturedNews, getNewsFeed } from "@/services/news.service"
+import {
+  getFeaturedNews,
+  getNewsFeed,
+  isNewsCategory,
+  NEWS_CATEGORY_LABELS,
+  NEWS_CATEGORY_OPTIONS,
+} from "@/services/news.service"
 import { getRadarWeekItems } from "@/services/radar.service"
 
 export const revalidate = 3600
@@ -50,10 +56,39 @@ function formatRadarDate(value: string) {
   return `${dayPart}, ${timePart}`
 }
 
-export default async function NewsPage() {
+type NewsPageSearchParams = {
+  category?: string | string[]
+}
+
+function parseCategoryParam(searchParams: NewsPageSearchParams) {
+  const categoryParam = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category
+
+  if (isNewsCategory(categoryParam)) {
+    return categoryParam
+  }
+
+  return null
+}
+
+function createCategoryHref(category: string | null): string {
+  if (!category) {
+    return "/noticias"
+  }
+
+  return `/noticias?category=${category}`
+}
+
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: NewsPageSearchParams | Promise<NewsPageSearchParams>
+}) {
+  const resolvedSearchParams = await Promise.resolve(searchParams)
+  const selectedCategory = parseCategoryParam(resolvedSearchParams)
+
   const [featured, feed, radarItems] = await Promise.all([
     getFeaturedNews(),
-    getNewsFeed(7),
+    getNewsFeed(7, selectedCategory ?? undefined),
     getRadarWeekItems(3),
   ])
 
@@ -62,14 +97,11 @@ export default async function NewsPage() {
   const newsFeed = feed.filter((item) => item.id !== featuredNews?.id)
 
   const categories = [
-    "Todas",
-    ...Array.from(
-      new Set(
-        [featuredNews, ...newsFeed]
-          .filter(Boolean)
-          .map((item) => categoryLabelMap[item.category] ?? "Noticias")
-      )
-    ),
+    { label: "Todas", value: null },
+    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
+      label: NEWS_CATEGORY_LABELS[category],
+      value: category,
+    })),
   ]
 
   return (
@@ -94,28 +126,34 @@ export default async function NewsPage() {
         </header>
 
         <div className="flex flex-wrap gap-2">
-          {categories.map((category, index) => (
-            <button
-              key={category}
-              type="button"
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                index === 0
-                  ? "border-primary/60 bg-primary text-primary-foreground"
-                  : "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {categories.map((category) => {
+            const isActive = category.value === selectedCategory
+
+            return (
+              <Button
+                key={category.label}
+                asChild
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                className="rounded-full"
+              >
+                <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
+                  {category.label}
+                </Link>
+              </Button>
+            )
+          })}
         </div>
 
         <div className="-mt-3 flex justify-end">
           <Button asChild variant="outline" size="sm" className="rounded-full">
-            <Link href="/noticias/todas">Ver todas</Link>
+            <Link href={selectedCategory ? `/noticias/todas?category=${selectedCategory}` : "/noticias/todas"}>
+              Ver todas
+            </Link>
           </Button>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <article className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-primary/12 via-card to-card p-6 sm:p-8">
             {featuredNews ? (
               <>
@@ -185,7 +223,7 @@ export default async function NewsPage() {
             )}
           </article>
 
-          <aside className="rounded-3xl border border-border/80 bg-card/70 p-5 sm:p-6">
+          <aside className="self-start rounded-3xl border border-border/80 bg-card/70 p-5 sm:p-6">
             <h3 className="text-lg font-bold">Radar da semana</h3>
             <ul className="mt-4 space-y-3">
               {radarItems.length > 0 ? (
@@ -215,9 +253,9 @@ export default async function NewsPage() {
           </aside>
         </div>
 
-        <section className="columns-1 gap-4 md:columns-2">
-          {newsFeed.length > 0 ? (
-            newsFeed.map((item) => (
+        {newsFeed.length > 0 ? (
+          <section className="columns-1 gap-4 md:columns-2">
+            {newsFeed.map((item) => (
               <article
                 key={item.id}
                 className="group mb-4 break-inside-avoid rounded-3xl border border-border/80 bg-card/60 p-5 transition-colors hover:bg-card"
@@ -276,16 +314,9 @@ export default async function NewsPage() {
                   <ArrowRightIcon className="size-4" aria-hidden="true" />
                 </Link>
               </article>
-            ))
-          ) : (
-            <article className="rounded-3xl border border-border/80 bg-card/60 p-5 md:col-span-2">
-              <h3 className="text-lg font-bold">Nenhuma noticia publicada</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Quando houver novas publicacoes ativas no Supabase, elas aparecem aqui automaticamente.
-              </p>
-            </article>
-          )}
-        </section>
+            ))}
+          </section>
+        ) : null}
 
       </div>
     </section>

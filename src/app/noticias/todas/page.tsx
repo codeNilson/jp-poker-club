@@ -10,20 +10,17 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { getFeaturedNews, getPaginatedNewsFeed } from "@/services/news.service"
+import {
+  getPaginatedNewsFeed,
+  isNewsCategory,
+  NEWS_CATEGORY_LABELS,
+  NEWS_CATEGORY_OPTIONS,
+} from "@/services/news.service"
 
 export const revalidate = 3600
 
-const categoryLabelMap: Record<string, string> = {
-  clube: "Clube",
-  eventos: "Eventos",
-  ranking: "Ranking",
-  assinatura: "Assinatura",
-  comunicado: "Comunicado",
-  promocao: "Promocao",
-}
-
 type NewsPageSearchParams = {
+  category?: string | string[]
   page?: string | string[]
 }
 
@@ -48,12 +45,33 @@ function parsePageParam(searchParams: NewsPageSearchParams): number {
   return parsedPage
 }
 
-function createPageHref(page: number): string {
-  if (page <= 1) {
-    return "/noticias/todas"
+function parseCategoryParam(searchParams: NewsPageSearchParams) {
+  const categoryParam = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category
+
+  if (isNewsCategory(categoryParam)) {
+    return categoryParam
   }
 
-  return `/noticias/todas?page=${page}`
+  return null
+}
+
+function createPageHref(page: number, category: string | null): string {
+  const query = new URLSearchParams()
+
+  if (category) {
+    query.set("category", category)
+  }
+
+  if (page > 1) {
+    query.set("page", String(page))
+  }
+
+  const queryString = query.toString()
+  return queryString ? `/noticias/todas?${queryString}` : "/noticias/todas"
+}
+
+function createCategoryHref(category: string | null): string {
+  return createPageHref(1, category)
 }
 
 export default async function AllNewsPage({
@@ -63,17 +81,16 @@ export default async function AllNewsPage({
 }) {
   const resolvedSearchParams = await Promise.resolve(searchParams)
   const requestedPage = parsePageParam(resolvedSearchParams)
-
-  const featured = await getFeaturedNews()
+  const selectedCategory = parseCategoryParam(resolvedSearchParams)
 
   const paginatedFeed = await getPaginatedNewsFeed({
     page: requestedPage,
     pageSize: NEWS_PAGE_SIZE,
-    excludeId: featured?.id,
+    category: selectedCategory ?? undefined,
   })
 
   if (paginatedFeed.totalPages > 0 && requestedPage > paginatedFeed.totalPages) {
-    redirect(createPageHref(paginatedFeed.totalPages))
+    redirect(createPageHref(paginatedFeed.totalPages, selectedCategory))
   }
 
   const isFirstPage = paginatedFeed.page <= 1
@@ -81,14 +98,11 @@ export default async function AllNewsPage({
   const newsFeed = paginatedFeed.items
 
   const categories = [
-    "Todas",
-    ...Array.from(
-      new Set(
-        [featured, ...newsFeed]
-          .filter((item): item is (typeof newsFeed)[number] => Boolean(item))
-          .map((item) => categoryLabelMap[item.category] ?? "Noticias")
-      )
-    ),
+    { label: "Todas", value: null },
+    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
+      label: NEWS_CATEGORY_LABELS[category],
+      value: category,
+    })),
   ]
 
   return (
@@ -121,24 +135,28 @@ export default async function AllNewsPage({
         </header>
 
         <div className="flex flex-wrap gap-2">
-          {categories.map((category, index) => (
-            <button
-              key={category}
-              type="button"
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                index === 0
-                  ? "border-primary/60 bg-primary text-primary-foreground"
-                  : "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          {categories.map((category) => {
+            const isActive = category.value === selectedCategory
+
+            return (
+              <Button
+                key={category.label}
+                asChild
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                className="rounded-full"
+              >
+                <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
+                  {category.label}
+                </Link>
+              </Button>
+            )
+          })}
         </div>
 
-        <section className="columns-1 gap-4 md:columns-2">
-          {newsFeed.length > 0 ? (
-            newsFeed.map((item) => (
+        {newsFeed.length > 0 ? (
+          <section className="columns-1 gap-4 md:columns-2">
+            {newsFeed.map((item) => (
               <article
                 key={item.id}
                 className="group mb-4 break-inside-avoid rounded-3xl border border-border/80 bg-card/60 p-5 transition-colors hover:bg-card"
@@ -146,7 +164,7 @@ export default async function AllNewsPage({
                 <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 text-primary">
                     <CircleDotIcon className="size-3.5" aria-hidden="true" />
-                    {categoryLabelMap[item.category] ?? "Noticias"}
+                    {NEWS_CATEGORY_LABELS[item.category]}
                   </span>
                   <span>{formatDate(item.publishedAt)}</span>
                   <span className="inline-flex items-center gap-1">
@@ -197,29 +215,19 @@ export default async function AllNewsPage({
                   <ArrowRightIcon className="size-4" aria-hidden="true" />
                 </Link>
               </article>
-            ))
-          ) : (
-            <article className="rounded-3xl border border-border/80 bg-card/60 p-5 md:col-span-2">
-              <h3 className="text-lg font-bold">Nenhuma noticia publicada</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Quando houver novas publicacoes ativas no Supabase, elas aparecem aqui automaticamente.
-              </p>
-            </article>
-          )}
-        </section>
+            ))}
+          </section>
+        ) : null}
 
         {paginatedFeed.totalPages > 1 ? (
-          <nav
-            className="mt-2 flex flex-wrap items-center justify-center gap-2"
-            aria-label="Paginacao de todas as noticias"
-          >
+          <nav className="mt-2 flex flex-wrap items-center justify-center gap-2" aria-label="Paginacao de todas as noticias">
             {isFirstPage ? (
               <Button variant="outline" size="sm" className="rounded-full" disabled>
                 Anterior
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="rounded-full">
-                <Link href={createPageHref(paginatedFeed.page - 1)}>Anterior</Link>
+                <Link href={createPageHref(paginatedFeed.page - 1, selectedCategory)}>Anterior</Link>
               </Button>
             )}
 
@@ -234,7 +242,7 @@ export default async function AllNewsPage({
                   variant={isActive ? "default" : "outline"}
                   className="min-w-9 rounded-full"
                 >
-                  <Link href={createPageHref(pageNumber)} aria-current={isActive ? "page" : undefined}>
+                  <Link href={createPageHref(pageNumber, selectedCategory)} aria-current={isActive ? "page" : undefined}>
                     {pageNumber}
                   </Link>
                 </Button>
@@ -247,7 +255,7 @@ export default async function AllNewsPage({
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="rounded-full">
-                <Link href={createPageHref(paginatedFeed.page + 1)}>Proxima</Link>
+                <Link href={createPageHref(paginatedFeed.page + 1, selectedCategory)}>Proxima</Link>
               </Button>
             )}
           </nav>

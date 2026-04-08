@@ -4,13 +4,37 @@ import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
 const NEWS_IMAGES_BUCKET = "jp-poker-club-image-vault"
 
+export const NEWS_CATEGORY_OPTIONS = [
+  "clube",
+  "eventos",
+  "ranking",
+  "assinatura",
+  "comunicado",
+  "promocao",
+] as const
+
+export type NewsCategory = (typeof NEWS_CATEGORY_OPTIONS)[number]
+
+export const NEWS_CATEGORY_LABELS: Record<NewsCategory, string> = {
+  clube: "Clube",
+  eventos: "Eventos",
+  ranking: "Ranking",
+  assinatura: "Assinatura",
+  comunicado: "Comunicado",
+  promocao: "Promocao",
+}
+
+export function isNewsCategory(value: string | undefined): value is NewsCategory {
+  return Boolean(value && NEWS_CATEGORY_OPTIONS.includes(value as NewsCategory))
+}
+
 type NewsRow = {
   id: string
   title: string
   description: string
   content: string
   slug: string
-  category: "clube" | "eventos" | "ranking" | "assinatura" | "comunicado" | "promocao"
+  category: NewsCategory
   cover_image_url: string | null
   read_time_minutes: number
   is_featured: boolean
@@ -107,18 +131,23 @@ function mapArticle(supabase: PublicSupabaseClient, row: NewsRow): NewsArticle {
   }
 }
 
-export async function getFeaturedNews(): Promise<NewsPreview | null> {
+export async function getFeaturedNews(category?: NewsCategory): Promise<NewsPreview | null> {
   const supabase = createSupabaseServerPublicClient()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("news")
     .select("id,title,description,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
+    .eq("is_featured", true)
     .lte("published_at", new Date().toISOString())
-    .order("is_featured", { ascending: false })
     .order("published_at", { ascending: false })
     .limit(1)
-    .maybeSingle()
+
+  if (category) {
+    query = query.eq("category", category)
+  }
+
+  const { data, error } = await query.maybeSingle()
 
   if (error || !data) {
     return null
@@ -127,16 +156,22 @@ export async function getFeaturedNews(): Promise<NewsPreview | null> {
   return mapPreview(supabase, data as NewsRow)
 }
 
-export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
+export async function getNewsFeed(limit = 6, category?: NewsCategory): Promise<NewsPreview[]> {
   const supabase = createSupabaseServerPublicClient()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("news")
     .select("id,title,description,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at")
     .eq("is_active", true)
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .limit(limit)
+
+  if (category) {
+    query = query.eq("category", category)
+  }
+
+  const { data, error } = await query
 
   if (error || !data) {
     return []
@@ -149,6 +184,7 @@ export async function getPaginatedNewsFeed(options?: {
   page?: number
   pageSize?: number
   excludeId?: string
+  category?: NewsCategory
 }): Promise<PaginatedNewsFeed> {
   const supabase = createSupabaseServerPublicClient()
 
@@ -167,6 +203,10 @@ export async function getPaginatedNewsFeed(options?: {
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
     .range(from, to)
+
+  if (options?.category) {
+    query = query.eq("category", options.category)
+  }
 
   if (options?.excludeId) {
     query = query.neq("id", options.excludeId)
