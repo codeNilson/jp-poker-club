@@ -1,4 +1,24 @@
-create type public.news_category as enum ('clube', 'eventos', 'ranking', 'assinatura', 'comunicado', 'promoção');
+create table public.carousel_items (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  desktop_image_url text not null,
+  mobile_image_url text not null,
+  action_text text not null default 'Saiba mais',
+  link_url text not null,
+  is_active boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.carousel_items enable row level security;
+
+create policy "Carousel items are publicly readable"
+on public.carousel_items
+for select
+using (true);
+
+create type public.news_category as enum ('clube', 'eventos', 'ranking', 'assinatura', 'comunicado', 'promocao');
 
 create table public.news (
   id uuid primary key default gen_random_uuid(),
@@ -22,6 +42,10 @@ create index news_category_published_at_idx on public.news (category, published_
 create index news_featured_published_at_idx
   on public.news (is_featured, published_at desc)
   where is_active = true;
+
+create unique index news_single_active_featured_idx
+  on public.news (is_featured)
+  where is_active = true and is_featured = true;
 
 create trigger set_news_updated_at
 before update on public.news
