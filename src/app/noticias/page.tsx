@@ -63,7 +63,13 @@ export default async function NewsPage() {
 
   const categories = [
     "Todas",
-    ...Array.from(new Set(feed.map((item) => categoryLabelMap[item.category] ?? "Noticias"))),
+    ...Array.from(
+      new Set(
+        [featuredNews, ...newsFeed]
+          .filter(Boolean)
+          .map((item) => categoryLabelMap[item.category] ?? "Noticias")
+      )
+    ),
   ]
 
   return (
@@ -101,6 +107,12 @@ export default async function NewsPage() {
               {category}
             </button>
           ))}
+        </div>
+
+        <div className="-mt-3 flex justify-end">
+          <Button asChild variant="outline" size="sm" className="rounded-full">
+            <Link href="/noticias/todas">Ver todas</Link>
+          </Button>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
@@ -274,6 +286,7 @@ export default async function NewsPage() {
             </article>
           )}
         </section>
+
       </div>
     </section>
   )

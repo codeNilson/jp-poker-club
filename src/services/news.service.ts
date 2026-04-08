@@ -35,6 +35,14 @@ export type NewsArticle = NewsPreview & {
   content: string
 }
 
+export type PaginatedNewsFeed = {
+  items: NewsPreview[]
+  totalItems: number
+  totalPages: number
+  page: number
+  pageSize: number
+}
+
 function extractObjectPathFromStoredValue(value: string): string | null {
   const trimmedValue = value.trim().replace(/^\/+/, "")
 
@@ -135,6 +143,57 @@ export async function getNewsFeed(limit = 6): Promise<NewsPreview[]> {
   }
 
   return (data as NewsRow[]).map((row) => mapPreview(supabase, row))
+}
+
+export async function getPaginatedNewsFeed(options?: {
+  page?: number
+  pageSize?: number
+  excludeId?: string
+}): Promise<PaginatedNewsFeed> {
+  const supabase = createSupabaseServerPublicClient()
+
+  const requestedPage = Math.max(1, options?.page ?? 1)
+  const pageSize = Math.max(1, options?.pageSize ?? 6)
+  const from = (requestedPage - 1) * pageSize
+  const to = from + pageSize - 1
+
+  let query = supabase
+    .from("news")
+    .select(
+      "id,title,description,slug,category,cover_image_url,read_time_minutes,is_featured,is_hot,is_active,published_at",
+      { count: "exact" }
+    )
+    .eq("is_active", true)
+    .lte("published_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .range(from, to)
+
+  if (options?.excludeId) {
+    query = query.neq("id", options.excludeId)
+  }
+
+  const { data, error, count } = await query
+
+  if (error || !data) {
+    return {
+      items: [],
+      totalItems: 0,
+      totalPages: 0,
+      page: requestedPage,
+      pageSize,
+    }
+  }
+
+  const totalItems = count ?? 0
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / pageSize) : 0
+
+  return {
+    items: (data as NewsRow[]).map((row) => mapPreview(supabase, row)),
+    totalItems,
+    totalPages,
+    page: requestedPage,
+    pageSize,
+  }
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
