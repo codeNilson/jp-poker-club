@@ -4,6 +4,20 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## App Routes
+
+- `/` — Home page with carousel (public, static)
+- `/login` — Login page
+- `/auth/callback` — Supabase auth callback handler
+- `/noticias` — News feed (public, time-based cache)
+- `/noticias/todas` — Full paginated news listing
+- `/noticias/[slug]` — Individual news article
+- `/eventos` — Events listing (public, time-based cache)
+- `/promocoes` — Promotions page (public)
+- `/fale-conosco` — Contact page (public)
+- `/termos-de-uso` — Terms of use (public, indefinite cache)
+- `/politicas-de-privacidade` — Privacy policy (public, indefinite cache)
+
 ## Rules
 
 - Only touch the readme.md file if explicitly requested.
@@ -76,6 +90,18 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Avoid technical wording for end users on screens, especially in login, onboarding, and help messages.
 - Prefer short, simple, direct copy for user actions.
 - If a UX or architecture change affects visible app behavior, record the decision here before continuing with new implementations.
+
+## Environment Variables
+
+- `NEXT_PUBLIC_APP_URL` — Public base URL of the app.
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key.
+- `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key (server/admin only).
+- `ABACATEPAY_API_KEY` — AbacatePay API key (payment integration).
+- `PAGARME_SECRET_KEY` — Pagar.me secret key (payment integration).
+- `PAGARME_WEBHOOK_SECRET` — Pagar.me webhook signature secret.
+
+All variables are validated at runtime via `src/lib/env.ts` using Zod. Add new variables to that schema before using them.
 
 ## Supabase
 
