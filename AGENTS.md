@@ -4,121 +4,121 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-## Regras
+## Rules
 
-- Só mexa no arquivo readme.md se for solicitado.
+- Only touch the readme.md file if explicitly requested.
 
-## Tema
+## Theme
 
-- Tema padrão sempre escuro, sem toggle light/dark.
-- Usar como base visual: --primary #32e035, --background #070707, --card e --muted #121217.
+- The default theme is always dark, with no light/dark toggle.
+- Use these visual tokens as the base: --primary #32e035, --background #070707, --card and --muted #121217.
 
-## UI e Layout
+## UI and Layout
 
-- UI do JP Poker Club usa cantos arredondados.
-- Preferir componentes de src/components/ui antes de criar novos.
-- Sempre considerar o layout mobile primeiro.
-- Para mensagens toast, usar o Sonner (src/components/ui/sonner.tsx) como padrão quando necessário.
+- JP Poker Club UI uses rounded corners.
+- Prefer components from src/components/ui before creating new ones.
+- Always think mobile-first.
+- For toast messages, use Sonner (src/components/ui/sonner.tsx) as the default when needed.
 
-## Navegação
+## Navigation
 
-- Manter consistência de estado ativo, hover e transições suaves em navegação e outros controles visuais.
-- Para redirecionamentos internos, usar `useRouter` com `router.push()` ou `router.replace()` e `router.refresh()` quando precisar refletir sessão/SSR; evitar `window.location.assign()` para não forçar reload completo.
-- Reservar `window.location.assign()` apenas para fluxos externos ou redirecionamentos absolutos fora do app.
-- Componentes visíveis de autenticação devem receber o estado inicial da sessão via server/SSR quando possível, para evitar FOUC; `useEffect` no client deve servir apenas para sincronização posterior.
+- Keep active state, hover, and smooth transitions consistent in navigation and other visual controls.
+- For internal redirects, use `useRouter` with `router.push()` or `router.replace()`, and `router.refresh()` when session/SSR needs to be reflected; avoid `window.location.assign()` to prevent a full reload.
+- Reserve `window.location.assign()` only for external flows or absolute redirects outside the app.
+- Visible authentication components should receive the initial session state through server/SSR when possible to avoid FOUC; client-side `useEffect` should be used only for later synchronization.
 
-## Estrutura do Projeto
+## Project Structure
 
-- src/app contém rotas, layouts e páginas.
-- src/components contém componentes reutilizáveis, com prioridade para src/components/ui antes de criar novos.
-- src/lib contém utilitários e integrações.
-- src/lib/supabase contém os clients do Supabase para browser, server/SSR e admin.
-- src/types/database.ts é gerado automaticamente e não deve ser editado manualmente.
-- supabase/migrations guarda as migrations versionadas do banco.
-- public guarda assets estáticos.
-- src/data, src/constants, src/services e src/hooks separam dados, constantes, regras de acesso e hooks.
+- src/app contains routes, layouts, and pages.
+- src/components contains reusable components, with priority for src/components/ui before creating new ones.
+- src/lib contains utilities and integrations.
+- src/lib/supabase contains Supabase clients for browser, server/SSR, and admin.
+- src/types/database.ts is generated automatically and must not be edited manually.
+- supabase/migrations stores versioned database migrations.
+- public stores static assets.
+- src/data, src/constants, src/services, and src/hooks separate data, constants, access rules, and hooks.
 
-## Onde Procurar
+## Where to Look
 
-- Mudança de banco: olhar primeiro supabase/migrations.
-- Integração com Supabase: olhar src/lib/supabase.
-- UI nova: olhar primeiro src/components/ui e depois os componentes de layout.
-- Rota ou página: olhar src/app.
+- Database changes: check supabase/migrations first.
+- Supabase integration: check src/lib/supabase.
+- New UI: check src/components/ui first, then layout components.
+- Route or page: check src/app.
 
-## Decisões de Arquitetura
+## Architecture Decisions
 
-- Qualquer mudança que altere schema, relações, RLS, fluxo de auth, ou organização estrutural do projeto deve ser registrada aqui.
-- Se a mudança impactar Supabase, o schema deve ser definido em migration versionada, nunca apenas no painel.
-- Se uma decisão mudar onde algo deve viver no projeto, atualizar esta documentação antes de continuar com implementações relacionadas.
+- Any change that alters schema, relationships, RLS, auth flow, or the project structure must be recorded here.
+- If a change affects Supabase, the schema must be defined in a versioned migration, never only in the dashboard.
+- If a decision changes where something should live in the project, update this documentation before continuing with related implementations.
 
-## Regras de Arquitetura e Cache
+## Architecture and Cache Rules
 
-- **Estratégia "Cache by Default":** Assuma que toda página (Server Component) deve ser renderizada estaticamente, a menos que haja um requisito explícito para dados em tempo real ou dependência da sessão do usuário.
-- **Páginas Dinâmicas (Sem Cache):**
-  - **Quando usar:** Páginas privadas (Dashboard, Wallet, Perfil) ou rotas que leem parâmetros de URL (`searchParams`).
-  - **Regra de Implementação:** Nestes casos, você deve usar o `createSupabaseServerClient` (que lê cookies). Apenas a leitura de cookies ou `searchParams` já força a página a ser dinâmica. Se estritamente necessário, declare `export const dynamic = 'force-dynamic'`.
-- **Páginas Estáticas (Cache Indefinido ou por Tempo):**
-  - **Quando usar:** Páginas públicas que são idênticas para todos os visitantes.
-  - **Regra de Implementação:** NÃO leia cookies no servidor para essas rotas. Use EXCLUSIVAMENTE o `createSupabaseServerPublicClient` (com `persistSession: false`) para buscar dados públicos no Supabase, garantindo que o Next.js não desative o cache estático.
-  - **Cache Indefinido:** Para rotas institucionais (Termos, Privacidade), não adicione nenhuma variável de revalidação. Essas páginas permanecem em cache estático até o próximo build/deploy.
-  - **Cache por Tempo:** Para rotas vitrines que mudam com frequência moderada, adicione `export const revalidate = 3600` (ou outro tempo apropriado) no topo da `page.tsx`.
-- **Server Actions e Revalidação Sob Demanda:** TODA vez que você for criar ou editar uma Server Action que faz mutação no banco de dados (INSERT, UPDATE, DELETE), principalmente no Painel Admin, você DEVE obrigatoriamente incluir o `revalidatePath()` do Next.js para limpar o cache das rotas públicas afetadas por aquela mudança.
-- **Lembrete Pendente (Noticias):** Este item e apenas um lembrete de arquitetura. A implementacao sera solicitada futuramente pelo solicitante.
-- **Estrategia Escolhida (Noticias):** Manter cache no servidor para paginas publicas e invalidar sob demanda quando houver mudanca em `news`.
-  - No fluxo interno do app (create, update, delete, publish, unpublish), invalidar cache com `revalidatePath()` ou `revalidateTag()`.
-  - Como fallback, configurar webhook do Supabase para um endpoint interno de invalidacao, cobrindo mudancas feitas fora do app (painel do Supabase, scripts, integracoes).
-  - Seguranca do webhook: usar segredo dedicado por ambiente (dev e producao com secrets diferentes) e validar obrigatoriamente a assinatura/header secreto no endpoint antes de executar qualquer invalidacao.
-  - Objetivo: evitar pagina publica dinamica batendo no banco em toda requisicao, mantendo conteudo atualizado apos mutacoes.
-- **O Dilema da Navbar (Client vs Server):** O Layout base (`RootLayout`) nunca deve ler cookies no servidor para não contaminar o site inteiro. Componentes visuais globais que dependem de sessão (como Navbar mostrando o usuário) devem ser Client Components (`"use client"`) e buscar a sessão ativamente via `createSupabaseBrowserClient`, usando Skeleton Loaders para evitar FOUC (Flash of Unstyled Content).
+- **Cache by Default Strategy:** Assume every page (Server Component) should be rendered statically unless there is an explicit requirement for real-time data or user session dependence.
+- **Dynamic Pages (No Cache):**
+  - **When to use:** Private pages (Dashboard, Wallet, Profile) or routes that read URL parameters (`searchParams`).
+  - **Implementation rule:** In these cases, you must use `createSupabaseServerClient` (which reads cookies). Reading cookies or `searchParams` alone already makes the page dynamic. If strictly necessary, declare `export const dynamic = 'force-dynamic'`.
+- **Static Pages (Indefinite Cache or Time-Based Cache):**
+  - **When to use:** Public pages that are identical for every visitor.
+  - **Implementation rule:** Do NOT read cookies on the server for these routes. Use ONLY `createSupabaseServerPublicClient` (with `persistSession: false`) to fetch public data from Supabase, ensuring Next.js does not disable static caching.
+  - **Indefinite Cache:** For institutional routes (Terms, Privacy), do not add any revalidation variable. These pages remain statically cached until the next build/deploy.
+  - **Time-Based Cache:** For showcase pages that change at a moderate frequency, add `export const revalidate = 3600` (or another suitable value) at the top of page.tsx.
+- **Server Actions and On-Demand Revalidation:** EVERY time you create or edit a Server Action that mutates the database (INSERT, UPDATE, DELETE), especially in the Admin Panel, you MUST include Next.js `revalidatePath()` to clear the cache of the public routes affected by that change.
+- **Pending Reminder (News):** This item is only an architecture reminder. The implementation will be requested later by the requester.
+- **Chosen Strategy (News):** Keep server cache for public pages and invalidate on demand when there are changes in `news`.
+  - In the app's internal flow (create, update, delete, publish, unpublish), invalidate cache with `revalidatePath()` or `revalidateTag()`.
+  - As a fallback, configure a Supabase webhook to an internal invalidation endpoint, covering changes made outside the app (Supabase dashboard, scripts, integrations).
+  - Webhook security: use a dedicated secret per environment (dev and production with different secrets) and strictly validate the signature/secret header at the endpoint before performing any invalidation.
+  - Goal: avoid a dynamic public page hitting the database on every request while keeping content updated after mutations.
+- **The Navbar Dilemma (Client vs Server):** The base layout (`RootLayout`) must never read cookies on the server to avoid contaminating the entire site. Global visual components that depend on session state (such as a Navbar showing the user) must be Client Components (`"use client"`) and actively fetch the session via `createSupabaseBrowserClient`, using Skeleton Loaders to avoid FOUC (Flash of Unstyled Content).
 
-## Linguagem de Produto
+## Product Language
 
-- Evitar texto técnico para o usuário final em telas, especialmente em login, onboarding e mensagens de ajuda.
-- Preferir copy curta, simples e direta para ações do usuário.
-- Se uma mudança de UX ou arquitetura afetar o comportamento visível do app, registrar a decisão aqui antes de seguir com novas implementações.
+- Avoid technical wording for end users on screens, especially in login, onboarding, and help messages.
+- Prefer short, simple, direct copy for user actions.
+- If a UX or architecture change affects visible app behavior, record the decision here before continuing with new implementations.
 
 ## Supabase
 
-- Não editar manualmente src/types/database.ts; arquivo gerado automaticamente.
-- Após criar ou alterar tabelas no Supabase, regenerar src/types/database.ts.
-- O schema do Supabase deve ser tratado como código e versionado em supabase/migrations.
-- Usar src/lib/supabase/client.ts no browser.
-- Usar src/lib/supabase/server.ts no server/SSR com cookies em getAll/setAll.
-- Usar src/lib/supabase/admin.ts somente no servidor para operações administrativas.
+- Do not edit src/types/database.ts manually; it is generated automatically.
+- After creating or altering tables in Supabase, regenerate src/types/database.ts.
+- The Supabase schema must be treated as code and versioned in supabase/migrations.
+- Use src/lib/supabase/client.ts in the browser.
+- Use src/lib/supabase/server.ts on the server/SSR with cookies in getAll/setAll.
+- Use src/lib/supabase/admin.ts only on the server for administrative operations.
 
-## Domínio de Dados
+## Data Domain
 
-- auth.users é a fonte de verdade da autenticação; novas contas devem gerar perfil e carteira automaticamente.
-- profiles guarda o perfil do jogador e a camada de negócio do usuário: display_name, avatar_url, elo_points, elo_tier, is_subscriber e user_role.
-- wallets guarda o saldo atual do jogador; balance é campo persistido e deve ser atualizado em conjunto com cada movimentação.
-- wallet_transactions é o histórico/auditoria da carteira; cada movimento deve registrar amount, balance_before, balance_after, type e referência opcional.
-- subscriptions controla o estado da assinatura por usuário; status indica a situação atual e is_subscriber em profiles deve refletir essa condição quando aplicável.
-- events representa torneios/eventos; cada evento tem status, buy_in, data, limite de jogadores e campos opcionais de destaque (featured_title, featured_short_desc, featured_image_url, is_featured) para uso em home e radar.
-- news representa as noticias/editoriais do clube; cada registro tem title, description, content, slug, category, published_at, is_active, is_featured, is_hot, read_time_minutes e cover_image_url opcional.
-- news.is_featured deve funcionar como destaque global exclusivo entre noticias ativas; quando nao houver destaque ativo, a UI pode cair para a noticia mais recente.
-- news.is_hot e apenas um selo visual de relevancia e pode coexistir em varias noticias ao mesmo tempo.
-- news nao deve receber imagem ficticia no banco; quando nao houver banner real, a UI deve simplesmente ocultar o bloco de imagem.
-- tournament_entries registra o resultado de cada jogador em cada evento; final_position e points_earned são a base para o ranking de Elo.
-- O radar da semana deve ser montado a partir de dados reais do banco, combinando eventos proximos e noticias publicadas recentemente, sem hardcode na UI.
+- auth.users is the source of truth for authentication; new accounts must automatically generate a profile and wallet.
+- profiles stores the player profile and the business layer of the user: display_name, avatar_url, elo_points, elo_tier, is_subscriber, and user_role.
+- wallets stores the player's current balance; balance is a persisted field and must be updated together with each movement.
+- wallet_transactions is the wallet history/audit trail; each movement must record amount, balance_before, balance_after, type, and an optional reference.
+- subscriptions controls the user's subscription status; status indicates the current state and is_subscriber in profiles must reflect that condition when applicable.
+- events represents tournaments/events; each event has status, buy_in, date, player limit, and optional highlight fields (featured_title, featured_short_desc, featured_image_url, is_featured) for use on home and radar.
+- news represents the club's news/editorial content; each record has title, description, content, slug, category, published_at, is_active, is_featured, is_hot, read_time_minutes, and an optional cover_image_url.
+- news.is_featured must work as a unique global highlight among active news items; when there is no active highlight, the UI may fall back to the most recent news item.
+- news.is_hot is only a visual relevance badge and can coexist across multiple news items at the same time.
+- news must not receive fake images in the database; when there is no real banner, the UI should simply hide the image block.
+- tournament_entries records each player's result in each event; final_position and points_earned are the basis for the Elo ranking.
+- The weekly radar must be assembled from real database data, combining nearby events and recently published news, with no hardcoding in the UI.
 
-## Fluxo Esperado
+## Expected Flow
 
-- Novo usuário: auth.users dispara criação de profiles e wallets.
-- Login: a sessão vem do Supabase Auth; o app lê o usuário logado e o perfil correspondente.
-- Depósito: gera wallet_transactions e atualiza wallets.balance de forma atômica.
-- Assinatura: a mudança de status deve refletir em subscriptions e, quando aplicável, em profiles.is_subscriber.
-- Resultado de torneio: admin salva tournament_entries, calcula points_earned e atualiza profiles.elo_points e profiles.elo_tier.
-- Ranking: profiles.elo_points é a referência principal; elo_tier deriva do total de pontos.
+- New user: auth.users triggers the creation of profiles and wallets.
+- Login: the session comes from Supabase Auth; the app reads the logged-in user and the corresponding profile.
+- Deposit: generates wallet_transactions and updates wallets.balance atomically.
+- Subscription: the status change must be reflected in subscriptions and, when applicable, in profiles.is_subscriber.
+- Tournament result: admin saves tournament_entries, computes points_earned, and updates profiles.elo_points and profiles.elo_tier.
+- Ranking: profiles.elo_points is the main reference; elo_tier is derived from the total points.
 
-## Colunas Relevantes
+## Relevant Columns
 
-- profiles.id sempre deve corresponder ao auth.users.id.
-- wallets.user_id sempre deve corresponder ao auth.users.id.
-- wallet_transactions.user_id sempre aponta para o dono da movimentação.
-- wallet_transactions.balance_before e balance_after devem refletir a evolução real do saldo.
-- subscriptions.user_id identifica a assinatura do jogador.
-- events.status controla o ciclo upcoming, ongoing e finished; featured_* e is_featured servem para destacar o evento em cards e blocos editoriais.
-- news.slug precisa ser unico e servir como chave editorial para referencias visuais e futuras rotas de detalhe.
-- news.category controla a taxonomia editorial; published_at define a ordem de publicacao; is_active e is_featured determinam visibilidade.
-- Manter apenas um `is_featured = true` ativo por vez no banco; `is_hot` continua sem restricao de unicidade.
-- tournament_entries.event_id e user_id formam a ligação entre evento e jogador; final_position define a colocação e points_earned o impacto no Elo.
+- profiles.id must always match auth.users.id.
+- wallets.user_id must always match auth.users.id.
+- wallet_transactions.user_id always points to the owner of the movement.
+- wallet_transactions.balance_before and balance_after must reflect the real balance progression.
+- subscriptions.user_id identifies the player's subscription.
+- events.status controls the upcoming, ongoing, and finished cycle; featured_* and is_featured are used to highlight the event in cards and editorial blocks.
+- news.slug must be unique and serve as the editorial key for visual references and future detail routes.
+- news.category controls the editorial taxonomy; published_at defines publication order; is_active and is_featured determine visibility.
+- Keep only one active `is_featured = true` at a time in the database; `is_hot` remains without uniqueness restrictions.
+- tournament_entries.event_id and user_id form the link between event and player; final_position defines placement and points_earned the impact on Elo.
