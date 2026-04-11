@@ -1,9 +1,12 @@
 import Link from "next/link"
 
+import { NewsCoverImageField } from "@/components/forms/news-cover-image-field"
 import { SlugAutofillSync } from "@/components/forms/slug-autofill-sync"
 import { Button } from "@/components/ui/button"
 import { getAdminNewsItems } from "@/lib/admin/news"
+import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_OPTIONS } from "@/services/news.service"
+import { resolveCoverImageUrl } from "@/services/news.service"
 
 import { createNewsAction, deleteNewsAction, updateNewsAction } from "./actions"
 
@@ -49,7 +52,7 @@ function parseNotice(searchParams: SearchParams) {
 }
 
 function booleanFieldLabel(value: boolean) {
-  return value ? "Sim" : "Nao"
+  return value ? "Sim" : "Não"
 }
 
 function getNowDateTimeLocal() {
@@ -66,22 +69,23 @@ export default async function AdminNewsPage({
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {})
   const notice = parseNotice(resolvedSearchParams)
   const newsItems = await getAdminNewsItems()
+  const publicSupabase = createSupabaseServerPublicClient()
   const nowLocalDateTime = getNowDateTimeLocal()
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="rounded-3xl border bg-card p-6 shadow-sm">
         <p className="text-sm font-medium text-primary">Admin / News</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar noticias</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar notícias</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Crie, edite, publique e destaque materias sem sair do painel.
+          Crie, edite, publique e destaque matérias sem sair do painel.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
             <Link href="/admin">Voltar ao painel</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/noticias">Ver pagina publica</Link>
+            <Link href="/noticias">Ver página pública</Link>
           </Button>
         </div>
       </header>
@@ -100,11 +104,11 @@ export default async function AdminNewsPage({
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
-          <h2 className="text-lg font-semibold">Nova noticia</h2>
+          <h2 className="text-lg font-semibold">Nova notícia</h2>
           <form action={createNewsAction} className="mt-5 grid gap-4">
             <div className="grid gap-2">
               <label htmlFor="create-title" className="text-sm font-medium">
-                Titulo
+                Título
               </label>
               <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
               <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
@@ -129,7 +133,7 @@ export default async function AdminNewsPage({
 
             <div className="grid gap-2">
               <label htmlFor="create-description" className="text-sm font-medium">
-                Descricao curta
+                Descrição curta
               </label>
               <textarea
                 id="create-description"
@@ -144,7 +148,7 @@ export default async function AdminNewsPage({
 
             <div className="grid gap-2">
               <label htmlFor="create-content" className="text-sm font-medium">
-                Conteudo
+                Conteúdo
               </label>
               <textarea
                 id="create-content"
@@ -170,17 +174,12 @@ export default async function AdminNewsPage({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-coverImageUrl" className="text-sm font-medium">
-                Capa da imagem (opcional)
-              </label>
-              <input
-                id="create-coverImageUrl"
-                name="coverImageUrl"
-                placeholder="https://..."
-                className="rounded-xl border bg-background px-3 py-2 text-sm"
-              />
-            </div>
+            <NewsCoverImageField
+              inputId="create-coverImageFile"
+              name="coverImageFile"
+              label="Imagem de capa"
+              helpText="A imagem será enviada para o storage do Supabase e usada como capa da notícia."
+            />
 
             <div className="grid gap-2">
               <label htmlFor="create-readTimeMinutes" className="text-sm font-medium">
@@ -199,7 +198,7 @@ export default async function AdminNewsPage({
 
             <div className="grid gap-2">
               <label htmlFor="create-publishedAt" className="text-sm font-medium">
-                Publicacao
+                Publicação
               </label>
               <input
                 id="create-publishedAt"
@@ -226,14 +225,14 @@ export default async function AdminNewsPage({
             </div>
 
             <Button type="submit" className="w-full">
-              Criar noticia
+              Criar notícia
             </Button>
           </form>
         </section>
 
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Noticias cadastradas</h2>
+            <h2 className="text-lg font-semibold">Notícias cadastradas</h2>
             <span className="rounded-full border px-3 py-1 text-xs text-muted-foreground">
               {newsItems.length} itens
             </span>
@@ -258,14 +257,14 @@ export default async function AdminNewsPage({
                   <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
 
                   <details className="mt-5 rounded-2xl border bg-background p-4">
-                    <summary className="cursor-pointer text-sm font-medium">Editar noticia</summary>
+                    <summary className="cursor-pointer text-sm font-medium">Editar notícia</summary>
 
                     <form action={updateNewsAction} className="mt-4 grid gap-4">
                       <input type="hidden" name="id" value={item.id} />
 
                       <div className="grid gap-2">
                         <label htmlFor={`title-${item.id}`} className="text-sm font-medium">
-                          Titulo
+                          Título
                         </label>
                         <input
                           id={`title-${item.id}`}
@@ -280,7 +279,7 @@ export default async function AdminNewsPage({
 
                       <div className="grid gap-2">
                         <label htmlFor={`description-${item.id}`} className="text-sm font-medium">
-                          Descricao curta
+                          Descrição curta
                         </label>
                         <textarea
                           id={`description-${item.id}`}
@@ -296,7 +295,7 @@ export default async function AdminNewsPage({
 
                       <div className="grid gap-2">
                         <label htmlFor={`content-${item.id}`} className="text-sm font-medium">
-                          Conteudo
+                          Conteúdo
                         </label>
                         <textarea
                           id={`content-${item.id}`}
@@ -343,17 +342,13 @@ export default async function AdminNewsPage({
                         </select>
                       </div>
 
-                      <div className="grid gap-2">
-                        <label htmlFor={`coverImageUrl-${item.id}`} className="text-sm font-medium">
-                          Capa da imagem (opcional)
-                        </label>
-                        <input
-                          id={`coverImageUrl-${item.id}`}
-                          name="coverImageUrl"
-                          defaultValue={item.cover_image_url ?? ""}
-                          className="rounded-xl border bg-card px-3 py-2 text-sm"
-                        />
-                      </div>
+                      <NewsCoverImageField
+                        inputId={`coverImageFile-${item.id}`}
+                        name="coverImageFile"
+                        label="Imagem de capa"
+                        helpText="Envie uma nova imagem apenas se quiser trocar a capa atual."
+                        defaultPreviewUrl={resolveCoverImageUrl(publicSupabase, item.cover_image_url)}
+                      />
 
                       <div className="grid gap-2">
                         <label htmlFor={`readTimeMinutes-${item.id}`} className="text-sm font-medium">
@@ -372,7 +367,7 @@ export default async function AdminNewsPage({
 
                       <div className="grid gap-2">
                         <label htmlFor={`publishedAt-${item.id}`} className="text-sm font-medium">
-                          Publicacao
+                          Publicação
                         </label>
                         <input
                           id={`publishedAt-${item.id}`}
@@ -399,9 +394,9 @@ export default async function AdminNewsPage({
                       </div>
 
                       <div className="flex flex-wrap gap-3">
-                        <Button type="submit">Salvar alteracoes</Button>
+                        <Button type="submit">Salvar alterações</Button>
                         <Button asChild variant="outline">
-                          <Link href={`/noticias/${item.slug}`}>Abrir pagina publica</Link>
+                          <Link href={`/noticias/${item.slug}`}>Abrir página pública</Link>
                         </Button>
                       </div>
                     </form>
@@ -410,14 +405,14 @@ export default async function AdminNewsPage({
                   <form action={deleteNewsAction} className="mt-4">
                     <input type="hidden" name="id" value={item.id} />
                     <Button type="submit" variant="destructive" size="sm">
-                      Excluir noticia
+                      Excluir notícia
                     </Button>
                   </form>
                 </article>
               ))
             ) : (
               <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-                Nenhuma noticia cadastrada ainda.
+                Nenhuma notícia cadastrada ainda.
               </div>
             )}
           </div>

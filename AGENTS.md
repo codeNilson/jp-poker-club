@@ -54,6 +54,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Post-login redirect should be role-aware in `/auth/callback`: send `admin`/`operator` to `/admin`, others to `/`.
 - Admin/content mutations should be enforced in Supabase RLS using `profiles.user_role`; admin gets destructive access, operator gets scoped content-management access, and money-facing tables stay admin-only for writes.
 - Wallet balance adjustments in admin flows must be atomic in the database (single function/transaction) and always append a `wallet_transactions` audit record with before/after balances.
+- News cover images must be uploaded from the admin form to Supabase Storage and shown with a local preview before submit; do not rely on manual image URLs in the UI.
+- News image uploads must use the authenticated server-session client (no admin-key fallback in runtime) and rely on explicit `storage.objects` RLS policies for `admin`/`operator` in the `jp-poker-club-image-vault` bucket.
 
 ## Architecture and Cache Rules
 
@@ -79,6 +81,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - Avoid technical wording for end users on screens, especially in login, onboarding, and help messages.
 - Prefer short, simple, direct copy for user actions.
+- All user-facing text in Portuguese must use correct accents/diacritics (for example: "Descrição", "Conteúdo", "Publicação", "Notícia").
 - If a UX or architecture change affects visible app behavior, record the decision here before continuing with new implementations.
 
 ## Supabase

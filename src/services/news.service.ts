@@ -2,7 +2,7 @@ import "server-only"
 
 import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
-const NEWS_IMAGES_BUCKET = "jp-poker-club-image-vault"
+export const NEWS_IMAGES_BUCKET = "jp-poker-club-image-vault"
 
 export const NEWS_CATEGORY_OPTIONS = [
   "clube",
@@ -67,7 +67,7 @@ export type PaginatedNewsFeed = {
   pageSize: number
 }
 
-function extractObjectPathFromStoredValue(value: string): string | null {
+export function extractNewsImageObjectPath(value: string): string | null {
   const trimmedValue = value.trim().replace(/^\/+/, "")
 
   if (!trimmedValue) {
@@ -92,7 +92,7 @@ function extractObjectPathFromStoredValue(value: string): string | null {
 
 type PublicSupabaseClient = ReturnType<typeof createSupabaseServerPublicClient>
 
-function resolveCoverImageUrl(
+export function resolveCoverImageUrl(
   supabase: PublicSupabaseClient,
   rowCoverImageUrl: string | null
 ): string | null {
@@ -100,7 +100,7 @@ function resolveCoverImageUrl(
     return null
   }
 
-  const objectPath = extractObjectPathFromStoredValue(rowCoverImageUrl)
+  const objectPath = extractNewsImageObjectPath(rowCoverImageUrl)
 
   if (!objectPath) {
     return null
