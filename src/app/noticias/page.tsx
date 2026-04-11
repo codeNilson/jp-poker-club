@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; // Adicione BEM NO TOPO do arquivo
+
 import {
   ArrowRightIcon,
   CalendarDaysIcon,
