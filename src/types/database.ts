@@ -73,6 +73,53 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_game_sessions: {
+        Row: {
+          buy_in: number
+          cash_out: number
+          created_at: string
+          event_id: string | null
+          id: string
+          net_result: number
+          notes: string | null
+          played_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buy_in: number
+          cash_out: number
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          net_result: number
+          notes?: string | null
+          played_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buy_in?: number
+          cash_out?: number
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          net_result?: number
+          notes?: string | null
+          played_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_game_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           blinds: string | null
@@ -165,53 +212,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      cash_game_sessions: {
-        Row: {
-          buy_in: number
-          cash_out: number
-          created_at: string
-          event_id: string | null
-          id: string
-          net_result: number
-          notes: string | null
-          played_at: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          buy_in: number
-          cash_out: number
-          created_at?: string
-          event_id?: string | null
-          id?: string
-          net_result: number
-          notes?: string | null
-          played_at?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          buy_in?: number
-          cash_out?: number
-          created_at?: string
-          event_id?: string | null
-          id?: string
-          net_result?: number
-          notes?: string | null
-          played_at?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cash_game_sessions_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {
@@ -388,12 +388,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_adjust_wallet_balance: {
+        Args: {
+          adjustment_amount: number
+          adjustment_reason?: string
+          target_user_id: string
+        }
+        Returns: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          type: Database["public"]["Enums"]["wallet_transaction_type"]
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "wallet_transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      has_profile_role: { Args: { allowed_roles: string[] }; Returns: boolean }
     }
     Enums: {
       elo_tier: "bronze" | "prata" | "ouro" | "platina" | "diamante"
-      event_type: "tournament" | "cash_game"
       event_status: "upcoming" | "ongoing" | "finished"
+      event_type: "tournament" | "cash_game"
       news_category:
         | "clube"
         | "eventos"
@@ -540,6 +565,7 @@ export const Constants = {
     Enums: {
       elo_tier: ["bronze", "prata", "ouro", "platina", "diamante"],
       event_status: ["upcoming", "ongoing", "finished"],
+      event_type: ["tournament", "cash_game"],
       news_category: [
         "clube",
         "eventos",

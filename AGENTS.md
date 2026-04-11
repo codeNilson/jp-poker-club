@@ -50,6 +50,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Any change that alters schema, relationships, RLS, auth flow, or the project structure must be recorded here.
 - If a change affects Supabase, the schema must be defined in a versioned migration, never only in the dashboard.
 - If a decision changes where something should live in the project, update this documentation before continuing with related implementations.
+- `/admin` must be protected at the route-segment level (`src/app/admin/layout.tsx`) using server-side session + `profiles.user_role` checks; only `admin` and `operator` can access the area.
+- Post-login redirect should be role-aware in `/auth/callback`: send `admin`/`operator` to `/admin`, others to `/`.
+- Admin/content mutations should be enforced in Supabase RLS using `profiles.user_role`; admin gets destructive access, operator gets scoped content-management access, and money-facing tables stay admin-only for writes.
+- Wallet balance adjustments in admin flows must be atomic in the database (single function/transaction) and always append a `wallet_transactions` audit record with before/after balances.
 
 ## Architecture and Cache Rules
 
@@ -110,6 +114,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Login: the session comes from Supabase Auth; the app reads the logged-in user and the corresponding profile.
 - Deposit: generates wallet_transactions and updates wallets.balance atomically.
 - Subscription: the status change must be reflected in subscriptions and, when applicable, in profiles.is_subscriber.
+- Subscription: the status change must be reflected in subscriptions and in profiles.is_subscriber through database synchronization logic.
 - Tournament result: admin saves tournament_entries, computes points_earned, and updates profiles.elo_points and profiles.elo_tier.
 - Ranking: profiles.elo_points is the main reference; elo_tier is derived from the total points.
 
