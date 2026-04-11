@@ -10,11 +10,15 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
   getFeaturedNews,
   getNewsFeed,
+  isNewsCategory,
+  NEWS_CATEGORY_LABELS,
+  NEWS_CATEGORY_OPTIONS,
 } from "@/services/news.service"
 import { getRadarWeekItems } from "@/services/radar.service"
 
@@ -27,6 +31,10 @@ const categoryLabelMap: Record<string, string> = {
   assinatura: "Assinatura",
   comunicado: "Comunicado",
   promocao: "Promoção",
+}
+
+type CategoryParams = {
+  category: string
 }
 
 function formatDate(value: string) {
@@ -53,17 +61,47 @@ function formatRadarDate(value: string) {
   return `${dayPart}, ${timePart}`
 }
 
-export default async function NewsPage() {
+function createCategoryHref(category: string | null): string {
+  if (!category) {
+    return "/noticias"
+  }
 
+  return `/noticias/categoria/${category}`
+}
+
+export function generateStaticParams() {
+  return NEWS_CATEGORY_OPTIONS.map((category) => ({ category }))
+}
+
+export default async function NewsCategoryPage({
+  params,
+}: {
+  params: CategoryParams | Promise<CategoryParams>
+}) {
+  const resolvedParams = await Promise.resolve(params)
+
+  if (!isNewsCategory(resolvedParams.category)) {
+    notFound()
+  }
+
+  const selectedCategory = resolvedParams.category
   const [featured, feed, radarItems] = await Promise.all([
-    getFeaturedNews(),
-    getNewsFeed(7),
+    getFeaturedNews(selectedCategory),
+    getNewsFeed(7, selectedCategory),
     getRadarWeekItems(3),
   ])
 
   const fallbackFeatured = feed[0] ?? null
   const featuredNews = featured ?? fallbackFeatured
   const newsFeed = feed.filter((item) => item.id !== featuredNews?.id)
+
+  const categories = [
+    { label: "Todas", value: null },
+    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
+      label: NEWS_CATEGORY_LABELS[category],
+      value: category,
+    })),
+  ]
 
   return (
     <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
@@ -120,16 +158,11 @@ export default async function NewsPage() {
                 </div>
 
                 <h2 className="max-w-xl text-2xl font-extrabold leading-tight text-balance sm:text-3xl">
-                  <Link
-                    href={`/noticias/${featuredNews.slug}`}
-                    className="transition-colors hover:text-primary"
-                  >
+                  <Link href={`/noticias/${featuredNews.slug}`} className="transition-colors hover:text-primary">
                     {featuredNews.title}
                   </Link>
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-                  {featuredNews.summary}
-                </p>
+                <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{featuredNews.summary}</p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="h-10 rounded-full px-5 text-sm font-semibold">
@@ -186,11 +219,29 @@ export default async function NewsPage() {
           </aside>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => {
+              const isActive = category.value === selectedCategory
+
+              return (
+                <Button
+                  key={category.label}
+                  asChild
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-full"
+                >
+                  <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
+                    {category.label}
+                  </Link>
+                </Button>
+              )
+            })}
+          </div>
+
           <Button asChild variant="outline" size="sm" className="rounded-full">
-            <Link href="/noticias/todas">
-              Ver todas
-            </Link>
+            <Link href={`/noticias/todas/categoria/${selectedCategory}`}>Ver todas</Link>
           </Button>
         </div>
 
@@ -258,7 +309,6 @@ export default async function NewsPage() {
             ))}
           </section>
         ) : null}
-
       </div>
     </section>
   )

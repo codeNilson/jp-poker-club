@@ -8,6 +8,7 @@ import { z } from "zod"
 
 import { getAdminAccess } from "@/lib/admin/access"
 import { isNextRedirectError } from "@/lib/next-redirect"
+import { NEWS_CATEGORY_OPTIONS } from "@/services/news.service"
 
 const eventTypeSchema = z.enum(["tournament", "cash_game"])
 const eventStatusSchema = z.enum(["upcoming", "ongoing", "finished"])
@@ -141,6 +142,11 @@ function invalidateEventPaths() {
   revalidatePath("/admin/events")
   revalidatePath("/eventos")
   revalidatePath("/")
+  revalidatePath("/noticias")
+
+  for (const category of NEWS_CATEGORY_OPTIONS) {
+    revalidatePath(`/noticias/categoria/${category}`)
+  }
 }
 
 export async function createEventAction(formData: FormData) {

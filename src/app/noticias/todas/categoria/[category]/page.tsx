@@ -7,16 +7,21 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
   getPaginatedNewsFeed,
+  isNewsCategory,
   NEWS_CATEGORY_LABELS,
   NEWS_CATEGORY_OPTIONS,
 } from "@/services/news.service"
 
 export const revalidate = 3600
+
+type CategoryParams = {
+  category: string
+}
 
 type NewsPageSearchParams = {
   page?: string | string[]
@@ -43,15 +48,16 @@ function parsePageParam(searchParams: NewsPageSearchParams): number {
   return parsedPage
 }
 
-function createPageHref(page: number): string {
+function createPageHref(page: number, category: string): string {
   const query = new URLSearchParams()
 
   if (page > 1) {
     query.set("page", String(page))
   }
 
+  const basePath = `/noticias/todas/categoria/${category}`
   const queryString = query.toString()
-  return queryString ? `/noticias/todas?${queryString}` : "/noticias/todas"
+  return queryString ? `${basePath}?${queryString}` : basePath
 }
 
 function createCategoryHref(category: string | null): string {
@@ -62,21 +68,35 @@ function createCategoryHref(category: string | null): string {
   return `/noticias/todas/categoria/${category}`
 }
 
-export default async function AllNewsPage({
+export function generateStaticParams() {
+  return NEWS_CATEGORY_OPTIONS.map((category) => ({ category }))
+}
+
+export default async function CategoryNewsListPage({
+  params,
   searchParams,
 }: {
+  params: CategoryParams | Promise<CategoryParams>
   searchParams: NewsPageSearchParams | Promise<NewsPageSearchParams>
 }) {
+  const resolvedParams = await Promise.resolve(params)
+
+  if (!isNewsCategory(resolvedParams.category)) {
+    notFound()
+  }
+
   const resolvedSearchParams = await Promise.resolve(searchParams)
   const requestedPage = parsePageParam(resolvedSearchParams)
+  const selectedCategory = resolvedParams.category
 
   const paginatedFeed = await getPaginatedNewsFeed({
     page: requestedPage,
     pageSize: NEWS_PAGE_SIZE,
+    category: selectedCategory,
   })
 
   if (paginatedFeed.totalPages > 0 && requestedPage > paginatedFeed.totalPages) {
-    redirect(createPageHref(paginatedFeed.totalPages))
+    redirect(createPageHref(paginatedFeed.totalPages, selectedCategory))
   }
 
   const isFirstPage = paginatedFeed.page <= 1
@@ -122,7 +142,7 @@ export default async function AllNewsPage({
 
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => {
-            const isActive = category.value === null
+            const isActive = category.value === selectedCategory
 
             return (
               <Button
@@ -213,7 +233,7 @@ export default async function AllNewsPage({
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="rounded-full">
-                <Link href={createPageHref(paginatedFeed.page - 1)}>Anterior</Link>
+                <Link href={createPageHref(paginatedFeed.page - 1, selectedCategory)}>Anterior</Link>
               </Button>
             )}
 
@@ -228,7 +248,7 @@ export default async function AllNewsPage({
                   variant={isActive ? "default" : "outline"}
                   className="min-w-9 rounded-full"
                 >
-                  <Link href={createPageHref(pageNumber)} aria-current={isActive ? "page" : undefined}>
+                  <Link href={createPageHref(pageNumber, selectedCategory)} aria-current={isActive ? "page" : undefined}>
                     {pageNumber}
                   </Link>
                 </Button>
@@ -241,7 +261,7 @@ export default async function AllNewsPage({
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="rounded-full">
-                <Link href={createPageHref(paginatedFeed.page + 1)}>Proxima</Link>
+                <Link href={createPageHref(paginatedFeed.page + 1, selectedCategory)}>Proxima</Link>
               </Button>
             )}
           </nav>
