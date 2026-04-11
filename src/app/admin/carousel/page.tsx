@@ -1,6 +1,8 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { getAdminCarouselItems } from "@/lib/admin/carousel"
 
 import {
@@ -72,13 +74,11 @@ export default async function AdminCarouselPage({
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Novo card</h2>
           <form action={createCarouselItemAction} className="mt-5 grid gap-4">
-            <div className="grid gap-2">
-              <label htmlFor="create-title" className="text-sm font-medium">
-                Título
-              </label>
-              <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-title">Título</FieldLabel>
+              <Input id="create-title" name="title" required minLength={3} className="rounded-xl bg-background" />
+              <FieldDescription>Minimo de 3 caracteres.</FieldDescription>
+            </Field>
 
             <div className="grid gap-2">
               <label htmlFor="create-description" className="text-sm font-medium">
@@ -88,27 +88,23 @@ export default async function AdminCarouselPage({
               <p className="text-xs text-muted-foreground">Opcional, mas quando preenchida use pelo menos 10 caracteres.</p>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-desktopImageUrl" className="text-sm font-medium">
-                Imagem desktop (URL)
-              </label>
-              <input id="create-desktopImageUrl" name="desktopImageUrl" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem desktop.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-desktopImageUrl">Imagem desktop (URL)</FieldLabel>
+              <Input id="create-desktopImageUrl" name="desktopImageUrl" required className="rounded-xl bg-background" />
+              <FieldDescription>Informe uma URL válida para a imagem desktop.</FieldDescription>
+            </Field>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-mobileImageUrl" className="text-sm font-medium">
-                Imagem mobile (URL)
-              </label>
-              <input id="create-mobileImageUrl" name="mobileImageUrl" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem mobile.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-mobileImageUrl">Imagem mobile (URL)</FieldLabel>
+              <Input id="create-mobileImageUrl" name="mobileImageUrl" required className="rounded-xl bg-background" />
+              <FieldDescription>Informe uma URL válida para a imagem mobile.</FieldDescription>
+            </Field>
 
             <div className="grid gap-2">
               <label htmlFor="create-actionText" className="text-sm font-medium">
                 CTA
               </label>
-              <input id="create-actionText" name="actionText" defaultValue="Saiba mais" className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <Input id="create-actionText" name="actionText" defaultValue="Saiba mais" className="rounded-xl bg-background" />
               <p className="text-xs text-muted-foreground">Texto do botão exibido no card.</p>
             </div>
 
@@ -116,7 +112,7 @@ export default async function AdminCarouselPage({
               <label htmlFor="create-linkUrl" className="text-sm font-medium">
                 Link de destino
               </label>
-              <input id="create-linkUrl" name="linkUrl" defaultValue="/" className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <Input id="create-linkUrl" name="linkUrl" defaultValue="/" className="rounded-xl bg-background" />
               <p className="text-xs text-muted-foreground">Destino do card ao clicar.</p>
             </div>
 
@@ -124,7 +120,7 @@ export default async function AdminCarouselPage({
               <label htmlFor="create-sortOrder" className="text-sm font-medium">
                 Ordem
               </label>
-              <input id="create-sortOrder" name="sortOrder" type="number" min={0} defaultValue={0} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <Input id="create-sortOrder" name="sortOrder" type="number" min={0} defaultValue={0} className="rounded-xl bg-background" />
               <p className="text-xs text-muted-foreground">Menor número aparece primeiro.</p>
             </div>
 
@@ -169,7 +165,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`title-${item.id}`} className="text-sm font-medium">
                             Título
                         </label>
-                          <input id={`title-${item.id}`} name="title" required minLength={3} defaultValue={item.title} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <Input id={`title-${item.id}`} name="title" required minLength={3} defaultValue={item.title} className="rounded-xl bg-card" />
                           <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
                       </div>
 
@@ -185,7 +181,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`desktopImageUrl-${item.id}`} className="text-sm font-medium">
                           Imagem desktop
                         </label>
-                        <input id={`desktopImageUrl-${item.id}`} name="desktopImageUrl" required defaultValue={item.desktop_image_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <Input id={`desktopImageUrl-${item.id}`} name="desktopImageUrl" required defaultValue={item.desktop_image_url} className="rounded-xl bg-card" />
                         <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem desktop.</p>
                       </div>
 
@@ -193,7 +189,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`mobileImageUrl-${item.id}`} className="text-sm font-medium">
                           Imagem mobile
                         </label>
-                        <input id={`mobileImageUrl-${item.id}`} name="mobileImageUrl" required defaultValue={item.mobile_image_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <Input id={`mobileImageUrl-${item.id}`} name="mobileImageUrl" required defaultValue={item.mobile_image_url} className="rounded-xl bg-card" />
                         <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem mobile.</p>
                       </div>
 
@@ -201,7 +197,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`actionText-${item.id}`} className="text-sm font-medium">
                           CTA
                         </label>
-                        <input id={`actionText-${item.id}`} name="actionText" defaultValue={item.action_text} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <Input id={`actionText-${item.id}`} name="actionText" defaultValue={item.action_text} className="rounded-xl bg-card" />
                         <p className="text-xs text-muted-foreground">Texto do botão exibido no card.</p>
                       </div>
 
@@ -209,7 +205,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`linkUrl-${item.id}`} className="text-sm font-medium">
                           Link de destino
                         </label>
-                        <input id={`linkUrl-${item.id}`} name="linkUrl" defaultValue={item.link_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <Input id={`linkUrl-${item.id}`} name="linkUrl" defaultValue={item.link_url} className="rounded-xl bg-card" />
                         <p className="text-xs text-muted-foreground">Destino do card ao clicar.</p>
                       </div>
 
@@ -217,7 +213,7 @@ export default async function AdminCarouselPage({
                         <label htmlFor={`sortOrder-${item.id}`} className="text-sm font-medium">
                           Ordem
                         </label>
-                        <input id={`sortOrder-${item.id}`} name="sortOrder" type="number" min={0} defaultValue={item.sort_order} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <Input id={`sortOrder-${item.id}`} name="sortOrder" type="number" min={0} defaultValue={item.sort_order} className="rounded-xl bg-card" />
                         <p className="text-xs text-muted-foreground">Menor número aparece primeiro.</p>
                       </div>
 

@@ -3,6 +3,8 @@ import Link from "next/link"
 import { NewsCoverImageField } from "@/components/forms/news-cover-image-field"
 import { SlugAutofillSync } from "@/components/forms/slug-autofill-sync"
 import { Button } from "@/components/ui/button"
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { getAdminNewsItems } from "@/lib/admin/news"
 import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_OPTIONS } from "@/services/news.service"
@@ -106,28 +108,24 @@ export default async function AdminNewsPage({
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Nova notícia</h2>
           <form action={createNewsAction} className="mt-5 grid gap-4">
-            <div className="grid gap-2">
-              <label htmlFor="create-title" className="text-sm font-medium">
-                Título
-              </label>
-              <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-title">Título</FieldLabel>
+              <Input id="create-title" name="title" required minLength={3} className="rounded-xl bg-background" />
+              <FieldDescription>Minimo de 3 caracteres.</FieldDescription>
+            </Field>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-slug" className="text-sm font-medium">
-                Slug
-              </label>
-              <input
+            <Field>
+              <FieldLabel htmlFor="create-slug">Slug</FieldLabel>
+              <Input
                 id="create-slug"
                 name="slug"
                 minLength={3}
                 pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
                 placeholder="titulo-da-noticia"
-                className="rounded-xl border bg-background px-3 py-2 text-sm"
+                className="rounded-xl bg-background"
               />
-              <p className="text-xs text-muted-foreground">Preenchido automaticamente pelo titulo, mas voce pode editar se quiser.</p>
-            </div>
+              <FieldDescription>Preenchido automaticamente pelo titulo, mas voce pode editar se quiser.</FieldDescription>
+            </Field>
 
             <SlugAutofillSync titleInputId="create-title" slugInputId="create-slug" />
 
@@ -181,33 +179,29 @@ export default async function AdminNewsPage({
               helpText="A imagem será enviada para o storage do Supabase e usada como capa da notícia."
             />
 
-            <div className="grid gap-2">
-              <label htmlFor="create-readTimeMinutes" className="text-sm font-medium">
-                Tempo de leitura
-              </label>
-              <input
+            <Field>
+              <FieldLabel htmlFor="create-readTimeMinutes">Tempo de leitura</FieldLabel>
+              <Input
                 id="create-readTimeMinutes"
                 name="readTimeMinutes"
                 type="number"
                 min={1}
                 max={60}
                 defaultValue={3}
-                className="rounded-xl border bg-background px-3 py-2 text-sm"
+                className="rounded-xl bg-background"
               />
-            </div>
+            </Field>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-publishedAt" className="text-sm font-medium">
-                Publicação
-              </label>
-              <input
+            <Field>
+              <FieldLabel htmlFor="create-publishedAt">Publicação</FieldLabel>
+              <Input
                 id="create-publishedAt"
                 name="publishedAt"
                 type="datetime-local"
                 defaultValue={nowLocalDateTime}
-                className="rounded-xl border bg-background px-3 py-2 text-sm"
+                className="rounded-xl bg-background"
               />
-            </div>
+            </Field>
 
             <div className="grid gap-3 sm:grid-cols-3">
               <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
@@ -262,20 +256,18 @@ export default async function AdminNewsPage({
                     <form action={updateNewsAction} className="mt-4 grid gap-4">
                       <input type="hidden" name="id" value={item.id} />
 
-                      <div className="grid gap-2">
-                        <label htmlFor={`title-${item.id}`} className="text-sm font-medium">
-                          Título
-                        </label>
-                        <input
+                      <Field>
+                        <FieldLabel htmlFor={`title-${item.id}`}>Título</FieldLabel>
+                        <Input
                           id={`title-${item.id}`}
                           name="title"
                           required
                           minLength={3}
                           defaultValue={item.title}
-                          className="rounded-xl border bg-card px-3 py-2 text-sm"
+                          className="rounded-xl bg-card"
                         />
-                        <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
-                      </div>
+                        <FieldDescription>Minimo de 3 caracteres.</FieldDescription>
+                      </Field>
 
                       <div className="grid gap-2">
                         <label htmlFor={`description-${item.id}`} className="text-sm font-medium">
@@ -309,20 +301,18 @@ export default async function AdminNewsPage({
                         <p className="text-xs text-muted-foreground">Minimo de 20 caracteres.</p>
                       </div>
 
-                      <div className="grid gap-2">
-                        <label htmlFor={`slug-${item.id}`} className="text-sm font-medium">
-                          Slug
-                        </label>
-                        <input
+                      <Field>
+                        <FieldLabel htmlFor={`slug-${item.id}`}>Slug</FieldLabel>
+                        <Input
                           id={`slug-${item.id}`}
                           name="slug"
                           minLength={3}
                           pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
                           defaultValue={item.slug}
-                          className="rounded-xl border bg-card px-3 py-2 text-sm"
+                          className="rounded-xl bg-card"
                         />
-                        <p className="text-xs text-muted-foreground">Use apenas letras minusculas, numeros e hifens.</p>
-                      </div>
+                        <FieldDescription>Use apenas letras minusculas, numeros e hifens.</FieldDescription>
+                      </Field>
 
                       <div className="grid gap-2">
                         <label htmlFor={`category-${item.id}`} className="text-sm font-medium">
@@ -350,33 +340,29 @@ export default async function AdminNewsPage({
                         defaultPreviewUrl={resolveCoverImageUrl(publicSupabase, item.cover_image_url)}
                       />
 
-                      <div className="grid gap-2">
-                        <label htmlFor={`readTimeMinutes-${item.id}`} className="text-sm font-medium">
-                          Tempo de leitura
-                        </label>
-                        <input
+                      <Field>
+                        <FieldLabel htmlFor={`readTimeMinutes-${item.id}`}>Tempo de leitura</FieldLabel>
+                        <Input
                           id={`readTimeMinutes-${item.id}`}
                           name="readTimeMinutes"
                           type="number"
                           min={1}
                           max={60}
                           defaultValue={item.read_time_minutes}
-                          className="rounded-xl border bg-card px-3 py-2 text-sm"
+                          className="rounded-xl bg-card"
                         />
-                      </div>
+                      </Field>
 
-                      <div className="grid gap-2">
-                        <label htmlFor={`publishedAt-${item.id}`} className="text-sm font-medium">
-                          Publicação
-                        </label>
-                        <input
+                      <Field>
+                        <FieldLabel htmlFor={`publishedAt-${item.id}`}>Publicação</FieldLabel>
+                        <Input
                           id={`publishedAt-${item.id}`}
                           name="publishedAt"
                           type="datetime-local"
                           defaultValue={formatDateTimeLocal(item.published_at)}
-                          className="rounded-xl border bg-card px-3 py-2 text-sm"
+                          className="rounded-xl bg-card"
                         />
-                      </div>
+                      </Field>
 
                       <div className="grid gap-3 sm:grid-cols-3">
                         <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">

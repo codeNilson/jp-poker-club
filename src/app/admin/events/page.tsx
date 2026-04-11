@@ -1,6 +1,8 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { getAdminEventItems } from "@/lib/admin/events"
 
 import { createEventAction, deleteEventAction, updateEventAction } from "./actions"
@@ -90,13 +92,11 @@ export default async function AdminEventsPage({
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Novo evento</h2>
           <form action={createEventAction} className="mt-5 grid gap-4">
-            <div className="grid gap-2">
-              <label htmlFor="create-title" className="text-sm font-medium">
-                Título
-              </label>
-              <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-title">Título</FieldLabel>
+              <Input id="create-title" name="title" required minLength={3} className="rounded-xl bg-background" />
+              <FieldDescription>Minimo de 3 caracteres.</FieldDescription>
+            </Field>
 
             <div className="grid gap-2">
               <label htmlFor="create-description" className="text-sm font-medium">
@@ -116,29 +116,23 @@ export default async function AdminEventsPage({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-buyIn" className="text-sm font-medium">
-                Buy-in (torneio)
-              </label>
-              <input id="create-buyIn" name="buyIn" type="number" min="0" step="0.01" className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Obrigatório para torneios. Em cash game, deixe vazio.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-buyIn">Buy-in (torneio)</FieldLabel>
+              <Input id="create-buyIn" name="buyIn" type="number" min="0" step="0.01" className="rounded-xl bg-background" />
+              <FieldDescription>Obrigatório para torneios. Em cash game, deixe vazio.</FieldDescription>
+            </Field>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-blinds" className="text-sm font-medium">
-                Blinds (cash game)
-              </label>
-              <input id="create-blinds" name="blinds" placeholder="1/2" className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Obrigatório para cash game. Em torneios, deixe vazio.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-blinds">Blinds (cash game)</FieldLabel>
+              <Input id="create-blinds" name="blinds" placeholder="1/2" className="rounded-xl bg-background" />
+              <FieldDescription>Obrigatório para cash game. Em torneios, deixe vazio.</FieldDescription>
+            </Field>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-maxPlayers" className="text-sm font-medium">
-                Máximo de jogadores
-              </label>
-              <input id="create-maxPlayers" name="maxPlayers" type="number" min="1" defaultValue={10} className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Use um número inteiro maior que zero.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-maxPlayers">Máximo de jogadores</FieldLabel>
+              <Input id="create-maxPlayers" name="maxPlayers" type="number" min="1" defaultValue={10} className="rounded-xl bg-background" />
+              <FieldDescription>Use um número inteiro maior que zero.</FieldDescription>
+            </Field>
 
             <div className="grid gap-2">
               <label htmlFor="create-status" className="text-sm font-medium">
@@ -151,13 +145,11 @@ export default async function AdminEventsPage({
               </select>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="create-eventDate" className="text-sm font-medium">
-                Data do evento
-              </label>
-              <input id="create-eventDate" name="eventDate" type="datetime-local" defaultValue={nowIso.slice(0, 16)} className="rounded-xl border bg-background px-3 py-2 text-sm" />
-              <p className="text-xs text-muted-foreground">Informe a data e hora do evento.</p>
-            </div>
+            <Field>
+              <FieldLabel htmlFor="create-eventDate">Data do evento</FieldLabel>
+              <Input id="create-eventDate" name="eventDate" type="datetime-local" defaultValue={nowIso.slice(0, 16)} className="rounded-xl bg-background" />
+              <FieldDescription>Informe a data e hora do evento.</FieldDescription>
+            </Field>
 
             <Button type="submit" className="w-full">
               Criar evento
@@ -201,7 +193,7 @@ export default async function AdminEventsPage({
                           <label htmlFor={`title-${item.id}`} className="text-sm font-medium">
                               Título
                           </label>
-                            <input id={`title-${item.id}`} name="title" required minLength={3} defaultValue={item.title} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                            <Input id={`title-${item.id}`} name="title" required minLength={3} defaultValue={item.title} className="rounded-xl bg-card" />
                             <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
                         </div>
 
@@ -227,7 +219,7 @@ export default async function AdminEventsPage({
                           <label htmlFor={`buyIn-${item.id}`} className="text-sm font-medium">
                             Buy-in (torneio)
                           </label>
-                          <input id={`buyIn-${item.id}`} name="buyIn" type="number" min="0" step="0.01" defaultValue={item.buy_in ?? ""} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <Input id={`buyIn-${item.id}`} name="buyIn" type="number" min="0" step="0.01" defaultValue={item.buy_in ?? ""} className="rounded-xl bg-card" />
                           <p className="text-xs text-muted-foreground">Obrigatório para torneios. Em cash game, deixe vazio.</p>
                         </div>
 
@@ -235,7 +227,7 @@ export default async function AdminEventsPage({
                           <label htmlFor={`blinds-${item.id}`} className="text-sm font-medium">
                             Blinds (cash game)
                           </label>
-                          <input id={`blinds-${item.id}`} name="blinds" defaultValue={item.blinds ?? ""} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <Input id={`blinds-${item.id}`} name="blinds" defaultValue={item.blinds ?? ""} className="rounded-xl bg-card" />
                           <p className="text-xs text-muted-foreground">Obrigatório para cash game. Em torneios, deixe vazio.</p>
                         </div>
 
@@ -243,7 +235,7 @@ export default async function AdminEventsPage({
                           <label htmlFor={`maxPlayers-${item.id}`} className="text-sm font-medium">
                             Máximo de jogadores
                           </label>
-                          <input id={`maxPlayers-${item.id}`} name="maxPlayers" type="number" min="1" defaultValue={item.max_players} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <Input id={`maxPlayers-${item.id}`} name="maxPlayers" type="number" min="1" defaultValue={item.max_players} className="rounded-xl bg-card" />
                           <p className="text-xs text-muted-foreground">Use um número inteiro maior que zero.</p>
                         </div>
 
@@ -262,7 +254,7 @@ export default async function AdminEventsPage({
                           <label htmlFor={`eventDate-${item.id}`} className="text-sm font-medium">
                             Data do evento
                           </label>
-                          <input id={`eventDate-${item.id}`} name="eventDate" type="datetime-local" defaultValue={formatDateTimeLocal(item.event_date)} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <Input id={`eventDate-${item.id}`} name="eventDate" type="datetime-local" defaultValue={formatDateTimeLocal(item.event_date)} className="rounded-xl bg-card" />
                         </div>
 
                         <div className="flex flex-wrap gap-3">

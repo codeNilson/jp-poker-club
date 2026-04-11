@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { getAdminAccess } from "@/lib/admin/access"
 import { getAdminSubscriptions } from "@/lib/admin/subscriptions"
 
@@ -182,13 +183,13 @@ export default async function AdminSubscriptionsPage({
                       <label htmlFor={`currentPeriodStart-${item.user_id}`} className="text-sm font-medium">
                         Início do período
                       </label>
-                      <input
+                      <Input
                         id={`currentPeriodStart-${item.user_id}`}
                         name="currentPeriodStart"
                         type="datetime-local"
                         defaultValue={formatDateTimeLocal(item.current_period_start)}
                         disabled={!canEdit}
-                        className="rounded-xl border bg-card px-3 py-2 text-sm disabled:opacity-60"
+                        className="rounded-xl bg-card disabled:opacity-60"
                       />
                     </div>
 
@@ -196,13 +197,13 @@ export default async function AdminSubscriptionsPage({
                       <label htmlFor={`currentPeriodEnd-${item.user_id}`} className="text-sm font-medium">
                         Fim do período
                       </label>
-                      <input
+                      <Input
                         id={`currentPeriodEnd-${item.user_id}`}
                         name="currentPeriodEnd"
                         type="datetime-local"
                         defaultValue={formatDateTimeLocal(item.current_period_end)}
                         disabled={!canEdit}
-                        className="rounded-xl border bg-card px-3 py-2 text-sm disabled:opacity-60"
+                        className="rounded-xl bg-card disabled:opacity-60"
                       />
                     </div>
 
@@ -210,13 +211,13 @@ export default async function AdminSubscriptionsPage({
                       <label htmlFor={`canceledAt-${item.user_id}`} className="text-sm font-medium">
                         Cancelada em
                       </label>
-                      <input
+                      <Input
                         id={`canceledAt-${item.user_id}`}
                         name="canceledAt"
                         type="datetime-local"
                         defaultValue={formatDateTimeLocal(item.canceled_at)}
                         disabled={!canEdit}
-                        className="rounded-xl border bg-card px-3 py-2 text-sm disabled:opacity-60"
+                        className="rounded-xl bg-card disabled:opacity-60"
                       />
                     </div>
 

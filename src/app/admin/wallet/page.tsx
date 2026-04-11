@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { getAdminAccess } from "@/lib/admin/access"
 import { getAdminWallets, getAdminWalletTransactions } from "@/lib/admin/wallet"
 
@@ -107,14 +108,14 @@ export default async function AdminWalletPage({
               <label htmlFor="adjust-amount" className="text-sm font-medium">
                 Valor do ajuste
               </label>
-              <input
+              <Input
                 id="adjust-amount"
                 name="amount"
                 type="number"
                 step="0.01"
                 placeholder="Ex: 50 ou -20"
                 disabled={!canAdjust}
-                className="rounded-xl border bg-background px-3 py-2 text-sm disabled:opacity-60"
+                className="rounded-xl bg-background disabled:opacity-60"
               />
               <p className="text-xs text-muted-foreground">Use valor positivo para crédito e negativo para débito.</p>
             </div>

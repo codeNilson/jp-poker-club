@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react"
 
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+
 type NewsCoverImageFieldProps = {
   inputId: string
   name: string
@@ -41,29 +44,23 @@ export function NewsCoverImageField({ inputId, name, label, helpText, defaultPre
   }
 
   return (
-    <div className="grid gap-2">
-      <label htmlFor={inputId} className="text-sm font-medium">
-        {label}
-      </label>
-      <input
+    <Field>
+      <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
+      <Input
         id={inputId}
         name={name}
         type="file"
         accept="image/*"
         onChange={handleFileChange}
-        className="rounded-xl border bg-background px-3 py-2 text-sm"
+        className="rounded-xl bg-background"
       />
-      <p className="text-xs text-muted-foreground">{helpText}</p>
+      <FieldDescription>{helpText}</FieldDescription>
 
       {previewUrl ? (
         <div className="overflow-hidden rounded-2xl border bg-background">
           <img src={previewUrl} alt="Pré-visualização da imagem de capa" className="h-56 w-full object-cover" />
         </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
-          Nenhuma imagem selecionada.
-        </div>
-      )}
-    </div>
+      ) : null}
+    </Field>
   )
 }
