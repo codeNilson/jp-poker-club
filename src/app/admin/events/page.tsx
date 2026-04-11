@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { MoneyInput } from "@/components/forms/money-input"
 import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -31,6 +32,13 @@ function formatDisplayDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value))
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value)
 }
 
 function parseNotice(searchParams: SearchParams) {
@@ -118,8 +126,8 @@ export default async function AdminEventsPage({
 
             <Field>
               <FieldLabel htmlFor="create-buyIn">Buy-in (torneio)</FieldLabel>
-              <Input id="create-buyIn" name="buyIn" type="number" min="0" step="0.01" className="rounded-xl bg-background" />
-              <FieldDescription>Obrigatório para torneios. Em cash game, deixe vazio.</FieldDescription>
+              <MoneyInput id="create-buyIn" name="buyIn" className="rounded-xl bg-background" />
+              <FieldDescription>Obrigatório para torneios. Em cash game, deixe vazio. Valor em reais.</FieldDescription>
             </Field>
 
             <Field>
@@ -177,7 +185,7 @@ export default async function AdminEventsPage({
                       <span>{formatDisplayDate(item.event_date)}</span>
                       <span>Status: {item.status}</span>
                       <span>Jogadores: {item.max_players}</span>
-                      <span>{isTournament ? `Buy-in: ${item.buy_in ?? 0}` : `Blinds: ${item.blinds ?? "-"}`}</span>
+                      <span>{isTournament ? `Buy-in: ${formatCurrency(item.buy_in ?? 0)}` : `Blinds: ${item.blinds ?? "-"}`}</span>
                     </div>
 
                     <h3 className="mt-3 text-xl font-semibold leading-tight">{item.title}</h3>
@@ -219,8 +227,8 @@ export default async function AdminEventsPage({
                           <label htmlFor={`buyIn-${item.id}`} className="text-sm font-medium">
                             Buy-in (torneio)
                           </label>
-                          <Input id={`buyIn-${item.id}`} name="buyIn" type="number" min="0" step="0.01" defaultValue={item.buy_in ?? ""} className="rounded-xl bg-card" />
-                          <p className="text-xs text-muted-foreground">Obrigatório para torneios. Em cash game, deixe vazio.</p>
+                          <MoneyInput id={`buyIn-${item.id}`} name="buyIn" defaultValue={item.buy_in ?? ""} className="rounded-xl bg-card" />
+                          <p className="text-xs text-muted-foreground">Obrigatório para torneios. Em cash game, deixe vazio. Valor em reais.</p>
                         </div>
 
                         <div className="grid gap-2">

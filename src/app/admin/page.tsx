@@ -15,14 +15,14 @@ const ADMIN_MODULES = [
     href: "/admin/carousel",
   },
   {
-    title: "Subscriptions",
+    title: "Assinaturas",
     description: "Acompanhar status de assinatura e acoes administrativas.",
-    href: "/admin/subscriptions",
+    href: "/admin/assinaturas",
   },
   {
-    title: "Wallet",
+    title: "Carteiras",
     description: "Visualizar saldo e preparar ajustes com trilha auditavel.",
-    href: "/admin/wallet",
+    href: "/admin/carteiras",
   },
 ]
 

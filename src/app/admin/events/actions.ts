@@ -104,7 +104,31 @@ function normalizeMoney(value: string | undefined | null) {
     return null
   }
 
-  const parsedValue = Number(value)
+  const compactValue = value.trim().replace(/\s/g, "").replace(/R\$/g, "")
+  const hasComma = compactValue.includes(",")
+  const hasDot = compactValue.includes(".")
+
+  let normalizedValue = compactValue
+
+  if (hasComma && hasDot) {
+    normalizedValue = compactValue.replace(/\./g, "").replace(",", ".")
+  } else if (hasComma) {
+    normalizedValue = compactValue.replace(",", ".")
+  } else if (hasDot) {
+    const dotGroups = compactValue.split(".")
+
+    if (dotGroups.length > 2) {
+      normalizedValue = dotGroups.join("")
+    } else {
+      const decimalPartLength = dotGroups[1]?.length ?? 0
+
+      if (decimalPartLength !== 1 && decimalPartLength !== 2) {
+        normalizedValue = compactValue.replace(/\./g, "")
+      }
+    }
+  }
+
+  const parsedValue = Number(normalizedValue)
 
   if (Number.isNaN(parsedValue)) {
     return null
