@@ -101,7 +101,7 @@ function normalizeNewsPayload(formData: FormData) {
     title: typeof rawPayload.title === "string" ? rawPayload.title : "",
     description: typeof rawPayload.description === "string" ? rawPayload.description : "",
     content: typeof rawPayload.content === "string" ? rawPayload.content : "",
-    slug: typeof rawPayload.slug === "string" && rawPayload.slug.trim() ? slugify(rawPayload.slug) : "",
+    slug: "",
     category: typeof rawPayload.category === "string" ? rawPayload.category : "",
     coverImageUrl: typeof rawPayload.coverImageUrl === "string" ? rawPayload.coverImageUrl : "",
     readTimeMinutes: typeof rawPayload.readTimeMinutes === "string" ? rawPayload.readTimeMinutes : "",
@@ -110,6 +110,11 @@ function normalizeNewsPayload(formData: FormData) {
     isFeatured: rawPayload.isFeatured,
     isHot: rawPayload.isHot,
   }
+
+  sanitizedPayload.slug =
+    typeof rawPayload.slug === "string" && rawPayload.slug.trim()
+      ? slugify(rawPayload.slug)
+      : slugify(sanitizedPayload.title)
 
   return {
     ...sanitizedPayload,
