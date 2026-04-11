@@ -160,6 +160,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_game_sessions: {
+        Row: {
+          buy_in: number
+          cash_out: number
+          created_at: string
+          id: string
+          net_result: number
+          notes: string | null
+          played_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buy_in: number
+          cash_out: number
+          created_at?: string
+          id?: string
+          net_result: number
+          notes?: string | null
+          played_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buy_in?: number
+          cash_out?: number
+          created_at?: string
+          id?: string
+          net_result?: number
+          notes?: string | null
+          played_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -239,25 +275,25 @@ export type Database = {
         Row: {
           created_at: string
           event_id: string
-          final_position: number
+          final_position: number | null
           id: string
-          points_earned: number
+          points_earned: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
           event_id: string
-          final_position: number
+          final_position?: number | null
           id?: string
-          points_earned?: number
+          points_earned?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
           event_id?: string
-          final_position?: number
+          final_position?: number | null
           id?: string
-          points_earned?: number
+          points_earned?: number | null
           user_id?: string
         }
         Relationships: [

@@ -99,6 +99,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - news.is_hot is only a visual relevance badge and can coexist across multiple news items at the same time.
 - news must not receive fake images in the database; when there is no real banner, the UI should simply hide the image block.
 - tournament_entries records each player's result in each event; final_position and points_earned are the basis for the Elo ranking.
+- cash_game_sessions records each player's cash-game session summary; keep it separate from tournaments and model it as a user-owned record with buy-in, cash-out, net result, and optional notes.
 - The weekly radar must be assembled from real database data, combining nearby events and recently published news, with no hardcoding in the UI.
 
 ## Expected Flow
