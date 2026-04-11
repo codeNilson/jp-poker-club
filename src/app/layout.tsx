@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import { VercelToolbar } from "@vercel/toolbar/next";
 import { Navbar } from "@/components/layout/Navbar";
 import { GlobalBackground } from "@/components/layout/global-background";
@@ -29,6 +30,7 @@ export default function RootLayout({
         </div>
         {process.env.NODE_ENV === "development" ? <VercelToolbar /> : null}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
