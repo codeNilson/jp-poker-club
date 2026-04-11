@@ -9,6 +9,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
+import { NEWS_ARCHIVE_COPY, NEWS_PAGE_SIZE } from "@/constants/news"
 import { Button } from "@/components/ui/button"
 import {
   getPaginatedNewsFeed,
@@ -26,8 +27,6 @@ type CategoryParams = {
 type NewsPageSearchParams = {
   page?: string | string[]
 }
-
-const NEWS_PAGE_SIZE = 8
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -121,20 +120,20 @@ export default async function CategoryNewsListPage({
         <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary uppercase">
             <NewspaperIcon className="size-3.5" aria-hidden="true" />
-            Todas as noticias
+            {NEWS_ARCHIVE_COPY.badge}
           </div>
           <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-4xl">
-            Arquivo completo de noticias do JP Poker Club.
+            {NEWS_ARCHIVE_COPY.title}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Navegue por todas as publicacoes, com paginacao para facilitar a busca por materias antigas.
+            {NEWS_ARCHIVE_COPY.description}
           </p>
 
           <div className="mt-5">
             <Button asChild variant="outline" size="sm" className="rounded-full">
               <Link href="/noticias">
                 <ArrowLeftIcon className="size-4" aria-hidden="true" />
-                Voltar para noticias
+                Voltar para notícias
               </Link>
             </Button>
           </div>
@@ -194,7 +193,7 @@ export default async function CategoryNewsListPage({
                       <div className="relative aspect-video w-full">
                         <Image
                           src={item.coverImageUrl}
-                          alt={`Miniatura da noticia ${item.title}`}
+                          alt={`Miniatura da notícia ${item.title}`}
                           fill
                           sizes="(max-width: 768px) 100vw, 112px"
                           className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
@@ -226,7 +225,7 @@ export default async function CategoryNewsListPage({
         ) : null}
 
         {paginatedFeed.totalPages > 1 ? (
-          <nav className="mt-2 flex flex-wrap items-center justify-center gap-2" aria-label="Paginacao de todas as noticias">
+          <nav className="mt-2 flex flex-wrap items-center justify-center gap-2" aria-label="Paginação de todas as notícias">
             {isFirstPage ? (
               <Button variant="outline" size="sm" className="rounded-full" disabled>
                 Anterior
@@ -257,18 +256,18 @@ export default async function CategoryNewsListPage({
 
             {isLastPage ? (
               <Button variant="outline" size="sm" className="rounded-full" disabled>
-                Proxima
+                Próxima
               </Button>
             ) : (
               <Button asChild variant="outline" size="sm" className="rounded-full">
-                <Link href={createPageHref(paginatedFeed.page + 1, selectedCategory)}>Proxima</Link>
+                <Link href={createPageHref(paginatedFeed.page + 1, selectedCategory)}>Próxima</Link>
               </Button>
             )}
           </nav>
         ) : null}
 
         <p className="text-center text-xs text-muted-foreground">
-          Mostrando pagina {paginatedFeed.page} de {Math.max(paginatedFeed.totalPages, 1)}.
+          Mostrando página {paginatedFeed.page} de {Math.max(paginatedFeed.totalPages, 1)}.
         </p>
       </div>
     </section>

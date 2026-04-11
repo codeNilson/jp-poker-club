@@ -12,6 +12,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
+import { NEWS_HOME_COPY } from "@/constants/news"
 import { Button } from "@/components/ui/button"
 import {
   getFeaturedNews,
@@ -23,15 +24,6 @@ import {
 import { getRadarWeekItems } from "@/services/radar.service"
 
 export const revalidate = 3600
-
-const categoryLabelMap: Record<string, string> = {
-  clube: "Clube",
-  eventos: "Eventos",
-  ranking: "Ranking",
-  assinatura: "Assinatura",
-  comunicado: "Comunicado",
-  promocao: "Promoção",
-}
 
 type CategoryParams = {
   category: string
@@ -114,13 +106,13 @@ export default async function NewsCategoryPage({
         <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary uppercase">
             <NewspaperIcon className="size-3.5" aria-hidden="true" />
-            Central de noticias
+            {NEWS_HOME_COPY.badge}
           </div>
           <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-4xl">
-            Tudo que move o clube, em um feed rapido e direto.
+            {NEWS_HOME_COPY.title}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Avisos importantes, novidades do ranking, agenda de eventos e atualizacoes da comunidade JP Poker Club.
+            {NEWS_HOME_COPY.description}
           </p>
         </header>
 
@@ -133,7 +125,7 @@ export default async function NewsCategoryPage({
                     <div className="relative aspect-video w-full">
                       <Image
                         src={featuredNews.coverImageUrl}
-                        alt={`Capa da noticia ${featuredNews.title}`}
+                        alt={`Capa da notícia ${featuredNews.title}`}
                         fill
                         sizes="(max-width: 1024px) 100vw, 65vw"
                         className="object-cover"
@@ -145,7 +137,7 @@ export default async function NewsCategoryPage({
                 <div className="mb-4 flex items-center gap-3 text-xs font-medium text-muted-foreground">
                   <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-primary">
                     <TagIcon className="size-3.5" aria-hidden="true" />
-                    {categoryLabelMap[featuredNews.category] ?? "Noticias"}
+                    {NEWS_CATEGORY_LABELS[featuredNews.category]}
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <CalendarDaysIcon className="size-3.5" aria-hidden="true" />
@@ -167,7 +159,7 @@ export default async function NewsCategoryPage({
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="h-10 rounded-full px-5 text-sm font-semibold">
                     <Link href={`/noticias/${featuredNews.slug}`}>
-                      Ler materia completa
+                      Ler matéria completa
                       <ArrowRightIcon className="size-4" aria-hidden="true" />
                     </Link>
                   </Button>
@@ -181,9 +173,9 @@ export default async function NewsCategoryPage({
               </>
             ) : (
               <div className="rounded-2xl border border-border/60 bg-muted/30 p-5">
-                <h2 className="text-xl font-bold">Sem noticia destaque no momento</h2>
+                <h2 className="text-xl font-bold">Sem notícia destaque no momento</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Assim que o admin publicar uma materia com destaque, ela aparecera aqui automaticamente.
+                  Assim que o admin publicar uma matéria com destaque, ela aparecerá aqui automaticamente.
                 </p>
               </div>
             )}
@@ -202,7 +194,7 @@ export default async function NewsCategoryPage({
               ) : (
                 <li className="rounded-2xl border border-border/70 bg-muted/40 p-3">
                   <p className="text-xs font-semibold text-primary">SEM DADOS</p>
-                  <p className="mt-1 text-sm font-medium">Publique noticias e eventos para alimentar o radar.</p>
+                  <p className="mt-1 text-sm font-medium">Publique notícias e eventos para alimentar o radar.</p>
                 </li>
               )}
             </ul>
@@ -213,7 +205,7 @@ export default async function NewsCategoryPage({
                 Receba novidades por email
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Resumo semanal com noticias, eventos e comunicados do clube.
+                Resumo semanal com notícias, eventos e comunicados do clube.
               </p>
             </div>
           </aside>
@@ -255,7 +247,7 @@ export default async function NewsCategoryPage({
                 <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 text-primary">
                     <CircleDotIcon className="size-3.5" aria-hidden="true" />
-                    {categoryLabelMap[item.category] ?? "Noticias"}
+                    {NEWS_CATEGORY_LABELS[item.category]}
                   </span>
                   <span>{formatDate(item.publishedAt)}</span>
                   <span className="inline-flex items-center gap-1">
@@ -279,7 +271,7 @@ export default async function NewsCategoryPage({
                       <div className="relative aspect-video w-full">
                         <Image
                           src={item.coverImageUrl}
-                          alt={`Miniatura da noticia ${item.title}`}
+                          alt={`Miniatura da notícia ${item.title}`}
                           fill
                           sizes="(max-width: 768px) 100vw, 112px"
                           className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"

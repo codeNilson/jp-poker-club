@@ -1,6 +1,7 @@
 import type { NextConfig } from "next"
 
 const SUPABASE_PUBLIC_BUCKET_PATH = "/storage/v1/object/public/jp-poker-club-image-vault/**"
+const NEWS_CATEGORY_PATH_PATTERN = "(?<category>clube|eventos|ranking|assinatura|comunicado|promocao)"
 
 function getSupabaseHostname() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -24,14 +25,14 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/noticias",
-        has: [{ type: "query", key: "category", value: "(?<category>.*)" }],
+        has: [{ type: "query", key: "category", value: NEWS_CATEGORY_PATH_PATTERN }],
         destination: "/noticias/categoria/:category",
         permanent: true,
       },
       {
         source: "/noticias/todas",
         has: [
-          { type: "query", key: "category", value: "(?<category>.*)" },
+          { type: "query", key: "category", value: NEWS_CATEGORY_PATH_PATTERN },
           { type: "query", key: "page", value: "(?<page>.*)" },
         ],
         destination: "/noticias/todas/categoria/:category?page=:page",
@@ -39,7 +40,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/noticias/todas",
-        has: [{ type: "query", key: "category", value: "(?<category>.*)" }],
+        has: [{ type: "query", key: "category", value: NEWS_CATEGORY_PATH_PATTERN }],
         destination: "/noticias/todas/categoria/:category",
         permanent: true,
       },

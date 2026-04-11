@@ -9,18 +9,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-import { getNewsBySlug, getNewsFeed, getPublishedNewsSlugs } from "@/services/news.service"
+import {
+  getNewsBySlug,
+  getNewsFeed,
+  getPublishedNewsSlugs,
+  NEWS_CATEGORY_LABELS,
+} from "@/services/news.service"
 
 export const revalidate = 3600
-
-const categoryLabelMap: Record<string, string> = {
-  clube: "Clube",
-  eventos: "Eventos",
-  ranking: "Ranking",
-  assinatura: "Assinatura",
-  comunicado: "Comunicado",
-  promocao: "Promoção",
-}
 
 type SlugParams = {
   slug: string
@@ -83,13 +79,13 @@ export default async function NewsDetailsPage({
           className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-opacity hover:opacity-80"
         >
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
-          Voltar para noticias
+          Voltar para notícias
         </Link>
 
         <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground">
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-primary">
             <TagIcon className="size-3.5" aria-hidden="true" />
-            {categoryLabelMap[article.category] ?? "Noticias"}
+            {NEWS_CATEGORY_LABELS[article.category]}
           </span>
           <span className="inline-flex items-center gap-1">
             <CalendarDaysIcon className="size-3.5" aria-hidden="true" />
@@ -111,7 +107,7 @@ export default async function NewsDetailsPage({
             <div className="relative aspect-video w-full">
               <Image
                 src={article.coverImageUrl}
-                alt={`Capa da noticia ${article.title}`}
+                alt={`Capa da notícia ${article.title}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 900px"
                 className="object-cover"
@@ -122,8 +118,8 @@ export default async function NewsDetailsPage({
 
         {contentParagraphs.length > 0 ? (
           <div className="prose prose-invert mt-8 max-w-none text-foreground/95">
-            {contentParagraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            {contentParagraphs.map((paragraph, index) => (
+              <p key={`${index}-${paragraph.slice(0, 32)}`}>{paragraph}</p>
             ))}
           </div>
         ) : null}
