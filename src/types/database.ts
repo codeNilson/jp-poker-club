@@ -75,10 +75,12 @@ export type Database = {
       }
       events: {
         Row: {
-          buy_in: number
+          blinds: string | null
+          buy_in: number | null
           created_at: string
           description: string | null
           event_date: string
+          event_type: Database["public"]["Enums"]["event_type"]
           id: string
           max_players: number
           status: Database["public"]["Enums"]["event_status"]
@@ -86,10 +88,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          buy_in: number
+          blinds?: string | null
+          buy_in?: number | null
           created_at?: string
           description?: string | null
           event_date: string
+          event_type?: Database["public"]["Enums"]["event_type"]
           id?: string
           max_players: number
           status?: Database["public"]["Enums"]["event_status"]
@@ -97,10 +101,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          buy_in?: number
+          blinds?: string | null
+          buy_in?: number | null
           created_at?: string
           description?: string | null
           event_date?: string
+          event_type?: Database["public"]["Enums"]["event_type"]
           id?: string
           max_players?: number
           status?: Database["public"]["Enums"]["event_status"]
@@ -165,6 +171,7 @@ export type Database = {
           buy_in: number
           cash_out: number
           created_at: string
+          event_id: string | null
           id: string
           net_result: number
           notes: string | null
@@ -176,6 +183,7 @@ export type Database = {
           buy_in: number
           cash_out: number
           created_at?: string
+          event_id?: string | null
           id?: string
           net_result: number
           notes?: string | null
@@ -187,6 +195,7 @@ export type Database = {
           buy_in?: number
           cash_out?: number
           created_at?: string
+          event_id?: string | null
           id?: string
           net_result?: number
           notes?: string | null
@@ -194,7 +203,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cash_game_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -375,6 +392,7 @@ export type Database = {
     }
     Enums: {
       elo_tier: "bronze" | "prata" | "ouro" | "platina" | "diamante"
+      event_type: "tournament" | "cash_game"
       event_status: "upcoming" | "ongoing" | "finished"
       news_category:
         | "clube"

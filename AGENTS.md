@@ -93,13 +93,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - wallets stores the player's current balance; balance is a persisted field and must be updated together with each movement.
 - wallet_transactions is the wallet history/audit trail; each movement must record amount, balance_before, balance_after, type, and an optional reference.
 - subscriptions controls the user's subscription status; status indicates the current state and is_subscriber in profiles must reflect that condition when applicable.
-- events represents tournaments/events; each event has status, buy_in, date, player limit, and optional highlight fields (featured_title, featured_short_desc, featured_image_url, is_featured) for use on home and radar.
+- events represents both tournament and cash-game schedules; use `event_type` (`tournament` | `cash_game`) to differentiate behavior, keep `buy_in` nullable for cash-game compatibility, and use optional `blinds` text when the event is a cash game.
+- events must keep data integrity by event type: tournament rows require `buy_in`, and cash-game rows require non-empty `blinds`.
 - news represents the club's news/editorial content; each record has title, description, content, slug, category, published_at, is_active, is_featured, is_hot, read_time_minutes, and an optional cover_image_url.
 - news.is_featured must work as a unique global highlight among active news items; when there is no active highlight, the UI may fall back to the most recent news item.
 - news.is_hot is only a visual relevance badge and can coexist across multiple news items at the same time.
 - news must not receive fake images in the database; when there is no real banner, the UI should simply hide the image block.
 - tournament_entries records each player's result in each event; final_position and points_earned are the basis for the Elo ranking.
-- cash_game_sessions records each player's cash-game session summary; keep it separate from tournaments and model it as a user-owned record with buy-in, cash-out, net result, and optional notes.
+- cash_game_sessions records each player's cash-game session summary; keep it separate from tournaments and model it as a user-owned record with buy-in, cash-out, net result, optional notes, and optional `event_id` when the session belongs to a scheduled event.
+- cash_game_sessions.net_result must be derived as `cash_out - buy_in` by database logic to prevent payload drift.
 - The weekly radar must be assembled from real database data, combining nearby events and recently published news, with no hardcoding in the UI.
 
 ## Expected Flow
@@ -119,7 +121,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - wallet_transactions.balance_before and balance_after must reflect the real balance progression.
 - subscriptions.user_id identifies the player's subscription.
 - events.status controls the upcoming, ongoing, and finished cycle; featured_* and is_featured are used to highlight the event in cards and editorial blocks.
+- events.event_type controls whether an entry behaves as tournament or cash game; `events.blinds` is optional metadata for cash-game presentation.
+- events.buy_in can be null for cash-game events and should remain set for tournament events.
+- events integrity should enforce required fields by `event_type` (`buy_in` for tournament, `blinds` for cash_game).
 - news.slug must be unique and serve as the editorial key for visual references and future detail routes.
 - news.category controls the editorial taxonomy; published_at defines publication order; is_active and is_featured determine visibility.
 - Keep only one active `is_featured = true` at a time in the database; `is_hot` remains without uniqueness restrictions.
 - tournament_entries.event_id and user_id form the link between event and player; final_position defines placement and points_earned the impact on Elo.
+- cash_game_sessions.event_id optionally links a session to a scheduled item in events; null means an avulso cash-game session.
+- when `cash_game_sessions.event_id` is present, it must reference an `events` row with `event_type = cash_game`.

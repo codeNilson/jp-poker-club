@@ -168,21 +168,21 @@ set
   created_at = excluded.created_at;
 
 -- Inserindo eventos falsos
-insert into public.events (id, title, description, event_date, buy_in, max_players, status, created_at, updated_at)
-select v.id::uuid, v.title, v.description, v.event_date, v.buy_in, v.max_players, v.status::public.event_status, v.created_at, v.updated_at
+insert into public.events (id, title, description, event_date, buy_in, max_players, status, event_type, blinds, created_at, updated_at)
+select v.id::uuid, v.title, v.description, v.event_date, v.buy_in, v.max_players, v.status::public.event_status, v.event_type::public.event_type, v.blinds, v.created_at, v.updated_at
 from (
   values
-    ('11111111-1111-4111-8111-111111111112', 'Turbo Knockout presencial', 'Evento rapido com estrutura dinamica para sabado a noite.', now() - interval '14 days', 60.00, 32, 'finished', now() - interval '14 days', now() - interval '14 days'),
-    ('22222222-2222-4222-8222-222222222223', 'Main Event da semana', 'Torneio principal com pontuacao integral para o ranking.', now() - interval '11 days', 100.00, 40, 'finished', now() - interval '11 days', now() - interval '11 days'),
-    ('33333333-3333-4333-8333-333333333334', 'Sit and Go de aquecimento', 'Mesa rapida para preparacao antes do evento principal.', now() - interval '9 days', 30.00, 10, 'finished', now() - interval '9 days', now() - interval '9 days'),
-    ('44444444-4444-4444-8444-444444444445', 'Championship Night', 'Etapa em andamento com mesa cheia e cobertura dedicada.', now() - interval '30 minutes', 80.00, 36, 'ongoing', now() - interval '2 hours', now() - interval '30 minutes'),
-    ('55555555-5555-4555-8555-555555555556', 'Ladies and Allies', 'Noite especial com foco em comunidade e boas mesas.', now() + interval '2 days', 50.00, 24, 'upcoming', now(), now()),
-    ('66666666-6666-4666-8666-666666666667', 'High Roller Sunday', 'Evento premium para jogadores mais agressivos.', now() + interval '4 days', 150.00, 20, 'upcoming', now(), now()),
-    ('77777777-7777-4777-8777-777777777778', 'Deep Stack Twilight', 'Etapa longa com stacks profundos e leitura de mesa.', now() - interval '6 days', 70.00, 30, 'finished', now() - interval '6 days', now() - interval '6 days'),
-    ('88888888-8888-4888-8888-888888888889', 'Omaha Night', 'Sessao alternativa para variar o formato do jogo.', now() + interval '7 days', 40.00, 18, 'upcoming', now(), now()),
-    ('99999999-9999-4999-8999-999999999990', 'Heads-up Challenge', 'Duelo direto com eliminacao rapida e muita pressao.', now() - interval '3 days', 35.00, 16, 'finished', now() - interval '3 days', now() - interval '3 days'),
-    ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab', 'Final Table Clinic', 'Treino guiado para ajustes finos de fase decisiva.', now() + interval '10 days', 25.00, 12, 'upcoming', now(), now())
-) as v(id, title, description, event_date, buy_in, max_players, status, created_at, updated_at)
+    ('11111111-1111-4111-8111-111111111112', 'Turbo Knockout presencial', 'Evento rapido com estrutura dinamica para sabado a noite.', now() - interval '14 days', 60.00, 32, 'finished', 'tournament', null, now() - interval '14 days', now() - interval '14 days'),
+    ('22222222-2222-4222-8222-222222222223', 'Main Event da semana', 'Torneio principal com pontuacao integral para o ranking.', now() - interval '11 days', 100.00, 40, 'finished', 'tournament', null, now() - interval '11 days', now() - interval '11 days'),
+    ('33333333-3333-4333-8333-333333333334', 'Sit and Go de aquecimento', 'Mesa rapida para preparacao antes do evento principal.', now() - interval '9 days', 30.00, 10, 'finished', 'tournament', null, now() - interval '9 days', now() - interval '9 days'),
+    ('44444444-4444-4444-8444-444444444445', 'Championship Night', 'Etapa em andamento com mesa cheia e cobertura dedicada.', now() - interval '30 minutes', 80.00, 36, 'ongoing', 'tournament', null, now() - interval '2 hours', now() - interval '30 minutes'),
+    ('55555555-5555-4555-8555-555555555556', 'Ladies and Allies', 'Noite especial com foco em comunidade e boas mesas.', now() + interval '2 days', 50.00, 24, 'upcoming', 'tournament', null, now(), now()),
+    ('66666666-6666-4666-8666-666666666667', 'High Roller Sunday', 'Evento premium para jogadores mais agressivos.', now() + interval '4 days', 150.00, 20, 'upcoming', 'tournament', null, now(), now()),
+    ('77777777-7777-4777-8777-777777777778', 'Deep Stack Twilight', 'Etapa longa com stacks profundos e leitura de mesa.', now() - interval '6 days', 70.00, 30, 'finished', 'tournament', null, now() - interval '6 days', now() - interval '6 days'),
+    ('88888888-8888-4888-8888-888888888889', 'Omaha Night Cash', 'Sessao alternativa de cash game com blinds fixos.', now() + interval '7 days', null, 18, 'upcoming', 'cash_game', '2/5', now(), now()),
+    ('99999999-9999-4999-8999-999999999990', 'Heads-up Challenge', 'Duelo direto com eliminacao rapida e muita pressao.', now() - interval '3 days', 35.00, 16, 'finished', 'tournament', null, now() - interval '3 days', now() - interval '3 days'),
+    ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab', 'Friday Cash Experience', 'Mesa aberta de cash game para aquecimento da semana.', now() + interval '10 days', null, 12, 'upcoming', 'cash_game', '1/2', now(), now())
+) as v(id, title, description, event_date, buy_in, max_players, status, event_type, blinds, created_at, updated_at)
 on conflict (id) do update
 set
   title = excluded.title,
@@ -191,6 +191,8 @@ set
   buy_in = excluded.buy_in,
   max_players = excluded.max_players,
   status = excluded.status,
+  event_type = excluded.event_type,
+  blinds = excluded.blinds,
   updated_at = excluded.updated_at;
 
 -- Inserindo resultados dos torneios
@@ -216,6 +218,26 @@ set
   final_position = excluded.final_position,
   points_earned = excluded.points_earned,
   created_at = excluded.created_at;
+
+-- Inserindo sessoes de cash game
+insert into public.cash_game_sessions (id, user_id, event_id, played_at, buy_in, cash_out, net_result, notes, created_at, updated_at)
+select v.id::uuid, v.user_id::uuid, v.event_id::uuid, v.played_at, v.buy_in, v.cash_out, v.net_result, v.notes, v.created_at, v.updated_at
+from (
+  values
+    ('12111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222', '88888888-8888-4888-8888-888888888889', now() - interval '5 days', 120.00, 210.00, 90.00, 'Sessao vinculada ao Omaha Night Cash.', now() - interval '5 days', now() - interval '5 days'),
+    ('12111111-1111-4111-8111-111111111112', '44444444-4444-4444-8444-444444444444', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaab', now() - interval '2 days', 80.00, 55.00, -25.00, 'Sessao vinculada ao Friday Cash Experience.', now() - interval '2 days', now() - interval '2 days'),
+    ('12111111-1111-4111-8111-111111111113', '66666666-6666-4666-8666-666666666666', null, now() - interval '1 day', 150.00, 180.00, 30.00, 'Sessao avulsa sem evento agendado.', now() - interval '1 day', now() - interval '1 day')
+) as v(id, user_id, event_id, played_at, buy_in, cash_out, net_result, notes, created_at, updated_at)
+on conflict (id) do update
+set
+  user_id = excluded.user_id,
+  event_id = excluded.event_id,
+  played_at = excluded.played_at,
+  buy_in = excluded.buy_in,
+  cash_out = excluded.cash_out,
+  net_result = excluded.net_result,
+  notes = excluded.notes,
+  updated_at = excluded.updated_at;
 
 -- Inserindo dados falsos de Notícias
 insert into public.news (id, title, description, content, slug, category, cover_image_url, read_time_minutes, is_featured, is_hot, is_active, published_at)
