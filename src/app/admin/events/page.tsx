@@ -185,7 +185,7 @@ export default async function AdminEventsPage({
                       <span>{formatDisplayDate(item.event_date)}</span>
                       <span>Status: {item.status}</span>
                       <span>Jogadores: {item.max_players}</span>
-                      <span>{isTournament ? `Buy-in: ${formatCurrency(item.buy_in ?? 0)}` : `Blinds: ${item.blinds ?? "-"}`}</span>
+                      <span>{isTournament ? `Buy-in: ${item.buy_in != null ? formatCurrency(item.buy_in) : "-"}` : `Blinds: ${item.blinds ?? "-"}`}</span>
                     </div>
 
                     <h3 className="mt-3 text-xl font-semibold leading-tight">{item.title}</h3>

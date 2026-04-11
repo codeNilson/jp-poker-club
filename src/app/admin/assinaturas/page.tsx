@@ -93,16 +93,16 @@ export default async function AdminSubscriptionsPage({
 
   function getStatusHref(value: string) {
     if (value === "all") {
-      return "/admin/subscriptions"
+      return "/admin/assinaturas"
     }
 
-    return `/admin/subscriptions?status=${value}`
+    return `/admin/assinaturas?status=${value}`
   }
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="rounded-3xl border bg-card p-6 shadow-sm">
-        <p className="text-sm font-medium text-primary">Admin / Subscriptions</p>
+        <p className="text-sm font-medium text-primary">Admin / Assinaturas</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar assinaturas</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Operador possui leitura. Alterações de status e período ficam restritas a admin.
