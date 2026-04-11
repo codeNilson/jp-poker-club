@@ -7,6 +7,7 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { getAdminAccess } from "@/lib/admin/access"
+import { isNextRedirectError } from "@/lib/next-redirect"
 
 const carouselFormSchema = z.object({
   title: z.string().trim().min(3, "Informe um titulo valido."),
@@ -50,7 +51,7 @@ async function assertCarouselAccess(allowOperator = true) {
 }
 
 function normalizeCarouselPayload(formData: FormData) {
-  return carouselFormSchema.parse({
+  return {
     title: typeof formData.get("title") === "string" ? formData.get("title") : "",
     description: typeof formData.get("description") === "string" ? formData.get("description") : "",
     desktopImageUrl: typeof formData.get("desktopImageUrl") === "string" ? formData.get("desktopImageUrl") : "",
@@ -59,7 +60,13 @@ function normalizeCarouselPayload(formData: FormData) {
     linkUrl: typeof formData.get("linkUrl") === "string" ? formData.get("linkUrl") : "",
     sortOrder: typeof formData.get("sortOrder") === "string" ? formData.get("sortOrder") : 0,
     isActive: parseBoolean(formData.get("isActive")),
-  })
+  }
+}
+
+function getValidationErrorMessage(error: z.ZodError) {
+  const uniqueMessages = Array.from(new Set(error.issues.map((issue) => issue.message).filter(Boolean)))
+
+  return uniqueMessages.length > 0 ? uniqueMessages.join(" ") : "Dados inválidos. Revise os campos e tente novamente."
 }
 
 function invalidateCarouselPaths() {
@@ -69,7 +76,13 @@ function invalidateCarouselPaths() {
 
 export async function createCarouselItemAction(formData: FormData) {
   const { supabase } = await assertCarouselAccess(true)
-  const payload = normalizeCarouselPayload(formData)
+  const payloadResult = carouselFormSchema.safeParse(normalizeCarouselPayload(formData))
+
+  if (!payloadResult.success) {
+    redirect(buildRedirectPath("/admin/carousel", "error", getValidationErrorMessage(payloadResult.error)))
+  }
+
+  const payload = payloadResult.data
 
   try {
     const { error } = await supabase.from("carousel_items").insert({
@@ -91,6 +104,10 @@ export async function createCarouselItemAction(formData: FormData) {
     invalidateCarouselPaths()
     redirect(buildRedirectPath("/admin/carousel", "success", "Card do carousel criado com sucesso."))
   } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error
+    }
+
     const message = error instanceof Error ? error.message : "Nao foi possivel criar o card do carousel."
     redirect(buildRedirectPath("/admin/carousel", "error", message))
   }
@@ -129,6 +146,10 @@ export async function updateCarouselItemAction(formData: FormData) {
     invalidateCarouselPaths()
     redirect(buildRedirectPath("/admin/carousel", "success", "Card do carousel atualizado com sucesso."))
   } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error
+    }
+
     const message = error instanceof Error ? error.message : "Nao foi possivel atualizar o card do carousel."
     redirect(buildRedirectPath("/admin/carousel", "error", message))
   }

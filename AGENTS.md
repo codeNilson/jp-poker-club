@@ -56,6 +56,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Wallet balance adjustments in admin flows must be atomic in the database (single function/transaction) and always append a `wallet_transactions` audit record with before/after balances.
 - News cover images must be uploaded from the admin form to Supabase Storage and shown with a local preview before submit; do not rely on manual image URLs in the UI.
 - News image uploads must use the authenticated server-session client (no admin-key fallback in runtime) and rely on explicit `storage.objects` RLS policies for `admin`/`operator` in the `jp-poker-club-image-vault` bucket.
+- Admin forms should validate with `safeParse` on the server, translate schema/database failures into friendly messages, and show per-field requirement hints in the UI instead of exposing raw exceptions.
 
 ## Architecture and Cache Rules
 

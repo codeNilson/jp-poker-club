@@ -7,6 +7,7 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 
 import { getAdminAccess } from "@/lib/admin/access"
+import { isNextRedirectError } from "@/lib/next-redirect"
 
 const eventTypeSchema = z.enum(["tournament", "cash_game"])
 const eventStatusSchema = z.enum(["upcoming", "ongoing", "finished"])
@@ -80,7 +81,7 @@ function normalizeEventPayload(formData: FormData) {
     status: formData.get("status"),
   }
 
-  return eventFormSchema.parse({
+  return {
     title: typeof rawPayload.title === "string" ? rawPayload.title : "",
     description: typeof rawPayload.description === "string" ? rawPayload.description : "",
     eventDate: typeof rawPayload.eventDate === "string" ? rawPayload.eventDate : "",
@@ -89,7 +90,13 @@ function normalizeEventPayload(formData: FormData) {
     blinds: typeof rawPayload.blinds === "string" ? rawPayload.blinds : "",
     maxPlayers: typeof rawPayload.maxPlayers === "string" ? rawPayload.maxPlayers : 0,
     status: typeof rawPayload.status === "string" ? rawPayload.status : "upcoming",
-  })
+  }
+}
+
+function getValidationErrorMessage(error: z.ZodError) {
+  const uniqueMessages = Array.from(new Set(error.issues.map((issue) => issue.message).filter(Boolean)))
+
+  return uniqueMessages.length > 0 ? uniqueMessages.join(" ") : "Dados inválidos. Revise os campos e tente novamente."
 }
 
 function normalizeMoney(value: string | undefined | null) {
@@ -114,8 +121,14 @@ function invalidateEventPaths() {
 
 export async function createEventAction(formData: FormData) {
   const { supabase } = await assertEventAccess(true)
-  const payload = normalizeEventPayload(formData)
+  const payloadResult = eventFormSchema.safeParse(normalizeEventPayload(formData))
   const eventId = randomUUID()
+
+  if (!payloadResult.success) {
+    redirect(buildRedirectPath("/admin/events", "error", getValidationErrorMessage(payloadResult.error)))
+  }
+
+  const payload = payloadResult.data
   const buyIn = payload.eventType === "tournament" ? normalizeMoney(payload.buyIn) : null
   const blinds = payload.eventType === "cash_game" ? payload.blinds?.trim() || null : null
 
@@ -139,6 +152,10 @@ export async function createEventAction(formData: FormData) {
     invalidateEventPaths()
     redirect(buildRedirectPath("/admin/events", "success", "Evento criado com sucesso."))
   } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error
+    }
+
     const message = error instanceof Error ? error.message : "Nao foi possivel criar o evento."
     redirect(buildRedirectPath("/admin/events", "error", message))
   }
@@ -181,6 +198,10 @@ export async function updateEventAction(formData: FormData) {
     invalidateEventPaths()
     redirect(buildRedirectPath("/admin/events", "success", "Evento atualizado com sucesso."))
   } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error
+    }
+
     const message = error instanceof Error ? error.message : "Nao foi possivel atualizar o evento."
     redirect(buildRedirectPath("/admin/events", "error", message))
   }

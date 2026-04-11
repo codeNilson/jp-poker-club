@@ -104,7 +104,7 @@ export default async function AdminSubscriptionsPage({
         <p className="text-sm font-medium text-primary">Admin / Subscriptions</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar assinaturas</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Operador possui leitura. Alteracoes de status e periodo ficam restritas a admin.
+          Operador possui leitura. Alterações de status e período ficam restritas a admin.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
@@ -175,11 +175,12 @@ export default async function AdminSubscriptionsPage({
                         <option value="past_due">Past due</option>
                         <option value="canceled">Canceled</option>
                       </select>
+                      <p className="text-xs text-muted-foreground">Altere o status conforme a situação atual da assinatura.</p>
                     </div>
 
                     <div className="grid gap-2">
                       <label htmlFor={`currentPeriodStart-${item.user_id}`} className="text-sm font-medium">
-                        Inicio do periodo
+                        Início do período
                       </label>
                       <input
                         id={`currentPeriodStart-${item.user_id}`}
@@ -193,7 +194,7 @@ export default async function AdminSubscriptionsPage({
 
                     <div className="grid gap-2">
                       <label htmlFor={`currentPeriodEnd-${item.user_id}`} className="text-sm font-medium">
-                        Fim do periodo
+                        Fim do período
                       </label>
                       <input
                         id={`currentPeriodEnd-${item.user_id}`}

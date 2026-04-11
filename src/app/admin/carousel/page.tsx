@@ -42,16 +42,16 @@ export default async function AdminCarouselPage({
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="rounded-3xl border bg-card p-6 shadow-sm">
         <p className="text-sm font-medium text-primary">Admin / Carousel</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar carousel</h1>
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar carrossel</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Controle os cards da home com ordem, visibilidade e links de navegacao.
+          Controle os cards da home com ordem, visibilidade e links de navegação.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
             <Link href="/admin">Voltar ao painel</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/">Ver home publica</Link>
+            <Link href="/">Ver home pública</Link>
           </Button>
         </div>
       </header>
@@ -74,16 +74,18 @@ export default async function AdminCarouselPage({
           <form action={createCarouselItemAction} className="mt-5 grid gap-4">
             <div className="grid gap-2">
               <label htmlFor="create-title" className="text-sm font-medium">
-                Titulo
+                Título
               </label>
-              <input id="create-title" name="title" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
             </div>
 
             <div className="grid gap-2">
               <label htmlFor="create-description" className="text-sm font-medium">
-                Descricao
+                Descrição
               </label>
-              <textarea id="create-description" name="description" rows={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <textarea id="create-description" name="description" rows={3} minLength={10} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Opcional, mas quando preenchida use pelo menos 10 caracteres.</p>
             </div>
 
             <div className="grid gap-2">
@@ -91,6 +93,7 @@ export default async function AdminCarouselPage({
                 Imagem desktop (URL)
               </label>
               <input id="create-desktopImageUrl" name="desktopImageUrl" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem desktop.</p>
             </div>
 
             <div className="grid gap-2">
@@ -98,6 +101,7 @@ export default async function AdminCarouselPage({
                 Imagem mobile (URL)
               </label>
               <input id="create-mobileImageUrl" name="mobileImageUrl" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem mobile.</p>
             </div>
 
             <div className="grid gap-2">
@@ -105,6 +109,7 @@ export default async function AdminCarouselPage({
                 CTA
               </label>
               <input id="create-actionText" name="actionText" defaultValue="Saiba mais" className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Texto do botão exibido no card.</p>
             </div>
 
             <div className="grid gap-2">
@@ -112,6 +117,7 @@ export default async function AdminCarouselPage({
                 Link de destino
               </label>
               <input id="create-linkUrl" name="linkUrl" defaultValue="/" className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Destino do card ao clicar.</p>
             </div>
 
             <div className="grid gap-2">
@@ -119,6 +125,7 @@ export default async function AdminCarouselPage({
                 Ordem
               </label>
               <input id="create-sortOrder" name="sortOrder" type="number" min={0} defaultValue={0} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Menor número aparece primeiro.</p>
             </div>
 
             <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
@@ -146,7 +153,7 @@ export default async function AdminCarouselPage({
                 <article key={item.id} className="rounded-3xl border p-5">
                   <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
                     <span>Ordem: {item.sort_order}</span>
-                    <span>Ativo: {item.is_active ? "Sim" : "Nao"}</span>
+                    <span>Ativo: {item.is_active ? "Sim" : "Não"}</span>
                   </div>
 
                   <h3 className="mt-3 text-xl font-semibold leading-tight">{item.title}</h3>
@@ -160,16 +167,18 @@ export default async function AdminCarouselPage({
 
                       <div className="grid gap-2">
                         <label htmlFor={`title-${item.id}`} className="text-sm font-medium">
-                          Titulo
+                            Título
                         </label>
-                        <input id={`title-${item.id}`} name="title" required defaultValue={item.title} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <input id={`title-${item.id}`} name="title" required minLength={3} defaultValue={item.title} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                          <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
                       </div>
 
                       <div className="grid gap-2">
                         <label htmlFor={`description-${item.id}`} className="text-sm font-medium">
-                          Descricao
+                          Descrição
                         </label>
-                        <textarea id={`description-${item.id}`} name="description" rows={3} defaultValue={item.description ?? ""} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <textarea id={`description-${item.id}`} name="description" rows={3} minLength={10} defaultValue={item.description ?? ""} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Opcional, mas quando preenchida use pelo menos 10 caracteres.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -177,6 +186,7 @@ export default async function AdminCarouselPage({
                           Imagem desktop
                         </label>
                         <input id={`desktopImageUrl-${item.id}`} name="desktopImageUrl" required defaultValue={item.desktop_image_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem desktop.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -184,6 +194,7 @@ export default async function AdminCarouselPage({
                           Imagem mobile
                         </label>
                         <input id={`mobileImageUrl-${item.id}`} name="mobileImageUrl" required defaultValue={item.mobile_image_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Informe uma URL válida para a imagem mobile.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -191,6 +202,7 @@ export default async function AdminCarouselPage({
                           CTA
                         </label>
                         <input id={`actionText-${item.id}`} name="actionText" defaultValue={item.action_text} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Texto do botão exibido no card.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -198,6 +210,7 @@ export default async function AdminCarouselPage({
                           Link de destino
                         </label>
                         <input id={`linkUrl-${item.id}`} name="linkUrl" defaultValue={item.link_url} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Destino do card ao clicar.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -205,6 +218,7 @@ export default async function AdminCarouselPage({
                           Ordem
                         </label>
                         <input id={`sortOrder-${item.id}`} name="sortOrder" type="number" min={0} defaultValue={item.sort_order} className="rounded-xl border bg-card px-3 py-2 text-sm" />
+                        <p className="text-xs text-muted-foreground">Menor número aparece primeiro.</p>
                       </div>
 
                       <label className="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
@@ -213,7 +227,7 @@ export default async function AdminCarouselPage({
                       </label>
 
                       <div className="flex flex-wrap gap-3">
-                        <Button type="submit">Salvar alteracoes</Button>
+                        <Button type="submit">Salvar alterações</Button>
                       </div>
                     </form>
                   </details>

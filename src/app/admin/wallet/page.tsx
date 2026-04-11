@@ -61,7 +61,7 @@ export default async function AdminWalletPage({
         <p className="text-sm font-medium text-primary">Admin / Wallet</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar carteiras</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Ajustes de saldo sao permitidos apenas para admin e ficam auditados em wallet_transactions.
+          Ajustes de saldo são permitidos apenas para admin e ficam auditados em wallet_transactions.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm">
@@ -92,7 +92,7 @@ export default async function AdminWalletPage({
           <form action={adjustWalletBalanceAction} className="mt-5 grid gap-4">
             <div className="grid gap-2">
               <label htmlFor="adjust-userId" className="text-sm font-medium">
-                Usuario
+                Usuário
               </label>
               <select id="adjust-userId" name="userId" disabled={!canAdjust} className="rounded-xl border bg-background px-3 py-2 text-sm disabled:opacity-60">
                 {wallets.map((wallet) => (
@@ -116,6 +116,7 @@ export default async function AdminWalletPage({
                 disabled={!canAdjust}
                 className="rounded-xl border bg-background px-3 py-2 text-sm disabled:opacity-60"
               />
+              <p className="text-xs text-muted-foreground">Use valor positivo para crédito e negativo para débito.</p>
             </div>
 
             <div className="grid gap-2">
@@ -123,6 +124,7 @@ export default async function AdminWalletPage({
                 Motivo
               </label>
               <textarea id="adjust-reason" name="reason" rows={3} disabled={!canAdjust} className="rounded-xl border bg-background px-3 py-2 text-sm disabled:opacity-60" />
+              <p className="text-xs text-muted-foreground">Opcional, mas recomendado para auditoria.</p>
             </div>
 
             <Button type="submit" disabled={!canAdjust || wallets.length === 0}>
