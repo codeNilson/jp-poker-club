@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import withVercelToolbar from "@vercel/toolbar/plugins/next"
 
 const SUPABASE_PUBLIC_BUCKET_PATH = "/storage/v1/object/public/jp-poker-club-image-vault/**"
 const NEWS_CATEGORY_PATH_PATTERN = "(?<category>clube|eventos|ranking|assinatura|comunicado|promocao)"
@@ -75,4 +76,4 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withVercelToolbar()(nextConfig)

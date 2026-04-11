@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { VercelToolbar } from "@vercel/toolbar/next";
 import { Navbar } from "@/components/layout/Navbar";
 import { GlobalBackground } from "@/components/layout/global-background";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+
 
 export const metadata: Metadata = {
   title: "JP Poker Club",
@@ -25,6 +27,7 @@ export default function RootLayout({
           <main className="flex min-h-screen flex-1 flex-col pt-37.5 md:pt-25 lg:pt-28">{children}</main>
           <Footer />
         </div>
+        {process.env.NODE_ENV === "development" ? <VercelToolbar /> : null}
         <Toaster />
       </body>
     </html>
