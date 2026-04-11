@@ -111,10 +111,41 @@ function normalizeNewsPayload(formData: FormData) {
     isHot: rawPayload.isHot,
   }
 
-  return newsFormSchema.parse({
+  return {
     ...sanitizedPayload,
     category: sanitizedPayload.category as NewsCategory,
-  })
+  }
+}
+
+function getValidationErrorMessage(error: z.ZodError) {
+  const uniqueMessages = Array.from(new Set(error.issues.map((issue) => issue.message).filter(Boolean)))
+
+  if (uniqueMessages.length === 0) {
+    return "Dados invalidos. Revise os campos e tente novamente."
+  }
+
+  return uniqueMessages.join(" ")
+}
+
+function getFriendlyNewsErrorMessage(error: unknown, fallbackMessage: string) {
+  if (error && typeof error === "object") {
+    const code = "code" in error ? String(error.code) : ""
+    const message = "message" in error ? String(error.message) : ""
+
+    if (code === "23505" || message.includes("news_slug_key")) {
+      return "Slug duplicado. Escolha outro slug."
+    }
+
+    if (message.includes("news_single_active_featured_idx")) {
+      return "Ja existe uma noticia ativa em destaque."
+    }
+
+    if (code === "42501") {
+      return "Voce nao tem permissao para essa acao."
+    }
+  }
+
+  return fallbackMessage
 }
 
 async function clearFeaturedNews(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>, currentId?: string) {
@@ -144,10 +175,17 @@ function invalidateNewsPaths(slug?: string | null) {
 
 export async function createNewsAction(formData: FormData) {
   const { supabase } = await assertNewsAccess(true)
-  const payload = normalizeNewsPayload(formData)
+  const payloadResult = newsFormSchema.safeParse(normalizeNewsPayload(formData))
+
+  if (!payloadResult.success) {
+    redirect(buildRedirectPath("/admin/news", "error", getValidationErrorMessage(payloadResult.error)))
+  }
+
+  const payload = payloadResult.data
   const createdId = randomUUID()
   const createdSlug = payload.slug || slugify(payload.title)
   const nextFeatured = payload.isActive ? payload.isFeatured : false
+  let errorMessage: string | null = null
 
   try {
     if (nextFeatured) {
@@ -170,15 +208,18 @@ export async function createNewsAction(formData: FormData) {
     })
 
     if (error) {
-      throw new Error(error.message)
+      throw error
     }
-
-    invalidateNewsPaths(createdSlug)
-    redirect(buildRedirectPath("/admin/news", "success", "Noticia criada com sucesso."))
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Nao foi possivel criar a noticia."
-    redirect(buildRedirectPath("/admin/news", "error", message))
+    errorMessage = getFriendlyNewsErrorMessage(error, "Nao foi possivel criar a noticia.")
   }
+
+  if (errorMessage) {
+    redirect(buildRedirectPath("/admin/news", "error", errorMessage))
+  }
+
+  invalidateNewsPaths(createdSlug)
+  redirect(buildRedirectPath("/admin/news", "success", "Noticia criada com sucesso."))
 }
 
 export async function updateNewsAction(formData: FormData) {
@@ -189,7 +230,7 @@ export async function updateNewsAction(formData: FormData) {
   })
 
   if (!payload.success) {
-    redirect(buildRedirectPath("/admin/news", "error", payload.error.issues[0]?.message ?? "Dados invalidos."))
+    redirect(buildRedirectPath("/admin/news", "error", getValidationErrorMessage(payload.error)))
   }
 
   const currentId = payload.data.id
@@ -205,6 +246,7 @@ export async function updateNewsAction(formData: FormData) {
 
   const nextSlug = payload.data.slug || slugify(payload.data.title)
   const nextFeatured = payload.data.isActive ? payload.data.isFeatured : false
+  let errorMessage: string | null = null
 
   try {
     if (nextFeatured) {
@@ -229,19 +271,22 @@ export async function updateNewsAction(formData: FormData) {
       .eq("id", currentId)
 
     if (error) {
-      throw new Error(error.message)
+      throw error
     }
-
-    invalidateNewsPaths(currentNews.slug === nextSlug ? currentNews.slug : currentNews.slug)
-    if (currentNews.slug !== nextSlug) {
-      invalidateNewsPaths(nextSlug)
-    }
-
-    redirect(buildRedirectPath("/admin/news", "success", "Noticia atualizada com sucesso."))
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Nao foi possivel atualizar a noticia."
-    redirect(buildRedirectPath("/admin/news", "error", message))
+    errorMessage = getFriendlyNewsErrorMessage(error, "Nao foi possivel atualizar a noticia.")
   }
+
+  if (errorMessage) {
+    redirect(buildRedirectPath("/admin/news", "error", errorMessage))
+  }
+
+  invalidateNewsPaths(currentNews.slug)
+  if (currentNews.slug !== nextSlug) {
+    invalidateNewsPaths(nextSlug)
+  }
+
+  redirect(buildRedirectPath("/admin/news", "success", "Noticia atualizada com sucesso."))
 }
 
 export async function deleteNewsAction(formData: FormData) {
@@ -269,7 +314,7 @@ export async function deleteNewsAction(formData: FormData) {
   const { error } = await supabase.from("news").delete().eq("id", id)
 
   if (error) {
-    redirect(buildRedirectPath("/admin/news", "error", error.message))
+    redirect(buildRedirectPath("/admin/news", "error", getFriendlyNewsErrorMessage(error, "Nao foi possivel remover a noticia.")))
   }
 
   invalidateNewsPaths(currentNews.slug)

@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { SlugAutofillSync } from "@/components/forms/slug-autofill-sync"
 import { Button } from "@/components/ui/button"
 import { getAdminNewsItems } from "@/lib/admin/news"
 import { NEWS_CATEGORY_LABELS, NEWS_CATEGORY_OPTIONS } from "@/services/news.service"
@@ -51,6 +52,12 @@ function booleanFieldLabel(value: boolean) {
   return value ? "Sim" : "Nao"
 }
 
+function getNowDateTimeLocal() {
+  const now = new Date()
+  const timezoneOffsetInMs = now.getTimezoneOffset() * 60 * 1000
+  return new Date(now.getTime() - timezoneOffsetInMs).toISOString().slice(0, 16)
+}
+
 export default async function AdminNewsPage({
   searchParams,
 }: {
@@ -59,7 +66,7 @@ export default async function AdminNewsPage({
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {})
   const notice = parseNotice(resolvedSearchParams)
   const newsItems = await getAdminNewsItems()
-  const nowIso = new Date().toISOString()
+  const nowLocalDateTime = getNowDateTimeLocal()
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -99,8 +106,26 @@ export default async function AdminNewsPage({
               <label htmlFor="create-title" className="text-sm font-medium">
                 Titulo
               </label>
-              <input id="create-title" name="title" required className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <input id="create-title" name="title" required minLength={3} className="rounded-xl border bg-background px-3 py-2 text-sm" />
+              <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
             </div>
+
+            <div className="grid gap-2">
+              <label htmlFor="create-slug" className="text-sm font-medium">
+                Slug
+              </label>
+              <input
+                id="create-slug"
+                name="slug"
+                minLength={3}
+                pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                placeholder="titulo-da-noticia"
+                className="rounded-xl border bg-background px-3 py-2 text-sm"
+              />
+              <p className="text-xs text-muted-foreground">Preenchido automaticamente pelo titulo, mas voce pode editar se quiser.</p>
+            </div>
+
+            <SlugAutofillSync titleInputId="create-title" slugInputId="create-slug" />
 
             <div className="grid gap-2">
               <label htmlFor="create-description" className="text-sm font-medium">
@@ -110,9 +135,11 @@ export default async function AdminNewsPage({
                 id="create-description"
                 name="description"
                 required
+                minLength={10}
                 rows={3}
                 className="rounded-xl border bg-background px-3 py-2 text-sm"
               />
+              <p className="text-xs text-muted-foreground">Minimo de 10 caracteres.</p>
             </div>
 
             <div className="grid gap-2">
@@ -123,21 +150,11 @@ export default async function AdminNewsPage({
                 id="create-content"
                 name="content"
                 required
+                minLength={20}
                 rows={8}
                 className="rounded-xl border bg-background px-3 py-2 text-sm"
               />
-            </div>
-
-            <div className="grid gap-2">
-              <label htmlFor="create-slug" className="text-sm font-medium">
-                Slug
-              </label>
-              <input
-                id="create-slug"
-                name="slug"
-                placeholder="titulo-da-noticia"
-                className="rounded-xl border bg-background px-3 py-2 text-sm"
-              />
+              <p className="text-xs text-muted-foreground">Minimo de 20 caracteres.</p>
             </div>
 
             <div className="grid gap-2">
@@ -188,7 +205,7 @@ export default async function AdminNewsPage({
                 id="create-publishedAt"
                 name="publishedAt"
                 type="datetime-local"
-                defaultValue={nowIso.slice(0, 16)}
+                defaultValue={nowLocalDateTime}
                 className="rounded-xl border bg-background px-3 py-2 text-sm"
               />
             </div>
@@ -254,9 +271,11 @@ export default async function AdminNewsPage({
                           id={`title-${item.id}`}
                           name="title"
                           required
+                          minLength={3}
                           defaultValue={item.title}
                           className="rounded-xl border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">Minimo de 3 caracteres.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -267,10 +286,12 @@ export default async function AdminNewsPage({
                           id={`description-${item.id}`}
                           name="description"
                           required
+                          minLength={10}
                           rows={3}
                           defaultValue={item.description}
                           className="rounded-xl border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">Minimo de 10 caracteres.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -281,10 +302,12 @@ export default async function AdminNewsPage({
                           id={`content-${item.id}`}
                           name="content"
                           required
+                          minLength={20}
                           rows={7}
                           defaultValue={item.content}
                           className="rounded-xl border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">Minimo de 20 caracteres.</p>
                       </div>
 
                       <div className="grid gap-2">
@@ -294,9 +317,12 @@ export default async function AdminNewsPage({
                         <input
                           id={`slug-${item.id}`}
                           name="slug"
+                          minLength={3}
+                          pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$"
                           defaultValue={item.slug}
                           className="rounded-xl border bg-card px-3 py-2 text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">Use apenas letras minusculas, numeros e hifens.</p>
                       </div>
 
                       <div className="grid gap-2">
