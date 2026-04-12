@@ -19,7 +19,7 @@ function NewsCardSkeleton() {
 
 export default function NewsLoading() {
   return (
-    <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8">
+    <section className="isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 -top-30 h-70 w-70 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl sm:h-90 sm:w-90" />
         <div className="absolute -right-20 top-70 h-55 w-55 rounded-full bg-emerald-500/10 blur-3xl" />
