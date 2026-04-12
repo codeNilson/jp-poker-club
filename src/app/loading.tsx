@@ -20,7 +20,7 @@ function HomeNewsCardSkeleton() {
 export default function HomeLoading() {
   return (
     <div className="space-y-8 pb-16">
-      <section aria-label="Carregando destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:max-w-4xl">
+      <section aria-label="Carregando destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card">
           <Skeleton className="aspect-[2.8/1] min-h-32 w-full sm:aspect-3/1 lg:aspect-[3.4/1]" />
         </div>
