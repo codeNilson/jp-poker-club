@@ -8,6 +8,7 @@ import {
   ClubIcon,
   LogInIcon,
   LogOutIcon,
+  ShieldCheckIcon,
   UserRoundIcon,
   TicketPercentIcon,
 } from "lucide-react"
@@ -26,16 +27,58 @@ type NavbarProps = {
   initialUserEmail: string | null
 }
 
+const ADMIN_ALLOWED_ROLES = ["admin", "operator"] as const
+
+function canAccessAdmin(role: string | null) {
+  return Boolean(role && ADMIN_ALLOWED_ROLES.includes(role as (typeof ADMIN_ALLOWED_ROLES)[number]))
+}
+
 export function Navbar({ initialUserEmail }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail)
+  const [userRole, setUserRole] = useState<string | null>(null)
   const [isHidden, setIsHidden] = useState(false)
   const [supabase] = useState(() => createSupabaseBrowserClient())
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user.email ?? null)
+    async function syncUserState() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        setUserEmail(null)
+        setUserRole(null)
+        return
+      }
+
+      setUserEmail(user.email ?? null)
+
+      const { data: profile } = await supabase.from("profiles").select("user_role").eq("id", user.id).maybeSingle()
+      setUserRole(profile?.user_role ?? null)
+    }
+
+    syncUserState().catch(() => {
+      setUserRole(null)
+    })
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!session?.user) {
+        setUserEmail(null)
+        setUserRole(null)
+        return
+      }
+
+      setUserEmail(session.user.email ?? null)
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("user_role")
+        .eq("id", session.user.id)
+        .maybeSingle()
+
+      setUserRole(profile?.user_role ?? null)
     })
 
     return () => {
@@ -75,7 +118,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
     }
   }, [])
 
-  const isActive = (href: string) => pathname === href
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const showAdminLink = canAccessAdmin(userRole)
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut()
@@ -87,6 +131,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
 
     toast.success("Logout realizado com sucesso.")
     setUserEmail(null)
+    setUserRole(null)
     router.replace("/")
     router.refresh()
   }
@@ -159,12 +204,18 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="max-w-[140px] sm:max-w-[220px]">
+                <Button variant="outline" className="max-w-35 sm:max-w-55">
                   <UserRoundIcon className="size-4" aria-hidden="true" />
                   <span className="truncate">{userEmail}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {showAdminLink ? (
+                  <DropdownMenuItem onClick={() => router.push("/admin")}>
+                    <ShieldCheckIcon className="size-4" aria-hidden="true" />
+                    Admin
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOutIcon className="size-4" aria-hidden="true" />
                   Sair
