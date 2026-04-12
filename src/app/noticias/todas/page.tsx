@@ -56,7 +56,7 @@ function createCategoryHref(category: string | null): string {
     return "/noticias/todas"
   }
 
-  return `/noticias/todas/categoria/${category}`
+  return `/noticias/categoria/${category}`
 }
 
 export default async function AllNewsPage({

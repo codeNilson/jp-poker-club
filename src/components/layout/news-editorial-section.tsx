@@ -9,23 +9,14 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { notFound } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
   getFeaturedNews,
   getNewsFeed,
-  isNewsCategory,
   NEWS_CATEGORY_LABELS,
-  NEWS_CATEGORY_OPTIONS,
 } from "@/services/news.service"
 import { getRadarWeekItems } from "@/services/radar.service"
-
-export const revalidate = 3600
-
-type CategoryParams = {
-  category: string
-}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -51,33 +42,10 @@ function formatRadarDate(value: string) {
   return `${dayPart}, ${timePart}`
 }
 
-function createCategoryHref(category: string | null): string {
-  if (!category) {
-    return "/noticias"
-  }
-
-  return `/noticias/categoria/${category}`
-}
-
-export function generateStaticParams() {
-  return NEWS_CATEGORY_OPTIONS.map((category) => ({ category }))
-}
-
-export default async function NewsCategoryPage({
-  params,
-}: {
-  params: CategoryParams | Promise<CategoryParams>
-}) {
-  const resolvedParams = await Promise.resolve(params)
-
-  if (!isNewsCategory(resolvedParams.category)) {
-    notFound()
-  }
-
-  const selectedCategory = resolvedParams.category
+export async function NewsEditorialSection() {
   const [featured, feed, radarItems] = await Promise.all([
-    getFeaturedNews(selectedCategory),
-    getNewsFeed(7, selectedCategory),
+    getFeaturedNews(),
+    getNewsFeed(7),
     getRadarWeekItems(3),
   ])
 
@@ -85,16 +53,8 @@ export default async function NewsCategoryPage({
   const featuredNews = featured ?? fallbackFeatured
   const newsFeed = feed.filter((item) => item.id !== featuredNews?.id)
 
-  const categories = [
-    { label: "Todas", value: null },
-    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
-      label: NEWS_CATEGORY_LABELS[category],
-      value: category,
-    })),
-  ]
-
   return (
-    <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
+    <section className="isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 -top-30 h-70 w-70 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl sm:h-90 sm:w-90" />
         <div className="absolute -right-20 top-70 h-55 w-55 rounded-full bg-emerald-500/10 blur-3xl" />
@@ -196,27 +156,7 @@ export default async function NewsCategoryPage({
           </aside>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => {
-              const isActive = category.value === selectedCategory
-
-              return (
-                <Button
-                  key={category.label}
-                  asChild
-                  variant={isActive ? "default" : "outline"}
-                  size="sm"
-                  className="rounded-full"
-                >
-                  <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
-                    {category.label}
-                  </Link>
-                </Button>
-              )
-            })}
-          </div>
-
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <Button asChild variant="outline" size="sm" className="rounded-full">
             <Link href="/noticias/todas">Ver todas</Link>
           </Button>
