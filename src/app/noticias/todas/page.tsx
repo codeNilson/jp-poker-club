@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import {
   getPaginatedNewsFeed,
   NEWS_CATEGORY_LABELS,
-  NEWS_CATEGORY_OPTIONS,
 } from "@/services/news.service"
 
 export const revalidate = 3600
@@ -51,14 +50,6 @@ function createPageHref(page: number): string {
   return queryString ? `/noticias/todas?${queryString}` : "/noticias/todas"
 }
 
-function createCategoryHref(category: string | null): string {
-  if (!category) {
-    return "/noticias/todas"
-  }
-
-  return `/noticias/categoria/${category}`
-}
-
 export default async function AllNewsPage({
   searchParams,
 }: {
@@ -80,14 +71,6 @@ export default async function AllNewsPage({
   const isLastPage = paginatedFeed.totalPages === 0 || paginatedFeed.page >= paginatedFeed.totalPages
   const newsFeed = paginatedFeed.items
 
-  const categories = [
-    { label: "Todas", value: null },
-    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
-      label: NEWS_CATEGORY_LABELS[category],
-      value: category,
-    })),
-  ]
-
   return (
     <section className="isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -95,26 +78,6 @@ export default async function AllNewsPage({
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const isActive = category.value === null
-
-            return (
-              <Button
-                key={category.label}
-                asChild
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                className="rounded-full"
-              >
-                <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
-                  {category.label}
-                </Link>
-              </Button>
-            )
-          })}
-        </div>
-
         {newsFeed.length > 0 ? (
           <section className="columns-1 gap-4 md:columns-2">
             {newsFeed.map((item) => (

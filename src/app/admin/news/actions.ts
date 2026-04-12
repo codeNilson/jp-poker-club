@@ -278,11 +278,6 @@ function invalidateNewsPaths(slug?: string | null) {
   revalidatePath("/noticias")
   revalidatePath("/noticias/todas")
 
-  for (const category of NEWS_CATEGORY_OPTIONS) {
-    revalidatePath(`/noticias/categoria/${category}`)
-    revalidatePath(`/noticias/todas/categoria/${category}`)
-  }
-
   if (slug) {
     revalidatePath(`/noticias/${slug}`)
   }
