@@ -1,20 +1,17 @@
 import {
-  ArrowLeftIcon,
   ArrowRightIcon,
   CircleDotIcon,
   Clock3Icon,
-  NewspaperIcon,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 
-import { NEWS_ARCHIVE_COPY, NEWS_PAGE_SIZE } from "@/constants/news"
+import { NEWS_PAGE_SIZE } from "@/constants/news"
 import { Button } from "@/components/ui/button"
 import {
   getPaginatedNewsFeed,
   NEWS_CATEGORY_LABELS,
-  NEWS_CATEGORY_OPTIONS,
 } from "@/services/news.service"
 
 export const revalidate = 3600
@@ -53,14 +50,6 @@ function createPageHref(page: number): string {
   return queryString ? `/noticias/todas?${queryString}` : "/noticias/todas"
 }
 
-function createCategoryHref(category: string | null): string {
-  if (!category) {
-    return "/noticias/todas"
-  }
-
-  return `/noticias/todas/categoria/${category}`
-}
-
 export default async function AllNewsPage({
   searchParams,
 }: {
@@ -82,63 +71,13 @@ export default async function AllNewsPage({
   const isLastPage = paginatedFeed.totalPages === 0 || paginatedFeed.page >= paginatedFeed.totalPages
   const newsFeed = paginatedFeed.items
 
-  const categories = [
-    { label: "Todas", value: null },
-    ...NEWS_CATEGORY_OPTIONS.map((category) => ({
-      label: NEWS_CATEGORY_LABELS[category],
-      value: category,
-    })),
-  ]
-
   return (
-    <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
+    <section className="isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 -top-30 h-70 w-70 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl sm:h-90 sm:w-90" />
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary uppercase">
-            <NewspaperIcon className="size-3.5" aria-hidden="true" />
-            {NEWS_ARCHIVE_COPY.badge}
-          </div>
-          <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-4xl">
-            {NEWS_ARCHIVE_COPY.title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            {NEWS_ARCHIVE_COPY.description}
-          </p>
-
-          <div className="mt-5">
-            <Button asChild variant="outline" size="sm" className="rounded-full">
-              <Link href="/noticias">
-                <ArrowLeftIcon className="size-4" aria-hidden="true" />
-                Voltar para notícias
-              </Link>
-            </Button>
-          </div>
-        </header>
-
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const isActive = category.value === null
-
-            return (
-              <Button
-                key={category.label}
-                asChild
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                className="rounded-full"
-              >
-                <Link href={createCategoryHref(category.value)} aria-current={isActive ? "page" : undefined}>
-                  {category.label}
-                </Link>
-              </Button>
-            )
-          })}
-        </div>
-
         {newsFeed.length > 0 ? (
           <section className="columns-1 gap-4 md:columns-2">
             {newsFeed.map((item) => (

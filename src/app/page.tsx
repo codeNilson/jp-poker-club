@@ -1,4 +1,5 @@
 import { HomeCarousel } from "@/components/layout/home-carousel"
+import { NewsEditorialSection } from "@/components/layout/news-editorial-section"
 import { createSupabaseServerPublicClient } from "@/lib/supabase/server"
 
 export default async function Home() {
@@ -23,5 +24,10 @@ export default async function Home() {
     linkUrl: item.link_url,
   }))
 
-  return <HomeCarousel items={items} />
+  return (
+    <div className="space-y-8 pb-16">
+      <HomeCarousel items={items} />
+      <NewsEditorialSection />
+    </div>
+  )
 }
