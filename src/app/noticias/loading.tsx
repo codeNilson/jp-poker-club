@@ -26,13 +26,6 @@ export default function NewsLoading() {
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
-          <Skeleton className="mb-4 h-7 w-44 rounded-full" />
-          <Skeleton className="h-10 w-full max-w-3xl rounded-2xl" />
-          <Skeleton className="mt-3 h-5 w-full max-w-2xl rounded-full" />
-          <Skeleton className="mt-2 h-5 w-4/5 max-w-xl rounded-full" />
-        </header>
-
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <article className="rounded-3xl border border-border/80 bg-linear-to-br from-primary/12 via-card to-card p-6 sm:p-8">
             <Skeleton className="mb-5 aspect-video w-full rounded-2xl" />

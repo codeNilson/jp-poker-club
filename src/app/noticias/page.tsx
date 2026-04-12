@@ -4,14 +4,12 @@ import {
   CircleDotIcon,
   Clock3Icon,
   FlameIcon,
-  NewspaperIcon,
   SparklesIcon,
   TagIcon,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { NEWS_HOME_COPY } from "@/constants/news"
 import { Button } from "@/components/ui/button"
 import {
   getFeaturedNews,
@@ -66,19 +64,6 @@ export default async function NewsPage() {
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/12 via-card to-card p-5 backdrop-blur sm:p-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-            <NewspaperIcon className="size-3.5" aria-hidden="true" />
-            {NEWS_HOME_COPY.badge}
-          </span>
-          <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-5xl">
-            {NEWS_HOME_COPY.title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            {NEWS_HOME_COPY.description}
-          </p>
-        </header>
-
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <article className="relative overflow-hidden rounded-3xl border border-border/80 bg-linear-to-br from-primary/12 via-card to-card p-6 sm:p-8">
             {featuredNews ? (

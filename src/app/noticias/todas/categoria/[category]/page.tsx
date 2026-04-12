@@ -1,15 +1,13 @@
 import {
-  ArrowLeftIcon,
   ArrowRightIcon,
   CircleDotIcon,
   Clock3Icon,
-  NewspaperIcon,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 
-import { NEWS_ARCHIVE_COPY, NEWS_PAGE_SIZE } from "@/constants/news"
+import { NEWS_PAGE_SIZE } from "@/constants/news"
 import { Button } from "@/components/ui/button"
 import {
   getPaginatedNewsFeed,
@@ -117,28 +115,6 @@ export default async function CategoryNewsListPage({
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary uppercase">
-            <NewspaperIcon className="size-3.5" aria-hidden="true" />
-            {NEWS_ARCHIVE_COPY.badge}
-          </div>
-          <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-4xl">
-            {NEWS_ARCHIVE_COPY.title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            {NEWS_ARCHIVE_COPY.description}
-          </p>
-
-          <div className="mt-5">
-            <Button asChild variant="outline" size="sm" className="rounded-full">
-              <Link href="/noticias">
-                <ArrowLeftIcon className="size-4" aria-hidden="true" />
-                Voltar para notícias
-              </Link>
-            </Button>
-          </div>
-        </header>
-
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => {
             const isActive = category.value === selectedCategory
