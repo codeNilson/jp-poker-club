@@ -66,12 +66,12 @@ export default async function NewsPage() {
       </div>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <header className="rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-7">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary uppercase">
+        <header className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/12 via-card to-card p-5 backdrop-blur sm:p-8">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
             <NewspaperIcon className="size-3.5" aria-hidden="true" />
             {NEWS_HOME_COPY.badge}
-          </div>
-          <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-4xl">
+          </span>
+          <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-balance sm:text-5xl">
             {NEWS_HOME_COPY.title}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">

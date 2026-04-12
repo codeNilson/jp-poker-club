@@ -29,6 +29,14 @@ export type PublicEvent = {
   attendees: EventAttendee[]
 }
 
+export type PaginatedPublicEventsFeed = {
+  items: PublicEvent[]
+  totalItems: number
+  totalPages: number
+  page: number
+  pageSize: number
+}
+
 function mapEvent(row: EventRow): PublicEvent {
   return {
     id: row.id,
@@ -47,21 +55,50 @@ function mapEvent(row: EventRow): PublicEvent {
 }
 
 export async function getPublicEventsFeed(): Promise<PublicEvent[]> {
-  const supabase = createSupabaseServerPublicClient()
+  const paginated = await getPaginatedPublicEventsFeed({ page: 1, pageSize: 100 })
+  return paginated.items
+}
 
-  const { data: events, error: eventsError } = await supabase
+export async function getPaginatedPublicEventsFeed(options?: {
+  page?: number
+  pageSize?: number
+}): Promise<PaginatedPublicEventsFeed> {
+  const supabase = createSupabaseServerPublicClient()
+  const requestedPage = Math.max(1, options?.page ?? 1)
+  const pageSize = Math.max(1, options?.pageSize ?? 6)
+  const from = (requestedPage - 1) * pageSize
+  const to = from + pageSize - 1
+
+  const { data: events, error: eventsError, count } = await supabase
     .from("events")
-    .select("id,title,description,event_date,event_type,buy_in,blinds,max_players,status")
+    .select("id,title,description,event_date,event_type,buy_in,blinds,max_players,status", { count: "exact" })
+    .in("status", ["upcoming", "ongoing"])
     .order("event_date", { ascending: true })
+    .range(from, to)
 
   if (eventsError || !events) {
-    return []
+    return {
+      items: [],
+      totalItems: 0,
+      totalPages: 0,
+      page: 1,
+      pageSize,
+    }
   }
 
   const items = (events as EventRow[]).map(mapEvent)
+  const totalItems = Math.max(0, count ?? 0)
+  const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / pageSize)
+  const page = totalPages === 0 ? 1 : Math.min(requestedPage, totalPages)
 
   if (items.length === 0) {
-    return items
+    return {
+      items,
+      totalItems,
+      totalPages,
+      page,
+      pageSize,
+    }
   }
 
   const eventIds = items.map((item) => item.id)
@@ -109,7 +146,7 @@ export async function getPublicEventsFeed(): Promise<PublicEvent[]> {
     attendanceMap.set(eventId, current)
   }
 
-  return items.map((item) => {
+  const paginatedItems = items.map((item) => {
     const attendees = attendanceMap.get(item.id) ?? []
     const confirmedCount = attendees.length
 
@@ -120,4 +157,12 @@ export async function getPublicEventsFeed(): Promise<PublicEvent[]> {
       attendees,
     }
   })
+
+  return {
+    items: paginatedItems,
+    totalItems,
+    totalPages,
+    page,
+    pageSize,
+  }
 }
