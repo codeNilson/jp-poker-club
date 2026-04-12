@@ -69,7 +69,7 @@ export default async function AdminWalletPage({
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <header className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
-        <p className="text-sm font-medium text-primary">Admin / Wallet</p>
+        <p className="text-sm font-medium text-primary">Admin / Carteiras</p>
         <h1 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">Gerenciar carteiras</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Ajustes de saldo são permitidos apenas para admin e ficam auditados em wallet_transactions.
@@ -145,22 +145,8 @@ export default async function AdminWalletPage({
         </section>
 
         <section className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold">Carteiras</h2>
+          <h2 className="text-lg font-semibold">Últimas transações</h2>
           <div className="mt-4 space-y-3">
-            {wallets.length > 0 ? (
-              wallets.map((wallet) => (
-                <article key={wallet.user_id} className="rounded-2xl border p-3 text-sm">
-                  <p className="font-medium wrap-break-word">{wallet.user_display_name ?? "Usuário sem nome"}</p>
-                  <p className="text-muted-foreground">Saldo: {formatCurrency(wallet.balance)}</p>
-                </article>
-              ))
-            ) : (
-              <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">Nenhuma carteira encontrada.</div>
-            )}
-          </div>
-
-          <h3 className="mt-6 text-base font-semibold">Ultimas transacoes</h3>
-          <div className="mt-3 space-y-3">
             {walletTransactions.length > 0 ? (
               walletTransactions.map((tx) => (
                 <article key={tx.id} className="rounded-2xl border p-3 text-sm">
@@ -171,11 +157,28 @@ export default async function AdminWalletPage({
                   <p className="text-muted-foreground">
                     {formatCurrency(tx.balance_before)} -&gt; {formatCurrency(tx.balance_after)}
                   </p>
+                  {tx.reference_type === "admin_adjustment" && tx.actor_display_name ? (
+                    <p className="text-xs text-muted-foreground">Atualizado por: {tx.actor_display_name}</p>
+                  ) : null}
                   {tx.description ? <p className="text-muted-foreground">{tx.description}</p> : null}
                 </article>
               ))
             ) : (
               <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">Sem transacoes recentes.</div>
+            )}
+          </div>
+
+          <h3 className="mt-6 text-base font-semibold">Carteiras</h3>
+          <div className="mt-3 space-y-3">
+            {wallets.length > 0 ? (
+              wallets.map((wallet) => (
+                <article key={wallet.user_id} className="rounded-2xl border p-3 text-sm">
+                  <p className="font-medium wrap-break-word">{wallet.user_display_name ?? "Usuário sem nome"}</p>
+                  <p className="text-muted-foreground">Saldo: {formatCurrency(wallet.balance)}</p>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">Nenhuma carteira encontrada.</div>
             )}
           </div>
         </section>
