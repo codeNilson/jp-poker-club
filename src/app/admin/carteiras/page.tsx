@@ -93,7 +93,7 @@ export default async function AdminWalletPage({
         </div>
       ) : null}
 
-      <div className="mt-6 grid gap-6 xl:mt-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:gap-8">
+      <div className="mt-6 grid items-start gap-6 xl:mt-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:gap-8">
         <section className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold">Ajuste manual de saldo</h2>
           <p className="mt-2 text-sm text-muted-foreground">
