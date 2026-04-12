@@ -44,6 +44,16 @@ function formatDate(value: string) {
   }).format(new Date(value))
 }
 
+function formatUserLabel(userId: string, displayName: string | null) {
+  void userId
+
+  if (displayName) {
+    return displayName
+  }
+
+  return "Usuário sem nome"
+}
+
 export default async function AdminWalletPage({
   searchParams,
 }: {
@@ -57,10 +67,10 @@ export default async function AdminWalletPage({
   const canAdjust = role === "admin"
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="rounded-3xl border bg-card p-6 shadow-sm">
+    <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <header className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
         <p className="text-sm font-medium text-primary">Admin / Wallet</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciar carteiras</h1>
+        <h1 className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">Gerenciar carteiras</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Ajustes de saldo são permitidos apenas para admin e ficam auditados em wallet_transactions.
         </p>
@@ -83,8 +93,8 @@ export default async function AdminWalletPage({
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <section className="rounded-3xl border bg-card p-6 shadow-sm">
+      <div className="mt-6 grid gap-6 xl:mt-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:gap-8">
+        <section className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold">Ajuste manual de saldo</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Use valor positivo para credito e valor negativo para debito.
@@ -98,7 +108,7 @@ export default async function AdminWalletPage({
               <select id="adjust-userId" name="userId" disabled={!canAdjust} className="rounded-xl border bg-background px-3 py-2 text-sm disabled:opacity-60">
                 {wallets.map((wallet) => (
                   <option key={wallet.user_id} value={wallet.user_id}>
-                    {wallet.user_id} ({formatCurrency(wallet.balance)})
+                    {formatUserLabel(wallet.user_id, wallet.user_display_name)} ({formatCurrency(wallet.balance)})
                   </option>
                 ))}
               </select>
@@ -134,13 +144,13 @@ export default async function AdminWalletPage({
           </form>
         </section>
 
-        <section className="rounded-3xl border bg-card p-6 shadow-sm">
+        <section className="rounded-3xl border bg-card p-4 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold">Carteiras</h2>
           <div className="mt-4 space-y-3">
             {wallets.length > 0 ? (
               wallets.map((wallet) => (
                 <article key={wallet.user_id} className="rounded-2xl border p-3 text-sm">
-                  <p className="font-medium">{wallet.user_id}</p>
+                  <p className="font-medium wrap-break-word">{wallet.user_display_name ?? "Usuário sem nome"}</p>
                   <p className="text-muted-foreground">Saldo: {formatCurrency(wallet.balance)}</p>
                 </article>
               ))
@@ -154,7 +164,7 @@ export default async function AdminWalletPage({
             {walletTransactions.length > 0 ? (
               walletTransactions.map((tx) => (
                 <article key={tx.id} className="rounded-2xl border p-3 text-sm">
-                  <p className="font-medium">{tx.user_id}</p>
+                  <p className="font-medium wrap-break-word">{tx.user_display_name ?? "Usuário sem nome"}</p>
                   <p className="text-muted-foreground">
                     {tx.type} | {formatCurrency(tx.amount)} | {formatDate(tx.created_at)}
                   </p>
