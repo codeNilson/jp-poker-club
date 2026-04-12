@@ -72,7 +72,7 @@ export async function updateSubscriptionAction(formData: FormData) {
   })
 
   if (!payload.success) {
-    redirect(buildRedirectPath("/admin/subscriptions", "error", payload.error.issues[0]?.message ?? "Dados invalidos."))
+    redirect(buildRedirectPath("/admin/assinaturas", "error", payload.error.issues[0]?.message ?? "Dados invalidos."))
   }
 
   const { error } = await supabase
@@ -86,10 +86,10 @@ export async function updateSubscriptionAction(formData: FormData) {
     .eq("user_id", payload.data.userId)
 
   if (error) {
-    redirect(buildRedirectPath("/admin/subscriptions", "error", error.message))
+    redirect(buildRedirectPath("/admin/assinaturas", "error", error.message))
   }
 
   revalidatePath("/admin/subscriptions")
   revalidatePath("/")
-  redirect(buildRedirectPath("/admin/subscriptions", "success", "Assinatura atualizada com sucesso."))
+  redirect(buildRedirectPath("/admin/assinaturas", "success", "Assinatura atualizada com sucesso."))
 }
