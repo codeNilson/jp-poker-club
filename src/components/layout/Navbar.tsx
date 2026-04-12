@@ -10,7 +10,6 @@ import {
   LogOutIcon,
   ShieldCheckIcon,
   UserRoundIcon,
-  TicketPercentIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -181,16 +180,6 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
           </Link>
-          <Link
-            href="/promocoes"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
-              }`}
-          >
-            <TicketPercentIcon className="size-4" aria-hidden="true" />
-            Promocoes
-          </Link>
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
@@ -250,16 +239,6 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
-          </Link>
-          <Link
-            href="/promocoes"
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/promocoes")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
-              }`}
-          >
-            <TicketPercentIcon className="size-4" aria-hidden="true" />
-            Promocoes
           </Link>
         </div>
       </nav>

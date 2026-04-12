@@ -40,7 +40,7 @@ export async function adjustWalletBalanceAction(formData: FormData) {
   })
 
   if (!payload.success) {
-    redirect(buildRedirectPath("/admin/wallet", "error", payload.error.issues[0]?.message ?? "Dados invalidos."))
+    redirect(buildRedirectPath("/admin/carteiras", "error", payload.error.issues[0]?.message ?? "Dados invalidos."))
   }
 
   const { error } = await supabase.rpc("admin_adjust_wallet_balance", {
@@ -54,5 +54,5 @@ export async function adjustWalletBalanceAction(formData: FormData) {
   }
 
   revalidatePath("/admin/wallet")
-  redirect(buildRedirectPath("/admin/wallet", "success", "Ajuste de carteira aplicado com sucesso."))
+  redirect(buildRedirectPath("/admin/carteiras", "success", "Ajuste de carteira aplicado com sucesso."))
 }

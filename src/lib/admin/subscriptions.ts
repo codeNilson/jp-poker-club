@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 export type AdminSubscriptionRow = {
   user_id: string
+  user_display_name: string | null
   status: "inactive" | "active" | "past_due" | "canceled"
   provider: string
   provider_customer_id: string | null
@@ -13,6 +14,23 @@ export type AdminSubscriptionRow = {
   canceled_at: string | null
   created_at: string
   updated_at: string
+}
+
+async function getDisplayNameMap(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>, userIds: string[]) {
+  if (userIds.length === 0) {
+    return new Map<string, string>()
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,display_name")
+    .in("id", userIds)
+
+  if (error || !data) {
+    return new Map<string, string>()
+  }
+
+  return new Map(data.map((profile) => [profile.id, profile.display_name]))
 }
 
 export async function getAdminSubscriptions() {
@@ -27,5 +45,11 @@ export async function getAdminSubscriptions() {
     return [] as AdminSubscriptionRow[]
   }
 
-  return data as AdminSubscriptionRow[]
+  const userIds = Array.from(new Set(data.map((subscription) => subscription.user_id)))
+  const displayNameMap = await getDisplayNameMap(supabase, userIds)
+
+  return data.map((subscription) => ({
+    ...subscription,
+    user_display_name: displayNameMap.get(subscription.user_id) ?? null,
+  })) as AdminSubscriptionRow[]
 }

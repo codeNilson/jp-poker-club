@@ -33,7 +33,7 @@ export default function AdminPage() {
         <p className="text-sm font-medium text-primary">Painel administrativo</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Gerenciamento do JP Poker Club</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Esta area eh restrita a perfis com permissao administrativa. Os modulos abaixo serao liberados em fases.
+          Esta área é restrita a perfis com permissao administrativa.
         </p>
       </header>
 

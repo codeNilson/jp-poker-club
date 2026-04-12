@@ -96,7 +96,7 @@ export default async function AdminEventsPage({
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="rounded-3xl border bg-card p-6 shadow-sm">
           <h2 className="text-lg font-semibold">Novo evento</h2>
           <form action={createEventAction} className="mt-5 grid gap-4">

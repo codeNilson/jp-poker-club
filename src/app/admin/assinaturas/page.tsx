@@ -145,7 +145,7 @@ export default async function AdminSubscriptionsPage({
             filteredSubscriptions.map((item) => (
               <article key={item.user_id} className="rounded-3xl border p-5">
                 <div className="grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
-                  <span>User: {item.user_id}</span>
+                  <span>Usuário: {item.user_display_name ?? "Usuário sem nome"}</span>
                   <span>Status: {item.status}</span>
                   <span>Inicio: {formatDisplayDate(item.current_period_start)}</span>
                   <span>Fim: {formatDisplayDate(item.current_period_end)}</span>

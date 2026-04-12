@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 export type AdminWalletRow = {
   user_id: string
+  user_display_name: string | null
   balance: number
   created_at: string
   updated_at: string
@@ -12,6 +13,8 @@ export type AdminWalletRow = {
 export type AdminWalletTransactionRow = {
   id: string
   user_id: string
+  user_display_name: string | null
+  actor_display_name: string | null
   type: "deposit" | "bonus" | "debit" | "refund" | "adjustment"
   amount: number
   balance_before: number
@@ -20,6 +23,23 @@ export type AdminWalletTransactionRow = {
   reference_id: string | null
   description: string | null
   created_at: string
+}
+
+async function getDisplayNameMap(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>, userIds: string[]) {
+  if (userIds.length === 0) {
+    return new Map<string, string>()
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,display_name")
+    .in("id", userIds)
+
+  if (error || !data) {
+    return new Map<string, string>()
+  }
+
+  return new Map(data.map((profile) => [profile.id, profile.display_name]))
 }
 
 export async function getAdminWallets() {
@@ -34,7 +54,13 @@ export async function getAdminWallets() {
     return [] as AdminWalletRow[]
   }
 
-  return data as AdminWalletRow[]
+  const userIds = Array.from(new Set(data.map((wallet) => wallet.user_id)))
+  const displayNameMap = await getDisplayNameMap(supabase, userIds)
+
+  return data.map((wallet) => ({
+    ...wallet,
+    user_display_name: displayNameMap.get(wallet.user_id) ?? null,
+  })) as AdminWalletRow[]
 }
 
 export async function getAdminWalletTransactions(limit = 30) {
@@ -50,5 +76,23 @@ export async function getAdminWalletTransactions(limit = 30) {
     return [] as AdminWalletTransactionRow[]
   }
 
-  return data as AdminWalletTransactionRow[]
+  const userIds = Array.from(new Set(data.map((tx) => tx.user_id)))
+  const actorIds = Array.from(
+    new Set(
+      data
+        .filter((tx) => tx.reference_type === "admin_adjustment" && tx.reference_id)
+        .map((tx) => tx.reference_id as string)
+    )
+  )
+
+  const [displayNameMap, actorDisplayNameMap] = await Promise.all([
+    getDisplayNameMap(supabase, userIds),
+    getDisplayNameMap(supabase, actorIds),
+  ])
+
+  return data.map((tx) => ({
+    ...tx,
+    user_display_name: displayNameMap.get(tx.user_id) ?? null,
+    actor_display_name: tx.reference_id ? actorDisplayNameMap.get(tx.reference_id) ?? null : null,
+  })) as AdminWalletTransactionRow[]
 }
