@@ -75,7 +75,7 @@ export default async function NewsDetailsPage({
 
       <article className="mx-auto w-full max-w-4xl rounded-3xl border border-border/80 bg-card/70 p-5 backdrop-blur sm:p-8">
         <Link
-          href="/noticias"
+          href="/noticias/todas"
           className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-opacity hover:opacity-80"
         >
           <ArrowLeftIcon className="size-4" aria-hidden="true" />

@@ -108,7 +108,7 @@ export default async function EventosPage({
   const openEventsCount = totalItems
 
   return (
-    <section className="relative isolate overflow-hidden px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
+    <section className="isolate overflow-clip px-4 pb-16 sm:px-6 lg:px-8 animate-in fade-in-0 duration-500">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 -top-32 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/25 blur-3xl sm:h-112 sm:w-md" />
         <div className="absolute -left-24 top-72 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
@@ -153,7 +153,7 @@ export default async function EventosPage({
                 <Link href="/">Voltar para início</Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full px-5">
-                <Link href="/noticias">
+                <Link href="/noticias/todas">
                   Ver notícias
                   <ArrowRightIcon className="size-4" aria-hidden="true" />
                 </Link>

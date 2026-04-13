@@ -25,7 +25,7 @@ export default async function Home() {
   }))
 
   return (
-    <div className="relative isolate overflow-hidden space-y-8 px-4 pb-16 sm:px-6 lg:px-8">
+    <div className="isolate overflow-clip space-y-8 px-4 pb-16 sm:px-6 lg:px-8">
       <HomeCarousel items={items} />
       <NewsEditorialSection />
     </div>
