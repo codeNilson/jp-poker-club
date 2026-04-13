@@ -56,7 +56,7 @@ export function HomeCarousel({ items }: HomeCarouselProps) {
   }
 
   return (
-    <section aria-label="Destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+    <section aria-label="Destaques" className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-0">
       <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card">
         <div
           className="flex transition-transform duration-500 ease-out"
