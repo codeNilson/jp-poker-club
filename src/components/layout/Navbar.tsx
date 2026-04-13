@@ -117,7 +117,12 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
     }
   }, [])
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/" || pathname === "";
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
   const showAdminLink = canAccessAdmin(userRole)
 
   async function handleLogout() {
@@ -153,8 +158,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           <Link
             href="/"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <UserRoundIcon className="size-4" aria-hidden="true" />
@@ -163,8 +168,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           <Link
             href="/eventos"
             className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
@@ -213,8 +218,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           <Link
             href="/"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <UserRoundIcon className="size-4" aria-hidden="true" />
@@ -223,8 +228,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           <Link
             href="/eventos"
             className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-background hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
               }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
