@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="relative min-h-dvh overflow-x-hidden bg-background">
         <GlobalBackground />
 
-        <div className="relative z-0 flex min-h-dvh flex-col">
+        <div className="relative z-0 flex min-h-dvh flex-col overflow-x-hidden">
           <Navbar initialUserEmail={null} />
           <main className="flex min-h-screen flex-1 flex-col pt-37.5 md:pt-25 lg:pt-28">{children}</main>
           <Footer />
