@@ -141,7 +141,6 @@ function invalidateEventPaths() {
   revalidatePath("/admin/events")
   revalidatePath("/eventos")
   revalidatePath("/")
-  revalidatePath("/noticias")
 }
 
 export async function createEventAction(formData: FormData) {

@@ -275,7 +275,6 @@ async function clearFeaturedNews(supabase: Awaited<ReturnType<typeof createSupab
 function invalidateNewsPaths(slug?: string | null) {
   revalidatePath("/admin/news")
   revalidatePath("/")
-  revalidatePath("/noticias")
   revalidatePath("/noticias/todas")
 
   if (slug) {

@@ -153,7 +153,7 @@ export default async function EventosPage({
                 <Link href="/">Voltar para início</Link>
               </Button>
               <Button asChild variant="outline" className="rounded-full px-5">
-                <Link href="/noticias">
+                <Link href="/noticias/todas">
                   Ver notícias
                   <ArrowRightIcon className="size-4" aria-hidden="true" />
                 </Link>

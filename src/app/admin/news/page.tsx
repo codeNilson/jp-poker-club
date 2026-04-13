@@ -87,7 +87,7 @@ export default async function AdminNewsPage({
             <Link href="/admin">Voltar ao painel</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/noticias">Ver página pública</Link>
+            <Link href="/noticias/todas">Ver página pública</Link>
           </Button>
         </div>
       </header>

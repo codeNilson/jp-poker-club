@@ -6,7 +6,7 @@ export function GlobalBackground() {
   const pathname = usePathname()
 
   const isHome = pathname === "/"
-  const isPrimaryLanding = pathname === "/noticias" || pathname === "/eventos"
+  const isPrimaryLanding = pathname === "/eventos"
 
   const primaryGlow = isHome ? "bg-primary/18 blur-3xl" : isPrimaryLanding ? "bg-primary/12 blur-3xl" : "bg-primary/8 blur-3xl"
   const secondaryGlow = isHome ? "bg-emerald-500/12 blur-3xl" : isPrimaryLanding ? "bg-emerald-500/8 blur-3xl" : "bg-emerald-500/5 blur-3xl"
