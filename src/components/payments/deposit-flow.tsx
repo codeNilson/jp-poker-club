@@ -290,6 +290,7 @@ function BrickStep({
           paymentMethods: {
             creditCard: "all",
             bankTransfer: "all",
+            mercadoPago: "all",
           },
         }}
         onSubmit={onSubmit}

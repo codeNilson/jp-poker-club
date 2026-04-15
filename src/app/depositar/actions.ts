@@ -76,12 +76,12 @@ export async function createPaymentIntentAction(
         payment_methods: {
           installments: 1,
         },
-        back_urls: {
-          success: `${appUrl}/depositar?status=success`,
-          failure: `${appUrl}/depositar?status=failure`,
-          pending: `${appUrl}/depositar?status=pending`,
-        },
-        auto_return: "approved",
+        // back_urls: {
+        //   success: `${appUrl}/depositar?status=success`,
+        //   failure: `${appUrl}/depositar?status=failure`,
+        //   pending: `${appUrl}/depositar?status=pending`,
+        // },
+        // auto_return: "approved",
       },
     });
   } catch (err) {
