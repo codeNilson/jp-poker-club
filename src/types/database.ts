@@ -34,6 +34,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      payments: {
+        Row: {
+          id: string
+          user_id: string
+          status: string
+          amount: number
+          preference_id: string | null
+          mp_payment_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          status?: string
+          amount: number
+          preference_id?: string | null
+          mp_payment_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          status?: string
+          amount?: number
+          preference_id?: string | null
+          mp_payment_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       carousel_items: {
         Row: {
           action_text: string
