@@ -289,14 +289,11 @@ function BrickStep({
           },
           paymentMethods: {
             creditCard: "all",
-            debitCard: "all",
-            ticket: "all",
             bankTransfer: "all",
-            mercadoPago: "all",
           },
+        }}
         onSubmit={onSubmit}
         onError={onError}
-        onReady={() => {/* Brick pronto */}}
       />
     </div>
   );

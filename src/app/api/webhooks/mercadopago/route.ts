@@ -110,40 +110,24 @@ export async function POST(req: NextRequest) {
   // 6. Processar pagamento aprovado
   const admin = createSupabaseAdminClient();
 
-  // O external_reference armazena o user_id (definido na Server Action)
-  const userId = String(paymentData.external_reference ?? "");
+  // CORREÇÃO 1: O external_reference agora é o ID EXATO da transação na tabela payments, não o user.id
+  const dbPaymentId = String(paymentData.external_reference ?? "");
   const amount = Number(paymentData.transaction_amount ?? 0);
   const mpPaymentIdStr = String(paymentData.id ?? mpPaymentId);
 
-  if (!userId || amount <= 0) {
-    console.error("[MP Webhook] external_reference ou transaction_amount ausentes", {
-      userId,
+  if (!dbPaymentId || amount <= 0) {
+    console.error("[MP Webhook] external_reference (payment ID) ou transaction_amount ausentes", {
+      dbPaymentId,
       amount,
     });
     return NextResponse.json({ ok: true });
   }
 
-  // 6a. Idempotência — verificar se mp_payment_id já foi processado
-  const { data: existingPayment } = await admin
-    .from("payments")
-    .select("id, status")
-    .eq("mp_payment_id", mpPaymentIdStr)
-    .maybeSingle();
-
-  if (existingPayment?.status === "approved") {
-    console.info("[MP Webhook] Pagamento já processado:", existingPayment.id);
-    return NextResponse.json({ ok: true });
-  }
-
-  // 6b. Buscar o registro de pagamento pendente mais recente desse usuário com o mesmo valor
-  //     (vinculado ao external_reference + valor) ainda não aprovado
+  // 6a. Buscar o registro EXATO do pagamento no banco de dados
   const { data: payment, error: fetchError } = await admin
     .from("payments")
-    .select("id, status, amount")
-    .eq("user_id", userId)
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1)
+    .select("id, status, amount, user_id") // Precisamos do user_id aqui
+    .eq("id", dbPaymentId)
     .maybeSingle();
 
   if (fetchError || !payment) {
@@ -151,13 +135,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // 6c. Idempotência — já processado?
+  const userId = payment.user_id;
+
+  // 6b. Idempotência — já processado?
   if (payment.status === "approved") {
-    console.info("[MP Webhook] Pagamento já processado:", payment.id);
+    console.info("[MP Webhook] Pagamento já processado e aprovado:", payment.id);
     return NextResponse.json({ ok: true });
   }
 
-  // 6d. UPDATE payments → approved
+  // 6c. UPDATE payments → approved
   const { error: updatePaymentError } = await admin
     .from("payments")
     .update({ status: "approved", mp_payment_id: mpPaymentIdStr })
@@ -168,7 +154,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // 6e. Buscar saldo atual da carteira
+  // 6d. Buscar saldo atual (Apenas para registrar no extrato, NÃO vamos atualizar a wallets aqui)
   const { data: wallet, error: walletFetchError } = await admin
     .from("wallets")
     .select("balance")
@@ -176,25 +162,15 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (walletFetchError || !wallet) {
-    console.error("[MP Webhook] Carteira não encontrada:", walletFetchError);
+    console.error("[MP Webhook] Carteira não encontrada para extrato:", walletFetchError);
     return NextResponse.json({ ok: true });
   }
 
   const balanceBefore = Number(wallet.balance);
   const balanceAfter = balanceBefore + amount;
 
-  // 6f. UPDATE wallets com novo saldo
-  const { error: updateWalletError } = await admin
-    .from("wallets")
-    .update({ balance: balanceAfter })
-    .eq("user_id", userId);
-
-  if (updateWalletError) {
-    console.error("[MP Webhook] Falha ao atualizar wallets:", updateWalletError);
-    return NextResponse.json({ ok: true });
-  }
-
-  // 6g. INSERT wallet_transactions (ledger)
+  // 6e. INSERT wallet_transactions (ledger)
+  // CORREÇÃO 2: Apenas inserimos a transação. O Trigger 'handle_wallet_transaction' no Supabase fará o UPDATE na tabela wallets automaticamente.
   const { error: txError } = await admin.from("wallet_transactions").insert({
     user_id: userId,
     type: "deposit",
@@ -202,14 +178,12 @@ export async function POST(req: NextRequest) {
     balance_before: balanceBefore,
     balance_after: balanceAfter,
     reference_type: "mp_payment",
-    reference_id: payment.id, // UUID interno — correto conforme arquitetura
-    description: `Depósito via Mercado Pago — ID ${mpPaymentId}`,
+    reference_id: payment.id,
+    description: `Depósito via Mercado Pago — ID ${mpPaymentIdStr}`,
   });
 
   if (txError) {
     console.error("[MP Webhook] Falha ao inserir wallet_transactions:", txError);
-    // Neste ponto o saldo já foi atualizado; logar o erro é crítico.
-    // Em produção, considere um mecanismo de retry/compensação.
     return NextResponse.json({ ok: true });
   }
 

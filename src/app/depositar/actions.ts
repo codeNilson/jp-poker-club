@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -52,7 +51,10 @@ export async function createPaymentIntentAction(
     redirect("/login");
   }
 
-  // 3. Criar preferência no Mercado Pago
+  // 3. Gerar o ID único para a transação ANTES de chamar o MP
+  const paymentId = crypto.randomUUID();
+
+  // 4. Criar preferência no Mercado Pago
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const webhookUrl = `${appUrl}/api/webhooks/mercadopago`;
 
@@ -69,8 +71,11 @@ export async function createPaymentIntentAction(
             currency_id: "BRL",
           },
         ],
-        external_reference: user.id,
+        external_reference: paymentId,
         notification_url: webhookUrl,
+        payment_methods: {
+          installments: 1,
+        },
         back_urls: {
           success: `${appUrl}/depositar?status=success`,
           failure: `${appUrl}/depositar?status=failure`,
@@ -91,9 +96,10 @@ export async function createPaymentIntentAction(
     return { success: false, error: "Resposta inválida do provedor de pagamento." };
   }
 
-  // 4. Registrar o pagamento pendente no banco de dados (admin client — ignora RLS)
+  // 5. Registrar o pagamento pendente no banco de dados
   const admin = createSupabaseAdminClient();
   const { error: dbError } = await admin.from("payments").insert({
+    id: paymentId,
     user_id: user.id,
     status: "pending",
     amount: parsed.data.amount,
