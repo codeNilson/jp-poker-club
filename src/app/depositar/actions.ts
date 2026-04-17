@@ -5,6 +5,8 @@ import { z } from "zod";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { mpPayment } from "@/lib/mercadopago";
+import type { IPaymentFormData } from "@mercadopago/sdk-react/esm/bricks/payment/type.d";
 import { mpPreference } from "@/lib/mercadopago";
 
 // ---------------------------------------------------------------------------
@@ -76,12 +78,6 @@ export async function createPaymentIntentAction(
         payment_methods: {
           installments: 1,
         },
-        // back_urls: {
-        //   success: `${appUrl}/depositar?status=success`,
-        //   failure: `${appUrl}/depositar?status=failure`,
-        //   pending: `${appUrl}/depositar?status=pending`,
-        // },
-        // auto_return: "approved",
       },
     });
   } catch (err) {
@@ -115,4 +111,87 @@ export async function createPaymentIntentAction(
   }
 
   return { success: true, preferenceId: preference.id };
+}
+
+// ---------------------------------------------------------------------------
+// Processar o Pagamento do Brick (Cartão, Pix, etc)
+// ---------------------------------------------------------------------------
+export async function processPaymentAction(
+  formData: IPaymentFormData,
+  preferenceId: string
+) {
+  try {
+    // 1. Garantir que o usuário está autenticado
+    const supabase = await createSupabaseServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Usuário não autenticado." };
+    }
+
+    const admin = createSupabaseAdminClient();
+
+    // 2. Buscar o registro do pagamento original gerado na preference
+    const { data: paymentRecord, error: fetchError } = await admin
+      .from("payments")
+      .select("id, status, amount")
+      .eq("preference_id", preferenceId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (fetchError || !paymentRecord) {
+      return { success: false, error: "Registro de pagamento não encontrado." };
+    }
+
+    if (paymentRecord.status === "approved") {
+      return { success: true, status: "approved" };
+    }
+
+    // 3. Enviar a cobrança real para a API do Mercado Pago
+    const paymentResponse = await mpPayment.create({
+      body: {
+        transaction_amount: formData.formData.transaction_amount,
+        token: formData.formData.token,
+        description: "Depósito de fichas — JP Poker Club",
+        installments: formData.formData.installments,
+        payment_method_id: formData.formData.payment_method_id,
+        issuer_id: Number(formData.formData.issuer_id),
+        payer: {
+          email: formData.formData.payer.email,
+          identification: formData.formData.payer.identification,
+        },
+        external_reference: paymentRecord.id,
+      },
+    });
+
+    if (!paymentResponse.id) {
+      return { success: false, error: "A API do Mercado Pago não retornou um ID válido." };
+    }
+
+    // 4. Atualizar o status do pagamento no Supabase
+    // O Webhook continuará sendo a fonte da verdade, mas já adiantamos o status aqui.
+    const finalStatus = paymentResponse.status === "approved" ? "approved" : "pending";
+
+    await admin
+      .from("payments")
+      .update({
+        mp_payment_id: String(paymentResponse.id),
+      })
+      .eq("id", paymentRecord.id);
+
+    // 5. Retornar sucesso para o frontend
+    return {
+      success: finalStatus === "approved" || finalStatus === "pending",
+      status: finalStatus,
+      mpPaymentId: paymentResponse.id
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("[processPaymentAction] Erro ao processar pagamento:", err);
+    return {
+      success: false,
+      error: err.message || "Falha de comunicação com o provedor de pagamento."
+    };
+  }
 }

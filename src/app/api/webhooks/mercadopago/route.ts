@@ -110,7 +110,6 @@ export async function POST(req: NextRequest) {
   // 6. Processar pagamento aprovado
   const admin = createSupabaseAdminClient();
 
-  // CORREÇÃO 1: O external_reference agora é o ID EXATO da transação na tabela payments, não o user.id
   const dbPaymentId = String(paymentData.external_reference ?? "");
   const amount = Number(paymentData.transaction_amount ?? 0);
   const mpPaymentIdStr = String(paymentData.id ?? mpPaymentId);

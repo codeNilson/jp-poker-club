@@ -7,7 +7,7 @@ import { Wallet, ChevronRight, Loader2, CheckCircle2, XCircle, Clock } from "luc
 
 import type { IPaymentFormData } from "@mercadopago/sdk-react/esm/bricks/payment/type.d";
 
-import { createPaymentIntentAction } from "@/app/depositar/actions";
+import { createPaymentIntentAction, processPaymentAction } from "@/app/depositar/actions";
 
 // ---------------------------------------------------------------------------
 // Inicializa o SDK do MP uma única vez no módulo
@@ -21,7 +21,7 @@ initMercadoPago(MP_PUBLIC_KEY, { locale: "pt-BR" });
 // ---------------------------------------------------------------------------
 const PRESET_AMOUNTS = [50, 100, 200, 500];
 
-type FlowStatus = "amount" | "brick" | "success" | "failure" | "pending";
+type FlowStatus = "amount" | "brick" | "success" | "failure" | "pending" | "pix_pending";
 
 interface DepositFlowProps {
   /** Status vindo da query string após redirect do MP */
@@ -93,11 +93,31 @@ export function DepositFlow({ initialStatus }: DepositFlowProps) {
   };
 
   const handleBrickSubmit = useCallback(
-    async (_formData: IPaymentFormData) => {
-      // O Brick do MP cuida do submit para a API do MP internamente.
-      // A confirmação real chega via webhook — aqui apenas aguardamos o redirect.
+    async (formData: IPaymentFormData) => {
+      if (!preferenceId) return;
+
+      try {
+        const result = await processPaymentAction(formData, preferenceId);
+
+        if (result.success) {
+          if (result.status === "approved") {
+            setStatus("success");
+          // } else if (result.pixData) {
+          //   setPixData(result.pixData);
+          //   setStatus("pix_pending");
+          } else {
+            setStatus("pending");
+          }
+        } else {
+          toast.error(result.error);
+          setStatus("failure");
+        }
+      } catch {
+        toast.error("Erro inesperado ao processar o pagamento.");
+        setStatus("failure");
+      }
     },
-    []
+    [preferenceId]
   );
 
   const handleBrickError = useCallback((error: unknown) => {
@@ -344,3 +364,7 @@ function StatusScreen({
     </div>
   );
 }
+// function setPixData(pixData: any) {
+//   throw new Error("Function not implemented.");
+// }
+
