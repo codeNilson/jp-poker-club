@@ -102,10 +102,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // if (paymentData.status !== "approved") {
-  //   // Nada a fazer para pagamentos não aprovados neste fluxo
-  //   return NextResponse.json({ ok: true });
-  // }
+  if (paymentData.status !== "approved") {
+    // Nada a fazer para pagamentos não aprovados neste fluxo
+    return NextResponse.json({ ok: true });
+  }
 
   // 6. Processar pagamento aprovado
   const admin = createSupabaseAdminClient();
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
   // 6c. UPDATE payments → approved
   const { error: updatePaymentError } = await admin
     .from("payments")
-    .update({ status: paymentData.status, mp_payment_id: mpPaymentIdStr })
+    .update({ status: "approved", mp_payment_id: mpPaymentIdStr })
     .eq("id", payment.id);
 
   if (updatePaymentError) {
