@@ -150,7 +150,6 @@ export async function processPaymentAction(
       return { success: true, status: "approved" };
     }
 
-    console.log("Payload MP:", JSON.stringify(formData, null, 2));
     // 3. Enviar a cobrança real para a API do Mercado Pago
     const paymentResponse = await mpPayment.create({
       body: {
