@@ -117,9 +117,12 @@ export async function createPaymentIntentAction(
 // Processar o Pagamento do Brick (Cartão, Pix, etc)
 // ---------------------------------------------------------------------------
 export async function processPaymentAction(
-  formData: IPaymentFormData,
+  paymentData: IPaymentFormData,
   preferenceId: string
 ) {
+
+  const { formData } = paymentData;
+
   try {
     // 1. Garantir que o usuário está autenticado
     const supabase = await createSupabaseServerClient();
@@ -150,15 +153,15 @@ export async function processPaymentAction(
     // 3. Enviar a cobrança real para a API do Mercado Pago
     const paymentResponse = await mpPayment.create({
       body: {
-        transaction_amount: formData.formData.transaction_amount,
-        token: formData.formData.token,
+        transaction_amount: formData.transaction_amount,
+        token: formData.token,
         description: "Depósito de fichas — JP Poker Club",
-        installments: formData.formData.installments,
-        payment_method_id: formData.formData.payment_method_id,
-        issuer_id: Number(formData.formData.issuer_id),
+        installments: formData.installments,
+        payment_method_id: formData.payment_method_id,
+        issuer_id: Number(formData.issuer_id),
         payer: {
-          email: formData.formData.payer.email,
-          identification: formData.formData.payer.identification,
+          email: formData.payer.email,
+          identification: formData.payer.identification,
         },
         external_reference: paymentRecord.id,
       },
