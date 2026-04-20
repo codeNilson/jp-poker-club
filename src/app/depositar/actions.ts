@@ -134,6 +134,7 @@ export async function processPaymentAction(
 
     const admin = createSupabaseAdminClient();
 
+    // TODO: Configurar RLS para não usar o admin client aqui, e sim o server client com as políticas corretas. O Webhook continuará usando o admin client, mas aqui podemos ser mais restritivos.
     // 2. Buscar o registro do pagamento original gerado na preference
     const { data: paymentRecord, error: fetchError } = await admin
       .from("payments")
