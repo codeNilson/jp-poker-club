@@ -150,6 +150,7 @@ export async function processPaymentAction(
       return { success: true, status: "approved" };
     }
 
+    console.log("Payload MP:", JSON.stringify(formData, null, 2));
     // 3. Enviar a cobrança real para a API do Mercado Pago
     const paymentResponse = await mpPayment.create({
       body: {
@@ -158,7 +159,7 @@ export async function processPaymentAction(
         description: "Depósito de fichas — JP Poker Club",
         installments: formData.installments,
         payment_method_id: formData.payment_method_id,
-        issuer_id: Number(formData.issuer_id),
+        issuer_id: formData.issuer_id ? Number(formData.issuer_id) : undefined,
         payer: {
           email: formData.payer.email,
           identification: formData.payer.identification,
