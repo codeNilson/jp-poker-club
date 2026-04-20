@@ -40,14 +40,9 @@ function verifySignature(opts: {
 // POST /api/webhooks/mercadopago
 // ---------------------------------------------------------------------------
 export async function POST(req: NextRequest) {
-  // 1. Responde 200 imediatamente (requisito do Mercado Pago: responder em < 22 s)
-  //    O processamento real ocorre em background (same serverless invocation).
-  //    Se o runtime suportar, poderíamos usar `waitUntil` — mas mantemos síncrono
-  //    por simplicidade e compatibilidade com Edge/Node.
-
   const webhookSecret = process.env.MP_WEBHOOK_SECRET ?? "";
 
-  // 2. Captura body como texto para validação da assinatura
+  // 1. Capturar body como JSON
   let body: Record<string, unknown>;
   try {
     body = await req.json();
@@ -55,7 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  // 3. Validar assinatura (x-signature)
+  // 2. Validar assinatura (x-signature) se o secret estiver configurado
   if (webhookSecret) {
     const xSignature = req.headers.get("x-signature");
     const xRequestId = req.headers.get("x-request-id") ?? "";
@@ -81,7 +76,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 4. Só processar notificações do tipo "payment"
+  // 3. Ignorar notificações que não sejam do tipo "payment"
   const topic = body.type ?? body.topic;
   if (topic !== "payment") {
     return NextResponse.json({ ok: true });
@@ -92,40 +87,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // 5. Consultar status real via SDK (Zero Trust — nunca confiar apenas no payload)
+  // 4. Consultar status real via SDK (Zero Trust — nunca confiar apenas no payload)
   let paymentData;
   try {
     paymentData = await mpPayment.get({ id: mpPaymentId });
   } catch (err) {
     console.error("[MP Webhook] Falha ao consultar pagamento:", err);
-    // Responde 200 para evitar re-envio do MP; o MP vai retentar automaticamente
+    // Responde 200 para evitar re-envio desnecessário; o MP vai retentar automaticamente
     return NextResponse.json({ ok: true });
   }
 
-  // if (paymentData.status !== "approved") {
-  //   // Nada a fazer para pagamentos não aprovados neste fluxo
-  //   return NextResponse.json({ ok: true });
-  // }
-
-  // 6. Processar pagamento aprovado
   const admin = createSupabaseAdminClient();
 
   const dbPaymentId = String(paymentData.external_reference ?? "");
   const amount = Number(paymentData.transaction_amount ?? 0);
+  const mpStatus = paymentData.status as string;
   const mpPaymentIdStr = String(paymentData.id ?? mpPaymentId);
 
   if (!dbPaymentId || amount <= 0) {
-    console.error("[MP Webhook] external_reference (payment ID) ou transaction_amount ausentes", {
+    console.error("[MP Webhook] external_reference ou transaction_amount ausentes", {
       dbPaymentId,
       amount,
     });
     return NextResponse.json({ ok: true });
   }
 
-  // 6a. Buscar o registro EXATO do pagamento no banco de dados
+  // 5. Buscar o registro de pagamento no banco de dados
   const { data: payment, error: fetchError } = await admin
     .from("payments")
-    .select("id, status, amount, user_id") // Precisamos do user_id aqui
+    .select("id, status, amount, user_id")
     .eq("id", dbPaymentId)
     .maybeSingle();
 
@@ -136,16 +126,16 @@ export async function POST(req: NextRequest) {
 
   const userId = payment.user_id;
 
-  // 6b. Idempotência — já processado?
+  // 6. Idempotência — já aprovado anteriormente, não reprocessar
   if (payment.status === "approved") {
     console.info("[MP Webhook] Pagamento já processado e aprovado:", payment.id);
     return NextResponse.json({ ok: true });
   }
 
-  // 6c. UPDATE payments → approved
+  // 7. Atualizar o status do pagamento com o status real do Mercado Pago
   const { error: updatePaymentError } = await admin
     .from("payments")
-    .update({ status: paymentData.status, mp_payment_id: mpPaymentIdStr })
+    .update({ status: mpStatus, mp_payment_id: mpPaymentIdStr })
     .eq("id", payment.id);
 
   if (updatePaymentError) {
@@ -153,7 +143,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  // 6d. Buscar saldo atual (Apenas para registrar no extrato, NÃO vamos atualizar a wallets aqui)
+  // 8. Se não foi aprovado, encerra aqui — sem movimentação na carteira
+  if (mpStatus !== "approved") {
+    console.info(`[MP Webhook] Status atualizado para '${mpStatus}', sem crédito: payment=${payment.id}`);
+    return NextResponse.json({ ok: true });
+  }
+
+  // 9. Buscar saldo atual da carteira para calcular balance_before/balance_after
   const { data: wallet, error: walletFetchError } = await admin
     .from("wallets")
     .select("balance")
@@ -161,15 +157,15 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (walletFetchError || !wallet) {
-    console.error("[MP Webhook] Carteira não encontrada para extrato:", walletFetchError);
+    console.error("[MP Webhook] Carteira não encontrada:", walletFetchError);
     return NextResponse.json({ ok: true });
   }
 
   const balanceBefore = Number(wallet.balance);
   const balanceAfter = balanceBefore + amount;
 
-  // 6e. INSERT wallet_transactions (ledger)
-  // CORREÇÃO 2: Apenas inserimos a transação. O Trigger 'handle_wallet_transaction' no Supabase fará o UPDATE na tabela wallets automaticamente.
+  // 10. Inserir transação na carteira
+  //     O trigger 'handle_wallet_transaction' no Supabase atualiza wallets.balance automaticamente.
   const { error: txError } = await admin.from("wallet_transactions").insert({
     user_id: userId,
     type: "deposit",
@@ -186,6 +182,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  console.info(`[MP Webhook] Depósito processado com sucesso: user=${userId} amount=${amount}`);
+  console.info(`[MP Webhook] Depósito aprovado e processado: user=${userId} amount=${amount}`);
   return NextResponse.json({ ok: true });
 }
