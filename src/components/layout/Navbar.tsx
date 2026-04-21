@@ -221,26 +221,35 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => router.push("/perfil")}>
-                  <UserRoundIcon className="size-4" aria-hidden="true" />
-                  Meu Perfil
+                <DropdownMenuItem asChild>
+                  <Link href="/perfil" className="cursor-pointer w-full">
+                    <UserRoundIcon className="size-4 mr-2" aria-hidden="true" />
+                    Meu Perfil
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/carteira")}>
-                  <WalletIcon className="size-4" aria-hidden="true" />
-                  Minha Carteira
+
+                <DropdownMenuItem asChild>
+                  <Link href="/carteira" className="cursor-pointer w-full">
+                    <WalletIcon className="size-4 mr-2" aria-hidden="true" />
+                    Minha Carteira
+                  </Link>
                 </DropdownMenuItem>
+
                 {showAdminLink ? (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push("/admin")}>
-                      <ShieldCheckIcon className="size-4" aria-hidden="true" />
-                      Admin
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer w-full">
+                        <ShieldCheckIcon className="size-4 mr-2" aria-hidden="true" />
+                        Admin
+                      </Link>
                     </DropdownMenuItem>
                   </>
                 ) : null}
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOutIcon className="size-4" aria-hidden="true" />
+                <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
+                  <LogOutIcon className="size-4 mr-2" aria-hidden="true" />
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
