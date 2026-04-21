@@ -102,9 +102,9 @@ export function DepositFlow({ initialStatus }: DepositFlowProps) {
         if (result.success) {
           if (result.status === "approved") {
             setStatus("success");
-          // } else if (result.pixData) {
-          //   setPixData(result.pixData);
-          //   setStatus("pix_pending");
+            // } else if (result.pixData) {
+            //   setPixData(result.pixData);
+            //   setStatus("pix_pending");
           } else {
             setStatus("pending");
           }
@@ -311,6 +311,7 @@ function BrickStep({
             creditCard: "all",
             bankTransfer: "all",
             mercadoPago: "all",
+            maxInstallments: 1,
           },
         }}
         onSubmit={onSubmit}
