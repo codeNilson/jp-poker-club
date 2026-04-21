@@ -10,6 +10,7 @@ import {
   LogOutIcon,
   ShieldCheckIcon,
   UserRoundIcon,
+  WalletIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -18,6 +19,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
@@ -32,11 +34,18 @@ function canAccessAdmin(role: string | null) {
   return Boolean(role && ADMIN_ALLOWED_ROLES.includes(role as (typeof ADMIN_ALLOWED_ROLES)[number]))
 }
 
+function formatCurrency(value: number | null): string {
+  if (value === null) return "R$ --"
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+
 export function Navbar({ initialUserEmail }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail)
+  const [displayName, setDisplayName] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+  const [walletBalance, setWalletBalance] = useState<number | null>(null)
   const [isHidden, setIsHidden] = useState(false)
   const [supabase] = useState(() => createSupabaseBrowserClient())
 
@@ -48,36 +57,48 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
 
       if (!user) {
         setUserEmail(null)
+        setDisplayName(null)
         setUserRole(null)
+        setWalletBalance(null)
         return
       }
 
       setUserEmail(user.email ?? null)
 
-      const { data: profile } = await supabase.from("profiles").select("user_role").eq("id", user.id).maybeSingle()
-      setUserRole(profile?.user_role ?? null)
+      const [profileResult, walletResult] = await Promise.all([
+        supabase.from("profiles").select("user_role, display_name").eq("id", user.id).maybeSingle(),
+        supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle(),
+      ])
+
+      setUserRole(profileResult.data?.user_role ?? null)
+      setDisplayName(profileResult.data?.display_name ?? null)
+      setWalletBalance(walletResult.data?.balance != null ? Number(walletResult.data.balance) : null)
     }
 
     syncUserState().catch(() => {
       setUserRole(null)
+      setWalletBalance(null)
     })
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!session?.user) {
         setUserEmail(null)
+        setDisplayName(null)
         setUserRole(null)
+        setWalletBalance(null)
         return
       }
 
       setUserEmail(session.user.email ?? null)
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("user_role")
-        .eq("id", session.user.id)
-        .maybeSingle()
+      const [profileResult, walletResult] = await Promise.all([
+        supabase.from("profiles").select("user_role, display_name").eq("id", session.user.id).maybeSingle(),
+        supabase.from("wallets").select("balance").eq("user_id", session.user.id).maybeSingle(),
+      ])
 
-      setUserRole(profile?.user_role ?? null)
+      setUserRole(profileResult.data?.user_role ?? null)
+      setDisplayName(profileResult.data?.display_name ?? null)
+      setWalletBalance(walletResult.data?.balance != null ? Number(walletResult.data.balance) : null)
     })
 
     return () => {
@@ -129,8 +150,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      toast.error("Nao foi possivel sair agora.")
-      return
+      console.warn("Erro ao deslogar no servidor (sessão possivelmente já morta)")
     }
 
     toast.success("Logout realizado com sucesso.")
@@ -188,18 +208,37 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="max-w-35 sm:max-w-55">
-                  <UserRoundIcon className="size-4" aria-hidden="true" />
-                  <span className="truncate">{userEmail}</span>
+                <Button variant="outline" className="max-w-44 sm:max-w-60 gap-2">
+                  <UserRoundIcon className="size-4 shrink-0" aria-hidden="true" />
+                  <span className="flex min-w-0 flex-col items-start leading-tight">
+                    <span className="truncate text-xs font-semibold">
+                      {displayName ?? userEmail}
+                    </span>
+                    <span className="text-[10px] text-primary font-medium tabular-nums">
+                      {formatCurrency(walletBalance)}
+                    </span>
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => router.push("/perfil")}>
+                  <UserRoundIcon className="size-4" aria-hidden="true" />
+                  Meu Perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/carteira")}>
+                  <WalletIcon className="size-4" aria-hidden="true" />
+                  Minha Carteira
+                </DropdownMenuItem>
                 {showAdminLink ? (
-                  <DropdownMenuItem onClick={() => router.push("/admin")}>
-                    <ShieldCheckIcon className="size-4" aria-hidden="true" />
-                    Admin
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => router.push("/admin")}>
+                      <ShieldCheckIcon className="size-4" aria-hidden="true" />
+                      Admin
+                    </DropdownMenuItem>
+                  </>
                 ) : null}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOutIcon className="size-4" aria-hidden="true" />
                   Sair
