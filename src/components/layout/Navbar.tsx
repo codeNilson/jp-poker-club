@@ -213,6 +213,35 @@ export function Navbar({ initialUserEmail, initialDisplayName, initialRole, init
           )}
         </div>
       </div>
+
+      <nav
+        aria-label="Navegacao principal mobile"
+        className="mt-3 flex justify-center overflow-x-auto md:hidden [&::-webkit-scrollbar]:hidden"
+      >
+        <div className="flex w-fit items-center gap-1 rounded-full bg-muted p-1">
+          <Link
+            href="/"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <UserRoundIcon className="size-4" aria-hidden="true" />
+            Início
+          </Link>
+          <Link
+            href="/eventos"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <CalendarDaysIcon className="size-4" aria-hidden="true" />
+            Eventos
+          </Link>
+        </div>
+      </nav>
+
     </header>
   )
 }
