@@ -25,7 +25,10 @@ import {
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 type NavbarProps = {
-  initialUserEmail: string | null
+  initialUserEmail: string | null;
+  initialDisplayName: string | null;
+  initialRole: string | null;
+  initialBalance: number | null;
 }
 
 const ADMIN_ALLOWED_ROLES = ["admin", "operator"] as const
@@ -39,72 +42,24 @@ function formatCurrency(value: number | null): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 }
 
-export function Navbar({ initialUserEmail }: NavbarProps) {
+export function Navbar({ initialUserEmail, initialDisplayName, initialRole, initialBalance }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [userEmail, setUserEmail] = useState<string | null>(initialUserEmail)
-  const [displayName, setDisplayName] = useState<string | null>(null)
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [walletBalance, setWalletBalance] = useState<number | null>(null)
-  const [isHidden, setIsHidden] = useState(false)
   const [supabase] = useState(() => createSupabaseBrowserClient())
+  const [isHidden, setIsHidden] = useState(false)
 
+  // Listener nativo do Supabase apenas para sincronizar abas diferentes
   useEffect(() => {
-    async function syncUserState() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        setUserEmail(null)
-        setDisplayName(null)
-        setUserRole(null)
-        setWalletBalance(null)
-        return
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') {
+        router.refresh()
       }
-
-      setUserEmail(user.email ?? null)
-
-      const [profileResult, walletResult] = await Promise.all([
-        supabase.from("profiles").select("user_role, display_name").eq("id", user.id).maybeSingle(),
-        supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle(),
-      ])
-
-      setUserRole(profileResult.data?.user_role ?? null)
-      setDisplayName(profileResult.data?.display_name ?? null)
-      setWalletBalance(walletResult.data?.balance != null ? Number(walletResult.data.balance) : null)
-    }
-
-    syncUserState().catch(() => {
-      setUserRole(null)
-      setWalletBalance(null)
-    })
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session?.user) {
-        setUserEmail(null)
-        setDisplayName(null)
-        setUserRole(null)
-        setWalletBalance(null)
-        return
-      }
-
-      setUserEmail(session.user.email ?? null)
-
-      const [profileResult, walletResult] = await Promise.all([
-        supabase.from("profiles").select("user_role, display_name").eq("id", session.user.id).maybeSingle(),
-        supabase.from("wallets").select("balance").eq("user_id", session.user.id).maybeSingle(),
-      ])
-
-      setUserRole(profileResult.data?.user_role ?? null)
-      setDisplayName(profileResult.data?.display_name ?? null)
-      setWalletBalance(walletResult.data?.balance != null ? Number(walletResult.data.balance) : null)
     })
 
     return () => {
       authListener.subscription.unsubscribe()
     }
-  }, [supabase])
+  }, [supabase, router])
 
   useEffect(() => {
     let previousScrollY = window.scrollY
@@ -144,19 +99,19 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
     }
     return pathname === href || pathname.startsWith(`${href}/`);
   }
-  const showAdminLink = canAccessAdmin(userRole)
+
+  // Usamos a prop diretamente!
+  const showAdminLink = canAccessAdmin(initialRole)
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      console.warn("Erro ao deslogar no servidor (sessão possivelmente já morta)")
+      console.warn("Erro ao deslogar no servidor")
     }
 
     toast.success("Logout realizado com sucesso.")
-    setUserEmail(null)
-    setUserRole(null)
-    router.replace("/")
+    router.push("/")
     router.refresh()
   }
 
@@ -198,7 +153,8 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
-          {!userEmail ? (
+          {/* Usamos initialUserEmail diretamente como fonte única de verdade */}
+          {!initialUserEmail ? (
             <Button asChild className="cursor-pointer">
               <Link href="/login">
                 <LogInIcon className="size-4" aria-hidden="true" />
@@ -212,10 +168,10 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
                   <UserRoundIcon className="size-4 shrink-0" aria-hidden="true" />
                   <span className="flex min-w-0 flex-col items-start leading-tight">
                     <span className="truncate text-xs font-semibold">
-                      {displayName ?? userEmail}
+                      {initialDisplayName ?? initialUserEmail}
                     </span>
                     <span className="text-[10px] text-primary font-medium tabular-nums">
-                      {formatCurrency(walletBalance)}
+                      {formatCurrency(initialBalance)}
                     </span>
                   </span>
                 </Button>
@@ -248,7 +204,7 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
                 ) : null}
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer">
+                <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer text-destructive focus:bg-destructive focus:text-destructive-foreground">
                   <LogOutIcon className="size-4 mr-2" aria-hidden="true" />
                   Sair
                 </DropdownMenuItem>
@@ -257,34 +213,6 @@ export function Navbar({ initialUserEmail }: NavbarProps) {
           )}
         </div>
       </div>
-
-      <nav
-        aria-label="Navegacao principal mobile"
-        className="mt-3 flex justify-center overflow-x-auto md:hidden [&::-webkit-scrollbar]:hidden"
-      >
-        <div className="flex w-fit items-center gap-1 rounded-full bg-muted p-1">
-          <Link
-            href="/"
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
-              }`}
-          >
-            <UserRoundIcon className="size-4" aria-hidden="true" />
-            Início
-          </Link>
-          <Link
-            href="/eventos"
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
-              }`}
-          >
-            <CalendarDaysIcon className="size-4" aria-hidden="true" />
-            Eventos
-          </Link>
-        </div>
-      </nav>
     </header>
   )
 }
