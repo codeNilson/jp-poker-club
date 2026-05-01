@@ -223,7 +223,7 @@ export default async function PerfilPage() {
               <TrendingUpIcon size={24} className="perfil-stat-icon" />
               <h3>Ranking Elo</h3>
             </div>
-            <div className="perfil-stat-content">
+            <div className="perfil-stat-content perfil-stat-content-column">
               <div
                 className="perfil-tier-badge"
                 style={{ "--tier-color": tierColor } as React.CSSProperties}
@@ -503,14 +503,23 @@ export default async function PerfilPage() {
           grid-template-columns: 1fr;
           gap: 1.5rem;
           margin-bottom: 2rem;
+          align-items: stretch;
+        }
+
+        .perfil-stat-card {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          min-height: 150px;
         }
 
         @media (min-width: 768px) {
-          .perfil-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+          .perfil-stat-card {
+            min-height: 160px;
           }
+        }
 
+        .perfil-stat-header {
           display: flex;
           align-items: center;
           gap: 0.75rem;
@@ -519,6 +528,17 @@ export default async function PerfilPage() {
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+        }
+
+        .perfil-stat-header h3 {
+          margin: 0;
+        }
+
+        @media (min-width: 768px) {
+          .perfil-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+          }
         }
 
         .perfil-stat-icon {
@@ -787,6 +807,33 @@ export default async function PerfilPage() {
             padding: 1.5rem 1rem 3rem;
           }
 
+          .perfil-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.875rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .perfil-grid > .perfil-card:first-child {
+            grid-column: 1 / -1;
+            min-height: 112px;
+            background:
+              linear-gradient(135deg, rgba(50, 224, 53, 0.12), rgba(18, 18, 23, 0.98) 72%),
+              var(--card, #121217);
+          }
+
+          .perfil-grid > .perfil-card:nth-child(2),
+          .perfil-grid > .perfil-card:nth-child(3) {
+            min-height: 124px;
+          }
+
+          .perfil-grid > .perfil-card:nth-child(2) {
+            grid-column: 1;
+          }
+
+          .perfil-grid > .perfil-card:nth-child(3) {
+            grid-column: 2;
+          }
+
           .perfil-card {
             padding: 1.5rem 1rem;
           }
@@ -795,21 +842,53 @@ export default async function PerfilPage() {
             font-size: 1.25rem;
           }
 
+          .perfil-header-content {
+            gap: 0.875rem;
+          }
+
+          .perfil-avatar {
+            width: 72px;
+            height: 72px;
+          }
+
+          .perfil-avatar-placeholder {
+            font-size: 1.9rem;
+          }
+
           .perfil-stat-value {
             font-size: 1.5rem;
           }
 
-          .perfil-header-content {
-            gap: 1rem;
+          .perfil-grid > .perfil-card:first-child .perfil-stat-content {
+            align-items: flex-start;
           }
 
-          .perfil-avatar {
-            width: 80px;
-            height: 80px;
+          .perfil-grid > .perfil-card:nth-child(2) .perfil-stat-content,
+          .perfil-grid > .perfil-card:nth-child(3) .perfil-stat-content {
+            align-items: flex-start;
+            gap: 0.5rem;
+            flex-direction: column;
           }
 
-          .perfil-avatar-placeholder {
-            font-size: 2rem;
+          .perfil-grid > .perfil-card:nth-child(3) .perfil-stat-content {
+            flex-wrap: wrap;
+          }
+
+          .perfil-stat-header {
+            gap: 0.5rem;
+          }
+
+          .perfil-stat-header h3 {
+            font-size: 0.78rem;
+          }
+
+          .perfil-tier-badge {
+            padding: 0.4rem 0.65rem;
+          }
+
+          .perfil-action-btn {
+            width: 100%;
+            justify-content: center;
           }
 
           .perfil-history-item-header {
