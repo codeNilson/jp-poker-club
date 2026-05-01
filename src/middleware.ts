@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (!user && (url.pathname.startsWith('/carteira') || url.pathname.startsWith('/admin'))) {
+  if (!user && (url.pathname.startsWith('/carteira') || url.pathname.startsWith('/perfil') || url.pathname.startsWith('/admin'))) {
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
