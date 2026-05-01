@@ -6,6 +6,8 @@ import {
   ShieldCheckIcon,
   TrendingUpIcon,
   WalletIcon,
+  TrophyIcon,
+  CalendarDaysIcon,
 } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -17,6 +19,34 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Meu Perfil | JP Poker Club",
   description: "Visualize e gerencie seus dados de perfil no JP Poker Club.",
+};
+
+type TournamentEntry = {
+  id: string;
+  event_id: string;
+  final_position: number | null;
+  points_earned: number | null;
+  created_at: string;
+  events: {
+    id: string;
+    title: string;
+    event_date: string;
+    event_type: string;
+  };
+};
+
+type CashGameSession = {
+  id: string;
+  event_id: string | null;
+  buy_in: number;
+  cash_out: number;
+  net_result: number;
+  played_at: string;
+  events: {
+    id: string;
+    title: string;
+    event_date: string;
+  } | null;
 };
 
 const ELO_TIER_COLORS: Record<string, string> = {
@@ -49,6 +79,21 @@ const SUBSCRIPTION_STATUS_COLORS: Record<string, string> = {
   canceled: "#999999",
 };
 
+function getOrdinal(num: number | null): string {
+  if (!num) return "-";
+  const suffixes = ["º", "º", "º", "º", "º", "º", "º", "º", "º", "º"];
+  const remainder = num % 100;
+  
+  if (remainder >= 11 && remainder <= 13) {
+    return `${num}º`;
+  }
+  
+  const lastDigit = num % 10;
+  const suffix = (lastDigit < 10) ? suffixes[lastDigit] : "º";
+  
+  return `${num}${suffix}`;
+}
+
 export default async function PerfilPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -60,7 +105,7 @@ export default async function PerfilPage() {
   }
 
   // Fetch profile data
-  const [profileResult, walletResult, subscriptionResult] = await Promise.all([
+  const [profileResult, walletResult, subscriptionResult, tournamentEntriesResult, cashGameSessionsResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("display_name, avatar_url, elo_points, elo_tier, is_subscriber")
@@ -76,16 +121,29 @@ export default async function PerfilPage() {
       .select("status, current_period_end, canceled_at")
       .eq("user_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("tournament_entries")
+      .select("id, event_id, final_position, points_earned, created_at, events(id, title, event_date, event_type)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("cash_game_sessions")
+      .select("id, event_id, buy_in, cash_out, net_result, played_at, events(id, title, event_date)")
+      .eq("user_id", user.id)
+      .order("played_at", { ascending: false })
+      .limit(5),
   ]);
 
   const profile = profileResult.data;
   const wallet = walletResult.data;
   const subscription = subscriptionResult.data;
+  const tournamentEntries = (tournamentEntriesResult.data || []) as TournamentEntry[];
+  const cashGameSessions = (cashGameSessionsResult.data || []) as CashGameSession[];
 
   const displayName = profile?.display_name || user.email || "Usuário";
   const eloTier = profile?.elo_tier || "bronze";
   const eloPoints = profile?.elo_points || 0;
-  const isSubscriber = profile?.is_subscriber || false;
   const balance = wallet?.balance || 0;
   const subscriptionStatus = subscription?.status || "inactive";
 
@@ -125,12 +183,13 @@ export default async function PerfilPage() {
             <div className="perfil-header-text">
               <h1 className="perfil-display-name">{displayName}</h1>
               <p className="perfil-email">{user.email}</p>
-              {isSubscriber && (
-                <div className="perfil-subscriber-badge">
-                  <ShieldCheckIcon size={16} />
-                  <span>Assinante Premium</span>
-                </div>
-              )}
+              <div
+                className="perfil-subscription-header-badge"
+                style={{ "--status-color": statusColor } as React.CSSProperties}
+              >
+                <ShieldCheckIcon size={16} />
+                <span>Assinatura: {statusLabel}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -177,30 +236,92 @@ export default async function PerfilPage() {
             </div>
           </div>
 
-          {/* Subscription Card */}
-          <div className="perfil-card perfil-stat-card">
-            <div className="perfil-stat-header">
-              <ShieldCheckIcon size={24} className="perfil-stat-icon" />
-              <h3>Assinatura</h3>
-            </div>
-            <div className="perfil-stat-content">
-              <div
-                className="perfil-subscription-badge"
-                style={{ "--status-color": statusColor } as React.CSSProperties}
-              >
-                {statusLabel}
-              </div>
-              {subscription?.current_period_end && (
-                <p className="perfil-stat-detail">
-                  Válida até{" "}
-                  {new Date(subscription.current_period_end).toLocaleDateString(
-                    "pt-BR"
-                  )}
-                </p>
-              )}
-            </div>
-          </div>
+
         </div>
+
+        {/* Participation History Section */}
+        {(tournamentEntries.length > 0 || cashGameSessions.length > 0) && (
+          <div className="perfil-history-section">
+            <h2 className="perfil-history-title">Histórico de Participação</h2>
+            
+            {/* Tournament Entries */}
+            {tournamentEntries.length > 0 && (
+              <div className="perfil-history-category">
+                <h3 className="perfil-history-subtitle">
+                  <TrophyIcon size={18} />
+                  Torneios
+                </h3>
+                <div className="perfil-history-list">
+                  {tournamentEntries.map((entry) => {
+                    const event = entry.events;
+                    const eventDate = new Date(event.event_date);
+                    const positionOrdinal = getOrdinal(entry.final_position);
+                    
+                    return (
+                      <div key={entry.id} className="perfil-history-item perfil-history-tournament">
+                        <div className="perfil-history-item-header">
+                          <p className="perfil-history-event-name">{event.title}</p>
+                          <span className="perfil-history-position">{positionOrdinal} lugar</span>
+                        </div>
+                        <div className="perfil-history-item-footer">
+                          <span className="perfil-history-date">
+                            <CalendarDaysIcon size={14} />
+                            {eventDate.toLocaleDateString("pt-BR")}
+                          </span>
+                          <span className="perfil-history-points">+{entry.points_earned} pts</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            {/* Cash Game Sessions */}
+            {cashGameSessions.length > 0 && (
+              <div className="perfil-history-category">
+                <h3 className="perfil-history-subtitle">
+                  <WalletIcon size={18} />
+                  Cash Games
+                </h3>
+                <div className="perfil-history-list">
+                  {cashGameSessions.map((session) => {
+                    const event = session.events;
+                    const eventDate = new Date(session.played_at);
+                    const isProfit = session.net_result > 0;
+                    const color = isProfit ? "#32e035" : "#ff6b6b";
+                    
+                    return (
+                      <div key={session.id} className="perfil-history-item perfil-history-cash">
+                        <div className="perfil-history-item-header">
+                          <p className="perfil-history-event-name">
+                            {event?.title || "Cash Game"}
+                          </p>
+                          <span 
+                            className="perfil-history-result"
+                            style={{ color }}
+                          >
+                            {isProfit ? "+" : ""}
+                            R$ {Math.abs(session.net_result).toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                        <div className="perfil-history-item-footer">
+                          <span className="perfil-history-date">
+                            <CalendarDaysIcon size={14} />
+                            {eventDate.toLocaleDateString("pt-BR")}
+                          </span>
+                          <span className="perfil-history-detail">
+                            Buy-in: R$ {session.buy_in.toFixed(2).replace(".", ",")}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions Section */}
         <div className="perfil-actions">
@@ -338,18 +459,19 @@ export default async function PerfilPage() {
           margin: 0;
         }
 
-        .perfil-subscriber-badge {
+        .perfil-subscription-header-badge {
           display: inline-flex;
           align-items: center;
           gap: 0.5rem;
           padding: 0.5rem 0.875rem;
-          background: rgba(50, 224, 53, 0.12);
-          border: 1px solid rgba(50, 224, 53, 0.3);
+          background: rgba(var(--status-color-rgb, 50, 224, 53), 0.12);
+          border: 1px solid rgba(var(--status-color-rgb, 50, 224, 53), 0.3);
           border-radius: 8px;
-          color: #32e035;
+          color: var(--status-color, #32e035);
           font-size: 0.75rem;
           font-weight: 600;
           width: fit-content;
+          margin-top: 0.5rem;
         }
 
         /* ================================================================ */
@@ -368,21 +490,6 @@ export default async function PerfilPage() {
             gap: 1.5rem;
           }
 
-          .perfil-grid .perfil-card:nth-child(3) {
-            grid-column: span 2;
-          }
-        }
-
-        /* ================================================================ */
-        /* Stat Cards                                                       */
-        /* ================================================================ */
-        .perfil-stat-card {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .perfil-stat-header {
           display: flex;
           align-items: center;
           gap: 0.75rem;
@@ -436,19 +543,7 @@ export default async function PerfilPage() {
           width: fit-content;
         }
 
-        .perfil-subscription-badge {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.5rem 0.875rem;
-          background: rgba(var(--status-color-rgb, 50, 224, 53), 0.12);
-          border: 1px solid rgba(var(--status-color-rgb, 50, 224, 53), 0.3);
-          border-radius: 8px;
-          color: var(--status-color, #32e035);
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          width: fit-content;
-        }
+
 
         /* ================================================================ */
         /* Action Buttons                                                   */
@@ -530,6 +625,134 @@ export default async function PerfilPage() {
         }
 
         /* ================================================================ */
+        /* History Section                                                   */
+        /* ================================================================ */
+        .perfil-history-section {
+          margin-top: 2rem;
+        }
+
+        .perfil-history-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: #ffffff;
+          margin: 0 0 1.5rem 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .perfil-history-category {
+          margin-bottom: 2rem;
+        }
+
+        .perfil-history-category:last-child {
+          margin-bottom: 0;
+        }
+
+        .perfil-history-subtitle {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #999999;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin: 0 0 1rem 0;
+        }
+
+        .perfil-history-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .perfil-history-item {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 12px;
+          padding: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .perfil-history-tournament {
+          border-left: 4px solid #ffd700;
+        }
+
+        .perfil-history-cash {
+          border-left: 4px solid #32e035;
+        }
+
+        .perfil-history-item-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+        }
+
+        .perfil-history-event-name {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #ffffff;
+          margin: 0;
+          flex: 1;
+          word-break: break-word;
+        }
+
+        .perfil-history-position {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.375rem 0.75rem;
+          background: rgba(255, 215, 0, 0.15);
+          border: 1px solid rgba(255, 215, 0, 0.3);
+          border-radius: 6px;
+          color: #ffd700;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .perfil-history-result {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.375rem 0.75rem;
+          background: rgba(50, 224, 53, 0.15);
+          border: 1px solid rgba(50, 224, 53, 0.3);
+          border-radius: 6px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .perfil-history-item-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .perfil-history-date {
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          font-size: 0.75rem;
+          color: #999999;
+        }
+
+        .perfil-history-points {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #ffd700;
+        }
+
+        .perfil-history-detail {
+          font-size: 0.75rem;
+          color: #666666;
+        }
+
+        /* ================================================================ */
         /* Responsive                                                       */
         /* ================================================================ */
         @media (max-width: 640px) {
@@ -560,6 +783,16 @@ export default async function PerfilPage() {
 
           .perfil-avatar-placeholder {
             font-size: 2rem;
+          }
+
+          .perfil-history-item-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .perfil-history-item-footer {
+            flex-direction: column;
+            align-items: flex-start;
           }
         }
       `}</style>
