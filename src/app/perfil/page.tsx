@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowUpRightIcon,
+  MedalIcon,
   ShieldCheckIcon,
   TrendingUpIcon,
   WalletIcon,
@@ -147,6 +148,14 @@ export default async function PerfilPage() {
   const balance = wallet?.balance || 0;
   const subscriptionStatus = subscription?.status || "inactive";
 
+  const { count: higherRankCount } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .gt("elo_points", eloPoints);
+
+  const rankingPosition =
+    higherRankCount === null ? null : higherRankCount + 1;
+
   const tierColor = ELO_TIER_COLORS[eloTier] || "#666666";
   const tierLabel = ELO_TIER_LABELS[eloTier] || "Bronze";
   const statusLabel = SUBSCRIPTION_STATUS_LABELS[subscriptionStatus] || "Inativo";
@@ -196,6 +205,18 @@ export default async function PerfilPage() {
 
         {/* Stats Grid */}
         <div className="perfil-grid">
+          {/* Ranking Position Card */}
+          <div className="perfil-card perfil-stat-card">
+            <div className="perfil-stat-header">
+              <MedalIcon size={24} className="perfil-stat-icon" />
+              <h3>Posição no ranking</h3>
+            </div>
+            <div className="perfil-stat-content perfil-stat-content-column">
+              <p className="perfil-stat-value">{getOrdinal(rankingPosition)}</p>
+              <p className="perfil-stat-detail">Entre todos os jogadores</p>
+            </div>
+          </div>
+
           {/* Elo Stats Card */}
           <div className="perfil-card perfil-stat-card">
             <div className="perfil-stat-header">
@@ -510,6 +531,12 @@ export default async function PerfilPage() {
           align-items: center;
           gap: 1rem;
           justify-content: space-between;
+        }
+
+        .perfil-stat-content-column {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
         }
 
         .perfil-stat-value {

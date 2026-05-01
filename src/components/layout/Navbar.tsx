@@ -11,6 +11,7 @@ import {
   ShieldCheckIcon,
   UserRoundIcon,
   WalletIcon,
+  TrendingUpIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -142,13 +143,25 @@ export function Navbar({ initialUserEmail, initialDisplayName, initialRole, init
           </Link>
           <Link
             href="/eventos"
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/eventos")
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-background hover:text-foreground"
-              }`}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${
+              isActive("/eventos")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+            }`}
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
+          </Link>
+          <Link
+            href="/ranking"
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${
+              isActive("/ranking")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-background hover:text-foreground"
+            }`}
+          >
+            <TrendingUpIcon className="size-4" aria-hidden="true" />
+            Ranking
           </Link>
         </nav>
 
@@ -238,6 +251,16 @@ export function Navbar({ initialUserEmail, initialDisplayName, initialRole, init
           >
             <CalendarDaysIcon className="size-4" aria-hidden="true" />
             Eventos
+          </Link>
+          <Link
+            href="/ranking"
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-[background-color,color,box-shadow,transform] duration-200 ease-out ${isActive("/ranking")
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-background hover:text-foreground"
+              }`}
+          >
+            <TrendingUpIcon className="size-4" aria-hidden="true" />
+            Ranking
           </Link>
         </div>
       </nav>

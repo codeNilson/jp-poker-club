@@ -77,6 +77,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
   - Webhook security: use a dedicated secret per environment (dev and production with different secrets) and strictly validate the signature/secret header at the endpoint before performing any invalidation.
   - Goal: avoid a dynamic public page hitting the database on every request while keeping content updated after mutations.
 - **The Navbar Dilemma (Client vs Server):** The base layout (`RootLayout`) must never read cookies on the server to avoid contaminating the entire site. Global visual components that depend on session state (such as a Navbar showing the user) must be Client Components (`"use client"`) and actively fetch the session via `createSupabaseBrowserClient`, using Skeleton Loaders to avoid FOUC (Flash of Unstyled Content).
+- **Ranking Page Cache Strategy:** The `/ranking` page is cached with `revalidate = 3600` (1 hour). It displays all profiles ordered by `elo_points` in descending order. When `tournament_entries` are created/updated or `profiles.elo_points` change, the ranking cache must be invalidated via `revalidatePath("/ranking")` called from a Server Action. A helper function `revalidateRanking()` exists in `src/app/ranking/actions.ts` for this purpose. Positions are calculated with tie-breaking logic: players with the same elo_points share the same rank (e.g., two 2nd-place finishers both show as 2º, then the next rank is 4º).
 
 ## Product Language
 
