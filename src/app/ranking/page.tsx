@@ -1,8 +1,7 @@
-import Link from "next/link";
+import Image from "next/image";
 import { MedalIcon, TrendingUpIcon } from "lucide-react";
 
 import { createSupabaseServerPublicClient } from "@/lib/supabase/server";
-import { Button } from "@/components/ui/button";
 
 export const revalidate = 3600; // Cache por 1 hora
 
@@ -19,20 +18,20 @@ type PlayerRanking = {
   elo_tier: string;
 };
 
-const ELO_TIER_COLORS: Record<string, string> = {
-  bronze: "#cd7f32",
-  prata: "#c0c0c0",
-  ouro: "#ffd700",
-  platina: "#e5e4e2",
-  diamante: "#00d9ff",
-};
-
 const ELO_TIER_LABELS: Record<string, string> = {
   bronze: "Bronze",
   prata: "Prata",
   ouro: "Ouro",
   platina: "Platina",
   diamante: "Diamante",
+};
+
+const ELO_TIER_CLASSES: Record<string, string> = {
+  bronze: "border-amber-700/40 bg-amber-500/10 text-amber-300",
+  prata: "border-slate-300/40 bg-slate-200/10 text-slate-200",
+  ouro: "border-yellow-400/40 bg-yellow-400/10 text-yellow-300",
+  platina: "border-zinc-200/40 bg-zinc-200/10 text-zinc-100",
+  diamante: "border-cyan-300/40 bg-cyan-400/10 text-cyan-300",
 };
 
 const MEDAL_ICONS: Record<number, string> = {
@@ -71,76 +70,81 @@ export default async function RankingPage() {
   const rankedPlayers = (players || []) as PlayerRanking[];
 
   return (
-    <main className="ranking-page">
-      {/* Background decorativo */}
-      <div className="ranking-bg" aria-hidden="true">
-        <div className="ranking-bg-glow" />
+    <main className="relative flex min-h-dvh flex-col items-center overflow-hidden bg-[#070707] px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 -top-[20%] h-160 w-160 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(50,224,53,0.08)_0%,transparent_70%)]" />
       </div>
 
-      <section className="ranking-container">
-        {/* Header */}
-        <div className="ranking-header">
-          <div className="ranking-header-content">
-            <MedalIcon size={32} className="ranking-header-icon" />
-            <div className="ranking-header-text">
-              <h1 className="ranking-title">Ranking Geral</h1>
-              <p className="ranking-subtitle">Top 10 melhores jogadores</p>
-            </div>
+      <section className="relative z-10 w-full max-w-2xl">
+        <div className="mb-8 flex items-center gap-4">
+          <MedalIcon size={32} className="shrink-0 text-[#ffd700]" />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-[1.5rem] font-bold leading-tight text-white sm:text-[1.75rem]">
+              Ranking Geral
+            </h1>
+            <p className="text-sm text-[#999999]">Top 10 melhores jogadores</p>
           </div>
         </div>
 
-        {/* Rankings List */}
         {rankedPlayers.length > 0 ? (
-          <div className="ranking-list">
+          <div className="mb-8 flex flex-col gap-3">
             {rankedPlayers.map((player, index) => {
               const position = calculatePosition(index, rankedPlayers);
-              const tierColor =
-                ELO_TIER_COLORS[player.elo_tier] || "#666666";
-              const tierLabel =
-                ELO_TIER_LABELS[player.elo_tier] || "Bronze";
+              const tierLabel = ELO_TIER_LABELS[player.elo_tier] || "Bronze";
+              const tierClasses =
+                ELO_TIER_CLASSES[player.elo_tier] || ELO_TIER_CLASSES.bronze;
               const medal = MEDAL_ICONS[position];
 
               return (
-                <div key={player.id} className="ranking-item">
-                  <div className="ranking-position-wrapper">
+                <div
+                  key={player.id}
+                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#121217] p-3 transition duration-200 ease-in-out hover:border-white/15 hover:bg-white/5 hover:translate-x-1 sm:gap-4 sm:p-4"
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 sm:h-12 sm:w-12">
                     {medal ? (
-                      <span className="ranking-medal">{medal}</span>
+                      <span className="text-[1.75rem] leading-none">
+                        {medal}
+                      </span>
                     ) : (
-                      <span className="ranking-position">#{position}</span>
+                      <span className="text-base font-bold text-[#ffd700]">
+                        #{position}
+                      </span>
                     )}
                   </div>
 
-                  <div className="ranking-player-info">
-                    <div className="ranking-player-avatar">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-[#32e035]/30 bg-[#32e035]/10 sm:h-12 sm:w-12">
                       {player.avatar_url ? (
-                        <img
+                        <Image
                           src={player.avatar_url}
                           alt={player.display_name}
-                          className="ranking-player-avatar-image"
+                          width={48}
+                          height={48}
+                          unoptimized
+                          className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="ranking-player-avatar-placeholder">
+                        <div className="text-xl font-bold text-[#32e035]">
                           {player.display_name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
 
-                    <div className="ranking-player-details">
-                      <p className="ranking-player-name">
+                    <div className="min-w-0 flex flex-col gap-1">
+                      <p className="truncate text-[0.95rem] font-semibold text-white sm:text-sm">
                         {player.display_name}
                       </p>
                       <div
-                        className="ranking-player-tier"
-                        style={{ "--tier-color": tierColor } as React.CSSProperties}
+                        className={`inline-flex w-fit items-center rounded border px-2 py-1 text-[0.7rem] font-semibold uppercase tracking-wide ${tierClasses}`}
                       >
                         {tierLabel}
                       </div>
                     </div>
                   </div>
 
-                  <div className="ranking-player-stats">
-                    <div className="ranking-points">
-                      <TrendingUpIcon size={16} />
+                  <div className="shrink-0 whitespace-nowrap">
+                    <div className="flex items-center gap-2 rounded-lg border border-[#32e035]/30 bg-[#32e035]/10 px-3 py-2 text-sm font-semibold text-[#32e035] sm:text-[0.85rem]">
+                      <TrendingUpIcon size={16} className="shrink-0" />
                       <span>{player.elo_points} pts</span>
                     </div>
                   </div>
@@ -149,314 +153,11 @@ export default async function RankingPage() {
             })}
           </div>
         ) : (
-          <div className="ranking-empty">
-            <p>Nenhum jogador registrado ainda</p>
+          <div className="mb-8 py-12 text-center text-[#999999]">
+            <p className="m-0 text-lg">Nenhum jogador registrado ainda</p>
           </div>
         )}
-
       </section>
-
-      <style>{`
-        /* ================================================================ */
-        /* Layout                                                           */
-        /* ================================================================ */
-        .ranking-page {
-          min-height: 100dvh;
-          background: var(--background, #070707);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-start;
-          padding: 2rem 1rem 4rem;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .ranking-bg {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-        }
-
-        .ranking-bg-glow {
-          position: absolute;
-          top: -20%;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 640px;
-          height: 640px;
-          background: radial-gradient(
-            ellipse at center,
-            rgba(50, 224, 53, 0.08) 0%,
-            transparent 70%
-          );
-          border-radius: 50%;
-        }
-
-        .ranking-container {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          max-width: 640px;
-        }
-
-        /* ================================================================ */
-        /* Header                                                           */
-        /* ================================================================ */
-        .ranking-header {
-          margin-bottom: 2rem;
-        }
-
-        .ranking-header-content {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .ranking-header-icon {
-          color: #ffd700;
-          flex-shrink: 0;
-        }
-
-        .ranking-header-text {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-
-        .ranking-title {
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #ffffff;
-          margin: 0;
-          line-height: 1.2;
-        }
-
-        .ranking-subtitle {
-          font-size: 0.875rem;
-          color: #999999;
-          margin: 0;
-        }
-
-        /* ================================================================ */
-        /* Rankings List                                                    */
-        /* ================================================================ */
-        .ranking-list {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          margin-bottom: 2rem;
-        }
-
-        .ranking-item {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 1rem;
-          background: var(--card, #121217);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 12px;
-          transition: all 0.2s ease-in-out;
-        }
-
-        .ranking-item:hover {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.12);
-          transform: translateX(4px);
-        }
-
-        .ranking-position-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 48px;
-          height: 48px;
-          flex-shrink: 0;
-          border-radius: 10px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .ranking-medal {
-          font-size: 1.75rem;
-          line-height: 1;
-        }
-
-        .ranking-position {
-          font-size: 1rem;
-          font-weight: 700;
-          color: #ffd700;
-        }
-
-        .ranking-player-info {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          min-width: 0;
-        }
-
-        .ranking-player-avatar {
-          width: 48px;
-          height: 48px;
-          border-radius: 10px;
-          background: rgba(50, 224, 53, 0.12);
-          border: 1px solid rgba(50, 224, 53, 0.3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          flex-shrink: 0;
-          position: relative;
-        }
-
-        .ranking-player-avatar-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .ranking-player-avatar-placeholder {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #32e035;
-        }
-
-        .ranking-player-details {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-          min-width: 0;
-        }
-
-        .ranking-player-name {
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #ffffff;
-          margin: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .ranking-player-tier {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.25rem 0.5rem;
-          background: rgba(var(--tier-color-rgb, 50, 224, 53), 0.12);
-          border: 1px solid rgba(var(--tier-color-rgb, 50, 224, 53), 0.3);
-          border-radius: 4px;
-          color: var(--tier-color, #32e035);
-          font-size: 0.7rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          width: fit-content;
-        }
-
-        .ranking-player-stats {
-          display: flex;
-          gap: 1rem;
-          flex-shrink: 0;
-          white-space: nowrap;
-        }
-
-        .ranking-points {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          background: rgba(50, 224, 53, 0.12);
-          border: 1px solid rgba(50, 224, 53, 0.3);
-          border-radius: 8px;
-          color: #32e035;
-          font-size: 0.85rem;
-          font-weight: 600;
-        }
-
-        /* ================================================================ */
-        /* Empty State                                                      */
-        /* ================================================================ */
-        .ranking-empty {
-          text-align: center;
-          padding: 3rem 1rem;
-          color: #999999;
-          margin-bottom: 2rem;
-        }
-
-        .ranking-empty p {
-          font-size: 1.1rem;
-          margin: 0;
-        }
-
-        /* ================================================================ */
-        /* Action Button                                                    */
-        /* ================================================================ */
-        .ranking-action {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .ranking-btn-back {
-          width: 100%;
-          height: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #32e035;
-          color: #070707;
-          border: none;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: all 0.2s ease-in-out;
-        }
-
-        .ranking-btn-back:hover {
-          background: #2ac82b;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(50, 224, 53, 0.3);
-        }
-
-        /* ================================================================ */
-        /* Responsive                                                       */
-        /* ================================================================ */
-        @media (max-width: 640px) {
-          .ranking-page {
-            padding: 1.5rem 1rem 3rem;
-          }
-
-          .ranking-title {
-            font-size: 1.5rem;
-          }
-
-          .ranking-item {
-            padding: 0.875rem;
-            gap: 0.75rem;
-          }
-
-          .ranking-position-wrapper,
-          .ranking-player-avatar {
-            width: 44px;
-            height: 44px;
-          }
-
-          .ranking-player-name {
-            font-size: 0.9rem;
-          }
-
-          .ranking-points {
-            font-size: 0.75rem;
-            padding: 0.375rem 0.5rem;
-            gap: 0.375rem;
-          }
-
-          .ranking-points svg {
-            width: 14px;
-            height: 14px;
-          }
-        }
-      `}</style>
     </main>
   );
 }
